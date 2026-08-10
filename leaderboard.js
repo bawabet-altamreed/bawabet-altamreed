@@ -1,147 +1,273 @@
 const leaderboardDiv = document.getElementById("leaderboard");
 
-function loadLeaderboard(grade){
 
-leaderboardDiv.innerHTML="⏳ جاري تحميل البيانات...";
+// ==========================================
+// تحميل لوحة المتصدرين حسب الصف
+// ==========================================
 
-db.collection("results")
+function loadLeaderboard(grade) {
 
-.where("grade","==",grade)
+    leaderboardDiv.innerHTML = "⏳ جاري تحميل البيانات...";
 
-.get()
 
-.then(function(snapshot){
+    db.collection("results")
+        .where("grade", "==", grade)
+        .get()
 
-if(snapshot.empty){
+        .then(function(snapshot) {
 
-leaderboardDiv.innerHTML="❌ لا توجد نتائج";
+            if (snapshot.empty) {
 
-return;
+                leaderboardDiv.innerHTML =
+                    "❌ لا توجد نتائج لهذا الصف حتى الآن";
+
+                return;
+            }
+
+
+            let students = {};
+
+
+            // ==========================================
+            // تجميع الطلاب
+            // ==========================================
+
+            snapshot.forEach(function(doc) {
+
+                let data = doc.data();
+
+
+                // نستخدم studentCode لو موجود
+                // وإلا نستخدم uid
+                // وإلا email كحل احتياطي
+
+                let studentId =
+                    data.studentCode ||
+                    data.uid ||
+                    data.email;
+
+
+                if (!studentId) {
+                    return;
+                }
+
+
+                // إنشاء الطالب
+
+                if (!students[studentId]) {
+
+                    students[studentId] = {
+
+                        id: studentId,
+
+                        name: data.name || "طالب",
+
+                        grade: data.grade || grade,
+
+                        chapters: {}
+
+                    };
+
+                }
+
+
+                // ==========================================
+                // أفضل نتيجة لكل Chapter
+                // ==========================================
+
+                let chapter =
+                    data.chapter || "اختبار";
+
+
+                let percentage =
+                    Number(data.percentage) || 0;
+
+
+                if (
+
+                    !students[studentId].chapters[chapter] ||
+
+                    percentage >
+                    students[studentId].chapters[chapter]
+
+                ) {
+
+                    students[studentId].chapters[chapter] =
+                        percentage;
+
+                }
+
+            });
+
+
+            // ==========================================
+            // حساب المتوسط النهائي
+            // ==========================================
+
+            let leaderboard = [];
+
+
+            Object.keys(students).forEach(function(studentId) {
+
+                let student =
+                    students[studentId];
+
+
+                let total = 0;
+
+                let count = 0;
+
+
+                Object.keys(student.chapters).forEach(function(chapter) {
+
+                    total +=
+                        student.chapters[chapter];
+
+                    count++;
+
+                });
+
+
+                if (count > 0) {
+
+                    student.average =
+                        (total / count).toFixed(2);
+
+                    student.count =
+                        count;
+
+                    leaderboard.push(student);
+
+                }
+
+            });
+
+
+            // ==========================================
+            // ترتيب الطلاب
+            // ==========================================
+
+            leaderboard.sort(function(a, b) {
+
+                return Number(b.average) -
+                       Number(a.average);
+
+            });
+
+
+            // ==========================================
+            // عرض النتائج
+            // ==========================================
+
+            if (leaderboard.length === 0) {
+
+                leaderboardDiv.innerHTML =
+                    "❌ لا توجد نتائج صالحة للعرض";
+
+                return;
+
+            }
+
+
+            let html = "";
+
+
+            leaderboard.forEach(function(student, index) {
+
+                let medal = "🏅";
+
+
+                if (index === 0) {
+                    medal = "🥇";
+                }
+
+                else if (index === 1) {
+                    medal = "🥈";
+                }
+
+                else if (index === 2) {
+                    medal = "🥉";
+                }
+
+
+                html += `
+
+                <div class="card leaderboard-card">
+
+                    <h2>
+                        ${medal} المركز ${index + 1}
+                    </h2>
+
+                    <h3>
+                        👨‍🎓 ${student.name}
+                    </h3>
+
+                    <p>
+                        📚 ${student.grade}
+                    </p>
+
+                    <div class="leader-score">
+
+                        ⭐ المتوسط النهائي
+
+                        <br>
+
+                        <b>
+                            ${student.average}%
+                        </b>
+
+                    </div>
+
+                    <p>
+                        📝 عدد الاختبارات:
+                        ${student.count}
+                    </p>
+
+                </div>
+
+                `;
+
+            });
+
+
+            leaderboardDiv.innerHTML = html;
+
+        })
+
+
+        .catch(function(error) {
+
+            console.error(
+                "Leaderboard Error:",
+                error
+            );
+
+
+            leaderboardDiv.innerHTML = `
+
+                <div class="card">
+
+                    ❌ حدث خطأ في تحميل لوحة المتصدرين
+
+                    <br><br>
+
+                    <small>
+                        ${error.message}
+                    </small>
+
+                </div>
+
+            `;
+
+        });
 
 }
 
-let students={};
 
-// تجميع أفضل درجة لكل Chapter لكل طالب
+// ==========================================
+// الصف الثاني افتراضيًا
+// ==========================================
 
-snapshot.forEach(function(doc){
-
-let data=doc.data();
-
-let code=data.studentCode;
-
-if(!students[code]){
-
-students[code]={
-
-studentCode:code,
-
-name:data.name,
-
-grade:data.grade,
-
-chapters:{}
-
-};
-
-}
-
-if(
-
-!students[code].chapters[data.chapter] ||
-
-data.percentage>
-
-students[code].chapters[data.chapter].percentage
-
-){
-
-students[code].chapters[data.chapter]=data;
-
-}
-
-});
-
-let leaderboard=[];
-
-// حساب المتوسط النهائي
-
-for(let code in students){
-
-let student=students[code];
-
-let total=0;
-
-let count=0;
-
-for(let chapter in student.chapters){
-
-total+=student.chapters[chapter].percentage;
-
-count++;
-
-}
-
-student.average=(total/count).toFixed(2);
-
-student.count=count;
-
-leaderboard.push(student);
-
-}
-
-// ترتيب الطلاب
-
-leaderboard.sort(function(a,b){
-
-return b.average-a.average;
-
-});
-
-// عرض البيانات
-
-let html="";
-
-leaderboard.forEach(function(student,index){
-
-let medal="🏅";
-
-if(index==0) medal="🥇";
-if(index==1) medal="🥈";
-if(index==2) medal="🥉";
-
-html+=`
-
-<div class="card leaderboard-card">
-
-<h2>${medal} المركز ${index+1}</h2>
-
-<h3>👨‍🎓 ${student.name}</h3>
-
-<p>📚 ${student.grade}</p>
-
-<p>⭐ المتوسط النهائي: <b>${student.average}%</b></p>
-
-<p>📝 عدد الاختبارات: ${student.count}</p>
-
-</div>
-
-`;
-
-});
-
-leaderboardDiv.innerHTML=html;
-
-})
-
-.catch(function(error){
-
-console.log(error);
-
-leaderboardDiv.innerHTML="❌ حدث خطأ";
-
-});
-
-}
-
-loadLeaderboard("الصف الثاني الثانوي التمريض");
+loadLeaderboard(
+    "الصف الثاني الثانوي التمريض"
+);

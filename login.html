@@ -67,7 +67,9 @@ placeholder="كلمة المرور">
 </div>
 
 
-<!-- Firebase -->
+<!-- ==========================
+     Firebase
+========================== -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
@@ -104,6 +106,10 @@ function login() {
         document.getElementById("loginBtn");
 
 
+    // ==========================================
+    // التحقق من البيانات
+    // ==========================================
+
     if (!code || !password) {
 
         alert(
@@ -123,12 +129,47 @@ function login() {
 
 
     // ==========================================
-    // قراءة بيانات الطالب
+    // أولاً: Anonymous Authentication
     // ==========================================
 
-    db.collection("students")
-        .doc(code)
-        .get()
+    let authPromise;
+
+
+    if (firebase.auth().currentUser) {
+
+        authPromise =
+            Promise.resolve(
+                firebase.auth().currentUser
+            );
+
+    } else {
+
+        authPromise =
+            firebase.auth()
+                .signInAnonymously();
+
+    }
+
+
+    // ==========================================
+    // بعد نجاح Authentication
+    // نقرأ بيانات الطالب
+    // ==========================================
+
+    authPromise
+
+        .then(function() {
+
+            return db.collection("students")
+                .doc(code)
+                .get();
+
+        })
+
+
+        // ==========================================
+        // التحقق من بيانات الطالب
+        // ==========================================
 
         .then(function(doc) {
 
@@ -141,10 +182,15 @@ function login() {
             }
 
 
-            const student = doc.data();
+            const student =
+                doc.data();
 
 
-            if (student.password !== password) {
+            // كلمة المرور
+
+            if (
+                student.password !== password
+            ) {
 
                 throw new Error(
                     "❌ كلمة المرور غير صحيحة"
@@ -153,7 +199,11 @@ function login() {
             }
 
 
-            if (student.active !== true) {
+            // حالة الاشتراك
+
+            if (
+                student.active !== true
+            ) {
 
                 throw new Error(
                     "❌ هذا الاشتراك غير مفعل"
@@ -171,7 +221,10 @@ function login() {
                 let expiry;
 
 
+                // Firebase Timestamp
+
                 if (
+                    student.expiresAt &&
                     typeof student.expiresAt.toDate ===
                     "function"
                 ) {
@@ -179,15 +232,25 @@ function login() {
                     expiry =
                         student.expiresAt.toDate();
 
-                } else {
+                }
+
+                // تاريخ نصي
+
+                else {
 
                     expiry =
-                        new Date(student.expiresAt);
+                        new Date(
+                            student.expiresAt
+                        );
 
                 }
 
 
-                if (isNaN(expiry.getTime())) {
+                if (
+                    isNaN(
+                        expiry.getTime()
+                    )
+                ) {
 
                     throw new Error(
                         "❌ تاريخ انتهاء الاشتراك غير صحيح"
@@ -196,7 +259,9 @@ function login() {
                 }
 
 
-                if (new Date() >= expiry) {
+                if (
+                    new Date() >= expiry
+                ) {
 
                     throw new Error(
                         "❌ انتهى اشتراكك، يرجى تجديد الاشتراك"
@@ -208,44 +273,22 @@ function login() {
 
 
             // نرجع بيانات الطالب
+
             return student;
 
         })
 
 
         // ==========================================
-        // تسجيل دخول Firebase Anonymous
-        // ==========================================
-
-        .then(function(student) {
-
-            if (firebase.auth().currentUser) {
-
-                return student;
-
-            }
-
-
-            return firebase.auth()
-                .signInAnonymously()
-
-                .then(function() {
-
-                    return student;
-
-                });
-
-        })
-
-
-        // ==========================================
-        // ربط الجهاز
+        // إنشاء / الحصول على Device ID
         // ==========================================
 
         .then(function(student) {
 
             let deviceId =
-                localStorage.getItem("deviceId");
+                localStorage.getItem(
+                    "deviceId"
+                );
 
 
             if (!deviceId) {
@@ -281,7 +324,8 @@ function login() {
                     .doc(code)
                     .update({
 
-                        deviceId: deviceId
+                        deviceId:
+                            deviceId
 
                     })
 
@@ -319,7 +363,7 @@ function login() {
 
 
         // ==========================================
-        // نجاح الدخول
+        // نجاح تسجيل الدخول
         // ==========================================
 
         .then(function(student) {
@@ -329,10 +373,12 @@ function login() {
                 code
             );
 
+
             localStorage.setItem(
                 "studentName",
                 student.name || ""
             );
+
 
             localStorage.setItem(
                 "studentGrade",
@@ -348,7 +394,7 @@ function login() {
 
 
         // ==========================================
-        // الخطأ
+        // معالجة الأخطاء
         // ==========================================
 
         .catch(function(error) {
@@ -378,7 +424,7 @@ function login() {
 
 
 // ==========================================
-// زر الدخول
+// زر تسجيل الدخول
 // ==========================================
 
 document
@@ -390,7 +436,7 @@ document
 
 
 // ==========================================
-// Enter
+// الضغط على Enter
 // ==========================================
 
 document

@@ -22,25 +22,48 @@
 
 <p>سجل الدخول للمتابعة</p>
 
+
 <div class="input-box">
+
 <span class="icon">🔑</span>
-<input type="text" id="code" placeholder="كود الاشتراك">
+
+<input
+type="text"
+id="code"
+placeholder="كود الاشتراك"
+autocomplete="off">
+
 </div>
+
 
 <div class="input-box">
+
 <span class="icon">🔒</span>
-<input type="password" id="password" placeholder="كلمة المرور">
+
+<input
+type="password"
+id="password"
+placeholder="كلمة المرور">
+
 </div>
 
-<button id="loginBtn" onclick="login()">
+
+<button
+id="loginBtn"
+type="button">
+
 تسجيل الدخول
+
 </button>
 
+
 <br><br>
+
 
 <p>
 إذا لم يكن لديك كود اشتراك، تواصل مع إدارة بوابة التمريض.
 </p>
+
 
 <div class="footer">
 © 2026 بوابة التمريض
@@ -48,242 +71,362 @@
 
 </div>
 
+
+<!-- ===============================
+     FIREBASE
+================================ -->
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script src="firebase.js"></script>
 
+
 <script>
 
 let isLoggingIn = false;
 
-function login(){
 
-if(isLoggingIn){
-return;
+// ==========================================
+// تسجيل الدخول
+// ==========================================
+
+function login() {
+
+    if (isLoggingIn) {
+        return;
+    }
+
+
+    const code =
+        document.getElementById("code").value.trim();
+
+
+    const password =
+        document.getElementById("password").value.trim();
+
+
+    const loginBtn =
+        document.getElementById("loginBtn");
+
+
+    // ==========================================
+    // التحقق من البيانات
+    // ==========================================
+
+    if (!code || !password) {
+
+        alert(
+            "من فضلك أدخل كود الاشتراك وكلمة المرور"
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // منع الضغط المتكرر
+    // ==========================================
+
+    isLoggingIn = true;
+
+    loginBtn.disabled = true;
+
+    loginBtn.innerHTML =
+        "⏳ جاري تسجيل الدخول...";
+
+
+    // ==========================================
+    // البحث عن الاشتراك
+    // ==========================================
+
+    db.collection("students")
+        .doc(code)
+        .get()
+
+
+        .then(function(doc) {
+
+            // ==================================
+            // الكود غير موجود
+            // ==================================
+
+            if (!doc.exists) {
+
+                throw new Error(
+                    "❌ كود الاشتراك غير صحيح"
+                );
+
+            }
+
+
+            const student =
+                doc.data();
+
+
+            // ==================================
+            // كلمة المرور
+            // ==================================
+
+            if (
+                student.password !== password
+            ) {
+
+                throw new Error(
+                    "❌ كلمة المرور غير صحيحة"
+                );
+
+            }
+
+
+            // ==================================
+            // حالة الاشتراك
+            // ==================================
+
+            if (
+                student.active !== true
+            ) {
+
+                throw new Error(
+                    "❌ هذا الاشتراك غير مفعل"
+                );
+
+            }
+
+
+            // ==================================
+            // تاريخ انتهاء الاشتراك
+            // ==================================
+
+            if (student.expiresAt) {
+
+                let expiry;
+
+
+                // Firebase Timestamp
+
+                if (
+                    typeof student.expiresAt.toDate ===
+                    "function"
+                ) {
+
+                    expiry =
+                        student.expiresAt.toDate();
+
+                }
+
+
+                // تاريخ نصي
+
+                else {
+
+                    expiry =
+                        new Date(
+                            student.expiresAt
+                        );
+
+                }
+
+
+                if (
+                    isNaN(
+                        expiry.getTime()
+                    )
+                ) {
+
+                    throw new Error(
+                        "❌ تاريخ انتهاء الاشتراك غير صحيح"
+                    );
+
+                }
+
+
+                if (
+                    new Date() >= expiry
+                ) {
+
+                    throw new Error(
+                        "❌ انتهى اشتراكك، يرجى تجديد الاشتراك"
+                    );
+
+                }
+
+            }
+
+
+            // ==================================
+            // إنشاء معرف الجهاز
+            // ==================================
+
+            let deviceId =
+                localStorage.getItem(
+                    "deviceId"
+                );
+
+
+            if (!deviceId) {
+
+                deviceId =
+                    "device_" +
+                    Date.now() +
+                    "_" +
+                    Math.random()
+                        .toString(36)
+                        .substring(2, 10);
+
+
+                localStorage.setItem(
+                    "deviceId",
+                    deviceId
+                );
+
+            }
+
+
+            // ==================================
+            // أول تسجيل دخول
+            // ==================================
+
+            if (
+                !student.deviceId ||
+                student.deviceId === "null" ||
+                student.deviceId === ""
+            ) {
+
+                return db.collection("students")
+                    .doc(code)
+                    .update({
+
+                        deviceId:
+                            deviceId
+
+                    })
+
+                    .then(function() {
+
+                        return student;
+
+                    });
+
+            }
+
+
+            // ==================================
+            // نفس الجهاز
+            // ==================================
+
+            if (
+                student.deviceId === deviceId
+            ) {
+
+                return student;
+
+            }
+
+
+            // ==================================
+            // جهاز مختلف
+            // ==================================
+
+            throw new Error(
+                "❌ هذا الاشتراك مستخدم على جهاز آخر"
+            );
+
+        })
+
+
+        // ==========================================
+        // نجاح تسجيل الدخول
+        // ==========================================
+
+        .then(function(student) {
+
+            localStorage.setItem(
+                "studentCode",
+                code
+            );
+
+
+            localStorage.setItem(
+                "studentName",
+                student.name || ""
+            );
+
+
+            localStorage.setItem(
+                "studentGrade",
+                student.grade || ""
+            );
+
+
+            window.location.replace(
+                "index.html"
+            );
+
+        })
+
+
+        // ==========================================
+        // معالجة الأخطاء
+        // ==========================================
+
+        .catch(function(error) {
+
+            console.error(
+                "Login Error:",
+                error
+            );
+
+
+            alert(
+                error.message ||
+                "❌ حدث خطأ أثناء تسجيل الدخول"
+            );
+
+
+            isLoggingIn = false;
+
+            loginBtn.disabled = false;
+
+            loginBtn.innerHTML =
+                "تسجيل الدخول";
+
+        });
+
 }
 
-const code =
-document.getElementById("code").value.trim();
 
-const password =
-document.getElementById("password").value.trim();
+// ==========================================
+// زر تسجيل الدخول
+// ==========================================
 
-const loginBtn =
-document.getElementById("loginBtn");
+document
+    .getElementById("loginBtn")
+    .addEventListener(
+        "click",
+        login
+    );
 
 
-if(code === "" || password === ""){
+// ==========================================
+// الضغط على Enter
+// ==========================================
 
-alert("من فضلك أدخل كود الاشتراك وكلمة المرور");
+document
+    .getElementById("password")
+    .addEventListener(
+        "keydown",
+        function(event) {
 
-return;
+            if (event.key === "Enter") {
 
-}
+                login();
 
+            }
 
-// منع الضغط المتكرر
-
-isLoggingIn = true;
-
-loginBtn.disabled = true;
-
-loginBtn.innerHTML =
-"⏳ جاري تسجيل الدخول...";
-
-
-db.collection("students")
-.doc(code)
-.get()
-
-.then(function(doc){
-
-if(!doc.exists){
-
-throw new Error(
-"❌ كود الاشتراك غير صحيح"
-);
-
-}
-
-
-const student = doc.data();
-
-
-// كلمة المرور
-
-if(student.password !== password){
-
-throw new Error(
-"❌ كلمة المرور غير صحيحة"
-);
-
-}
-
-
-// الاشتراك مفعل؟
-
-if(student.active !== true){
-
-throw new Error(
-"❌ هذا الاشتراك غير مفعل"
-);
-
-}
-
-
-// تاريخ الانتهاء
-
-if(student.expiresAt){
-
-let expiry;
-
-if(
-typeof student.expiresAt.toDate === "function"
-){
-
-expiry =
-student.expiresAt.toDate();
-
-}else{
-
-expiry =
-new Date(student.expiresAt);
-
-}
-
-
-if(isNaN(expiry.getTime())){
-
-throw new Error(
-"❌ تاريخ انتهاء الاشتراك غير صحيح"
-);
-
-}
-
-
-if(new Date() >= expiry){
-
-throw new Error(
-"❌ انتهى اشتراكك، يرجى تجديد الاشتراك"
-);
-
-}
-
-}
-
-
-// إنشاء Device ID
-
-let deviceId =
-localStorage.getItem("deviceId");
-
-
-if(!deviceId){
-
-deviceId =
-"device_" +
-Date.now() +
-"_" +
-Math.random()
-.toString(36)
-.substring(2,10);
-
-localStorage.setItem(
-"deviceId",
-deviceId
-);
-
-}
-
-
-// أول جهاز
-
-if(
-!student.deviceId ||
-student.deviceId === "null" ||
-student.deviceId === ""
-){
-
-return db.collection("students")
-.doc(code)
-.update({
-
-deviceId: deviceId
-
-})
-
-.then(function(){
-
-return student;
-
-});
-
-}
-
-
-// نفس الجهاز
-
-if(student.deviceId === deviceId){
-
-return student;
-
-}
-
-
-// جهاز آخر
-
-throw new Error(
-"❌ هذا الاشتراك مستخدم على جهاز آخر"
-);
-
-})
-
-.then(function(student){
-
-// حفظ بيانات الطالب
-
-localStorage.setItem(
-"studentCode",
-code
-);
-
-localStorage.setItem(
-"studentName",
-student.name || ""
-);
-
-localStorage.setItem(
-"studentGrade",
-student.grade || ""
-);
-
-
-// الدخول
-
-window.location.replace(
-"index.html"
-);
-
-})
-
-.catch(function(error){
-
-console.log(error);
-
-alert(error.message);
-
-isLoggingIn = false;
-
-loginBtn.disabled = false;
-
-loginBtn.innerHTML =
-"تسجيل الدخول";
-
-});
-
-}
+        }
+    );
 
 </script>
 

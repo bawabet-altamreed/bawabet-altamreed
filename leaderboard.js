@@ -1,4 +1,18 @@
-const leaderboardDiv = document.getElementById("leaderboard");
+const leaderboardDiv =
+    document.getElementById("leaderboard");
+
+
+// ==========================================
+// تنظيف اسم الصف
+// ==========================================
+
+function cleanGrade(grade) {
+
+    return String(grade || "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+}
 
 
 // ==========================================
@@ -7,11 +21,19 @@ const leaderboardDiv = document.getElementById("leaderboard");
 
 function loadLeaderboard(grade) {
 
-    leaderboardDiv.innerHTML = "⏳ جاري تحميل البيانات...";
+    leaderboardDiv.innerHTML =
+        "⏳ جاري تحميل البيانات...";
 
+
+    const selectedGrade =
+        cleanGrade(grade);
+
+
+    // ==========================================
+    // قراءة جميع النتائج
+    // ==========================================
 
     db.collection("results")
-        .where("grade", "==", grade)
         .get()
 
         .then(function(snapshot) {
@@ -19,9 +41,10 @@ function loadLeaderboard(grade) {
             if (snapshot.empty) {
 
                 leaderboardDiv.innerHTML =
-                    "❌ لا توجد نتائج لهذا الصف حتى الآن";
+                    "❌ لا توجد نتائج حتى الآن";
 
                 return;
+
             }
 
 
@@ -29,19 +52,30 @@ function loadLeaderboard(grade) {
 
 
             // ==========================================
-            // تجميع الطلاب
+            // قراءة النتائج
             // ==========================================
 
             snapshot.forEach(function(doc) {
 
-                let data = doc.data();
+                const data = doc.data();
 
 
-                // نستخدم studentCode لو موجود
-                // وإلا نستخدم uid
-                // وإلا email كحل احتياطي
+                // توحيد الصف
+                const resultGrade =
+                    cleanGrade(data.grade);
 
-                let studentId =
+
+                // تجاهل نتائج الصفوف الأخرى
+                if (resultGrade !== selectedGrade) {
+                    return;
+                }
+
+
+                // ======================================
+                // تحديد الطالب
+                // ======================================
+
+                const studentId =
                     data.studentCode ||
                     data.uid ||
                     data.email;
@@ -52,7 +86,9 @@ function loadLeaderboard(grade) {
                 }
 
 
+                // ======================================
                 // إنشاء الطالب
+                // ======================================
 
                 if (!students[studentId]) {
 
@@ -60,9 +96,12 @@ function loadLeaderboard(grade) {
 
                         id: studentId,
 
-                        name: data.name || "طالب",
+                        name:
+                            data.name ||
+                            "طالب",
 
-                        grade: data.grade || grade,
+                        grade:
+                            resultGrade,
 
                         chapters: {}
 
@@ -71,28 +110,38 @@ function loadLeaderboard(grade) {
                 }
 
 
-                // ==========================================
-                // أفضل نتيجة لكل Chapter
-                // ==========================================
+                // ======================================
+                // Chapter
+                // ======================================
 
-                let chapter =
-                    data.chapter || "اختبار";
+                const chapter =
+                    data.chapter ||
+                    "اختبار";
 
 
-                let percentage =
+                const percentage =
                     Number(data.percentage) || 0;
 
 
+                // ======================================
+                // أفضل نتيجة للـChapter
+                // ======================================
+
                 if (
 
-                    !students[studentId].chapters[chapter] ||
+                    !students[studentId]
+                        .chapters[chapter]
+
+                    ||
 
                     percentage >
-                    students[studentId].chapters[chapter]
+                    students[studentId]
+                        .chapters[chapter]
 
                 ) {
 
-                    students[studentId].chapters[chapter] =
+                    students[studentId]
+                        .chapters[chapter] =
                         percentage;
 
                 }
@@ -101,136 +150,162 @@ function loadLeaderboard(grade) {
 
 
             // ==========================================
-            // حساب المتوسط النهائي
+            // حساب المتوسط
             // ==========================================
 
             let leaderboard = [];
 
 
-            Object.keys(students).forEach(function(studentId) {
+            Object.keys(students)
+                .forEach(function(studentId) {
 
-                let student =
-                    students[studentId];
-
-
-                let total = 0;
-
-                let count = 0;
+                    const student =
+                        students[studentId];
 
 
-                Object.keys(student.chapters).forEach(function(chapter) {
+                    let total = 0;
 
-                    total +=
-                        student.chapters[chapter];
+                    let count = 0;
 
-                    count++;
+
+                    Object.keys(student.chapters)
+                        .forEach(function(chapter) {
+
+                            total +=
+                                student.chapters[chapter];
+
+                            count++;
+
+                        });
+
+
+                    if (count > 0) {
+
+                        student.average =
+                            (
+                                total / count
+                            ).toFixed(2);
+
+
+                        student.count =
+                            count;
+
+
+                        leaderboard.push(
+                            student
+                        );
+
+                    }
 
                 });
 
 
-                if (count > 0) {
-
-                    student.average =
-                        (total / count).toFixed(2);
-
-                    student.count =
-                        count;
-
-                    leaderboard.push(student);
-
-                }
-
-            });
-
-
             // ==========================================
-            // ترتيب الطلاب
-            // ==========================================
-
-            leaderboard.sort(function(a, b) {
-
-                return Number(b.average) -
-                       Number(a.average);
-
-            });
-
-
-            // ==========================================
-            // عرض النتائج
+            // لا توجد نتائج لهذا الصف
             // ==========================================
 
             if (leaderboard.length === 0) {
 
                 leaderboardDiv.innerHTML =
-                    "❌ لا توجد نتائج صالحة للعرض";
+                    "❌ لا توجد نتائج لهذا الصف حتى الآن";
 
                 return;
 
             }
 
 
+            // ==========================================
+            // ترتيب الطلاب
+            // ==========================================
+
+            leaderboard.sort(
+                function(a, b) {
+
+                    return Number(b.average) -
+                           Number(a.average);
+
+                }
+            );
+
+
+            // ==========================================
+            // عرض النتائج
+            // ==========================================
+
             let html = "";
 
 
-            leaderboard.forEach(function(student, index) {
+            leaderboard.forEach(
+                function(student, index) {
 
-                let medal = "🏅";
-
-
-                if (index === 0) {
-                    medal = "🥇";
-                }
-
-                else if (index === 1) {
-                    medal = "🥈";
-                }
-
-                else if (index === 2) {
-                    medal = "🥉";
-                }
+                    let medal = "🏅";
 
 
-                html += `
+                    if (index === 0) {
 
-                <div class="card leaderboard-card">
+                        medal = "🥇";
 
-                    <h2>
-                        ${medal} المركز ${index + 1}
-                    </h2>
+                    }
 
-                    <h3>
-                        👨‍🎓 ${student.name}
-                    </h3>
+                    else if (index === 1) {
 
-                    <p>
-                        📚 ${student.grade}
-                    </p>
+                        medal = "🥈";
 
-                    <div class="leader-score">
+                    }
 
-                        ⭐ المتوسط النهائي
+                    else if (index === 2) {
 
-                        <br>
+                        medal = "🥉";
 
-                        <b>
-                            ${student.average}%
-                        </b>
+                    }
+
+
+                    html += `
+
+                    <div class="card leaderboard-card">
+
+                        <h2>
+                            ${medal}
+                            المركز ${index + 1}
+                        </h2>
+
+                        <h3>
+                            👨‍🎓
+                            ${student.name}
+                        </h3>
+
+                        <p>
+                            📚
+                            ${student.grade}
+                        </p>
+
+                        <div class="leader-score">
+
+                            ⭐ المتوسط النهائي
+
+                            <br>
+
+                            <b>
+                                ${student.average}%
+                            </b>
+
+                        </div>
+
+                        <p>
+                            📝 عدد الاختبارات:
+                            ${student.count}
+                        </p>
 
                     </div>
 
-                    <p>
-                        📝 عدد الاختبارات:
-                        ${student.count}
-                    </p>
+                    `;
 
-                </div>
-
-                `;
-
-            });
+                }
+            );
 
 
-            leaderboardDiv.innerHTML = html;
+            leaderboardDiv.innerHTML =
+                html;
 
         })
 
@@ -247,7 +322,8 @@ function loadLeaderboard(grade) {
 
                 <div class="card">
 
-                    ❌ حدث خطأ في تحميل لوحة المتصدرين
+                    ❌ حدث خطأ في تحميل
+                    لوحة المتصدرين
 
                     <br><br>
 

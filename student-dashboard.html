@@ -4,7 +4,9 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>لوحة الطالب | بوابة التمريض</title>
 
@@ -16,6 +18,10 @@
 <body>
 
 
+<!-- =========================
+     NAVBAR
+========================= -->
+
 <nav>
 
 <div class="logo">
@@ -25,6 +31,9 @@
 </nav>
 
 
+<!-- =========================
+     HEADER
+========================= -->
 
 <header>
 
@@ -39,17 +48,20 @@
 </header>
 
 
+<!-- =========================
+     STUDENT DASHBOARD
+========================= -->
 
 <section class="years">
 
 
-<div class="card">
+<!-- بيانات الطالب -->
 
+<div class="card">
 
 <h2>
 👨‍🎓 بيانات الطالب
 </h2>
-
 
 <div id="studentInfo">
 
@@ -59,18 +71,16 @@
 
 </div>
 
-
 </div>
 
 
+<!-- نتائج الاختبارات -->
 
 <div class="card">
-
 
 <h2>
 📚 نتائج الاختبارات
 </h2>
-
 
 <div id="results">
 
@@ -80,18 +90,16 @@
 
 </div>
 
-
 </div>
 
 
+<!-- المتوسط النهائي -->
 
 <div class="card">
-
 
 <h2>
 ⭐ المتوسط النهائي
 </h2>
-
 
 <div id="average">
 
@@ -101,15 +109,15 @@
 
 </div>
 
-
 </div>
-
 
 
 </section>
 
 
-
+<!-- =========================
+     FOOTER
+========================= -->
 
 <footer>
 
@@ -120,27 +128,24 @@
 </footer>
 
 
-
+<!-- =========================
+     FIREBASE
+========================= -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-
 <script src="firebase.js"></script>
+
+
+<!-- =========================
+     STUDENT DASHBOARD JS
+========================= -->
 
 <script src="student-dashboard.js"></script>
 
-<script>
 
-const studentCode = localStorage.getItem("studentCode");
-
-if (!studentCode) {
-    window.location.href = "login.html";
-}
-
-</script>
-  
 </body>
 
 </html>

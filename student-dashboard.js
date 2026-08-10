@@ -1,149 +1,265 @@
-// ===============================
-// بيانات الطالب
-// ===============================
+// ==========================================
+// لوحة الطالب
+// ==========================================
 
-const studentCode = localStorage.getItem("studentCode");
+const studentCode =
+    localStorage.getItem("studentCode");
+
+
+// ==========================================
+// التحقق من تسجيل الدخول
+// ==========================================
 
 if (!studentCode) {
+
     window.location.href = "login.html";
+
 }
 
-const studentInfo = document.getElementById("studentInfo");
-const resultsDiv = document.getElementById("results");
-const averageDiv = document.getElementById("average");
 
-loadStudentDashboard();
+// ==========================================
+// تحميل بيانات الطالب
+// ==========================================
 
 function loadStudentDashboard() {
 
     db.collection("students")
-    .doc(studentCode)
-    .get()
+        .doc(studentCode)
+        .get()
 
-    .then(function(doc){
+        .then(function(doc) {
 
-        if(!doc.exists){
+            if (!doc.exists) {
 
-            studentInfo.innerHTML = "❌ الطالب غير موجود";
+                document.getElementById(
+                    "studentInfo"
+                ).innerHTML =
+                    "❌ بيانات الطالب غير موجودة";
 
-            return;
-        }
-
-        const student = doc.data();
-
-        studentInfo.innerHTML = `
-
-        <h3>👨‍🎓 ${student.name}</h3>
-
-        <p>📚 ${student.grade}</p>
-
-        <p>🆔 ${studentCode}</p>
-
-        `;
-
-        return db.collection("results")
-        .where("studentCode","==",studentCode)
-        .get();
-
-    })
-
-    .then(function(snapshot){
-
-        if(!snapshot){
-
-            return;
-        }
-
-        if(snapshot.empty){
-
-            resultsDiv.innerHTML =
-            "<p>❌ لم يتم حل أي اختبار حتى الآن</p>";
-
-            averageDiv.innerHTML =
-            "<h2>0%</h2>";
-
-            return;
-        }
-
-        let chapters = {};
-
-        snapshot.forEach(function(doc){
-
-            let data = doc.data();
-
-            if(
-                !chapters[data.chapter] ||
-                data.percentage > chapters[data.chapter].percentage
-            ){
-
-                chapters[data.chapter] = data;
+                return;
 
             }
 
-        });
 
-        let html = "";
+            const student =
+                doc.data();
 
-        let total = 0;
 
-        let count = 0;
-              for (let chapter in chapters) {
+            // ==================================
+            // بيانات الطالب
+            // ==================================
 
-            let result = chapters[chapter];
+            document.getElementById(
+                "studentInfo"
+            ).innerHTML = `
 
-            total += result.percentage;
-            count++;
+                <h3>
+                    👨‍🎓 الاسم:
+                    ${student.name || "غير محدد"}
+                </h3>
 
-            html += `
+                <p>
+                    📚 الصف:
+                    ${student.grade || "غير محدد"}
+                </p>
 
-            <div class="card">
-
-                <h3>📘 ${result.chapter}</h3>
-
-                <p>📚 المادة: ${result.subject}</p>
-
-                <p>✅ الدرجة: ${result.score} / ${result.total}</p>
-
-                <p>⭐ النسبة: ${result.percentage}%</p>
-
-            </div>
+                <p>
+                    🔑 كود الاشتراك:
+                    ${studentCode}
+                </p>
 
             `;
 
-        }
 
-        resultsDiv.innerHTML = html;
+            // ==================================
+            // تحميل النتائج
+            // ==================================
 
-        let average = 0;
+            return db.collection("results")
 
-        if(count > 0){
+                .where(
+                    "studentCode",
+                    "==",
+                    studentCode
+                )
 
-            average = (total / count).toFixed(2);
+                .get();
 
-        }
+        })
 
-        averageDiv.innerHTML = `
 
-        <h2>⭐ ${average}%</h2>
+        .then(function(snapshot) {
 
-        <p>
+            if (!snapshot) {
+                return;
+            }
 
-        عدد الاختبارات المختلفة: ${count}
 
-        </p>
+            if (snapshot.empty) {
 
-        `;
+                document.getElementById(
+                    "results"
+                ).innerHTML =
+                    "❌ لم يتم عمل أي اختبارات حتى الآن";
 
-    })
+                document.getElementById(
+                    "average"
+                ).innerHTML =
+                    "0%";
 
-    .catch(function(error){
+                return;
 
-        console.log(error);
+            }
 
-        studentInfo.innerHTML =
 
-        "<p>❌ حدث خطأ أثناء تحميل البيانات</p>";
+            // ==================================
+            // أفضل نتيجة لكل Chapter
+            // ==================================
 
-    });
+            let bestResults = {};
+
+
+            snapshot.forEach(function(doc) {
+
+                const data =
+                    doc.data();
+
+
+                const chapter =
+                    data.chapter || doc.id;
+
+
+                if (
+                    !bestResults[chapter] ||
+                    Number(data.percentage) >
+                    Number(
+                        bestResults[chapter].percentage
+                    )
+                ) {
+
+                    bestResults[chapter] =
+                        data;
+
+                }
+
+            });
+
+
+            // ==================================
+            // حساب المتوسط النهائي
+            // ==================================
+
+            let totalPercentage = 0;
+
+            let count = 0;
+
+            let html = "";
+
+
+            Object.values(bestResults)
+                .forEach(function(data) {
+
+                    const percentage =
+                        Number(
+                            data.percentage
+                        ) || 0;
+
+
+                    totalPercentage +=
+                        percentage;
+
+                    count++;
+
+
+                    html += `
+
+                        <div class="card">
+
+                            <h3>
+                                📘 ${data.chapter || "اختبار"}
+                            </h3>
+
+                            <p>
+                                المادة:
+                                ${data.subject || "-"}
+                            </p>
+
+                            <p>
+                                الدرجة:
+                                ${data.score || 0}/${data.total || 0}
+                            </p>
+
+                            <p>
+                                ⭐ النسبة:
+                                ${percentage}%
+                            </p>
+
+                        </div>
+
+                    `;
+
+                });
+
+
+            // ==================================
+            // عرض النتائج
+            // ==================================
+
+            document.getElementById(
+                "results"
+            ).innerHTML =
+                html;
+
+
+            // ==================================
+            // المتوسط النهائي
+            // ==================================
+
+            const average =
+                (
+                    totalPercentage /
+                    count
+                ).toFixed(2);
+
+
+            document.getElementById(
+                "average"
+            ).innerHTML = `
+
+                <h1>
+                    ⭐ ${average}%
+                </h1>
+
+                <p>
+                    عدد الاختبارات:
+                    ${count}
+                </p>
+
+            `;
+
+        })
+
+
+        .catch(function(error) {
+
+            console.error(
+                "Student Dashboard Error:",
+                error
+            );
+
+
+            document.getElementById(
+                "studentInfo"
+            ).innerHTML =
+                "❌ حدث خطأ أثناء تحميل البيانات";
+
+        });
 
 }
+
+
+// ==========================================
+// تشغيل لوحة الطالب
+// ==========================================
+
+loadStudentDashboard();

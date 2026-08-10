@@ -3,34 +3,38 @@
 // حماية صفحات الطلاب
 // ===============================
 
-const studentCode = localStorage.getItem("studentCode");
+(function () {
 
-// ===============================
-// التحقق من تسجيل الدخول
-// ===============================
+    const studentCode = localStorage.getItem("studentCode");
 
-if (!studentCode) {
+    // ===============================
+    // التحقق من تسجيل الدخول
+    // ===============================
 
-    window.location.href = "login.html";
+    if (!studentCode) {
 
-}
+        window.location.href = "login.html";
+
+        return;
+
+    }
 
 
-// ===============================
-// التحقق من الاشتراك
-// ===============================
-
-if (studentCode) {
+    // ===============================
+    // التحقق من الاشتراك
+    // ===============================
 
     db.collection("students")
         .doc(studentCode)
         .get()
 
-        .then(function(doc) {
+        .then(function (doc) {
 
             if (!doc.exists) {
 
-                localStorage.clear();
+                localStorage.removeItem("studentCode");
+                localStorage.removeItem("studentName");
+                localStorage.removeItem("studentGrade");
 
                 window.location.href = "login.html";
 
@@ -38,14 +42,21 @@ if (studentCode) {
 
             }
 
+
             const student = doc.data();
 
-            // الاشتراك غير مفعل
+
+            // ===============================
+            // التحقق من التفعيل
+            // ===============================
+
             if (student.active !== true) {
 
                 alert("❌ هذا الاشتراك غير مفعل");
 
-                localStorage.clear();
+                localStorage.removeItem("studentCode");
+                localStorage.removeItem("studentName");
+                localStorage.removeItem("studentGrade");
 
                 window.location.href = "login.html";
 
@@ -53,35 +64,57 @@ if (studentCode) {
 
             }
 
+
             // ===============================
-            // التحقق من تاريخ انتهاء الاشتراك
+            // التحقق من تاريخ الانتهاء
             // ===============================
 
             if (student.expiresAt) {
 
                 let expireDate;
 
-                // لو التاريخ Timestamp
-                if (student.expiresAt.toDate) {
+
+                if (
+                    student.expiresAt &&
+                    typeof student.expiresAt.toDate === "function"
+                ) {
 
                     expireDate = student.expiresAt.toDate();
 
-                }
-
-                // لو التاريخ نص
-                else {
+                } else {
 
                     expireDate = new Date(student.expiresAt);
 
                 }
 
+
+                if (
+                    isNaN(expireDate.getTime())
+                ) {
+
+                    console.log(
+                        "Invalid expiresAt:",
+                        student.expiresAt
+                    );
+
+                    return;
+
+                }
+
+
                 const now = new Date();
+
 
                 if (now >= expireDate) {
 
-                    alert("❌ انتهى اشتراكك.\nيرجى تجديد الاشتراك.");
+                    alert(
+                        "❌ انتهى اشتراكك.\nيرجى تجديد الاشتراك."
+                    );
 
-                    localStorage.clear();
+
+                    localStorage.removeItem("studentCode");
+                    localStorage.removeItem("studentName");
+                    localStorage.removeItem("studentGrade");
 
                     window.location.href = "login.html";
 
@@ -93,14 +126,17 @@ if (studentCode) {
 
         })
 
-        .catch(function(error) {
+        .catch(function (error) {
 
-            console.log("Auth Error:", error);
+            console.error(
+                "Subscription Check Error:",
+                error
+            );
 
-            alert("❌ حدث خطأ في التحقق من الاشتراك");
-
-            window.location.href = "login.html";
+            alert(
+                "❌ حدث خطأ في التحقق من الاشتراك"
+            );
 
         });
 
-}
+})();

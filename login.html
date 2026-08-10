@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -31,7 +32,7 @@
 <input type="password" id="password" placeholder="كلمة المرور">
 </div>
 
-<button onclick="login()">
+<button id="loginBtn" onclick="login()">
 تسجيل الدخول
 </button>
 
@@ -48,141 +49,224 @@
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script src="firebase.js"></script>
 
 <script>
 
-  function login(){
+let isLoggingIn = false;
 
-const code = document.getElementById("code").value.trim();
-const password = document.getElementById("password").value.trim();
+function login(){
 
-if(code==="" || password===""){
-alert("من فضلك أدخل كود الاشتراك وكلمة المرور");
+if(isLoggingIn){
 return;
 }
 
+const code =
+document.getElementById("code").value.trim();
 
-db.collection("students").doc(code).get()
+const password =
+document.getElementById("password").value.trim();
+
+const loginBtn =
+document.getElementById("loginBtn");
+
+
+if(code === "" || password === ""){
+
+alert("من فضلك أدخل كود الاشتراك وكلمة المرور");
+
+return;
+
+}
+
+
+// منع الضغط المتكرر
+
+isLoggingIn = true;
+
+loginBtn.disabled = true;
+
+loginBtn.innerHTML =
+"⏳ جاري تسجيل الدخول...";
+
+
+db.collection("students")
+.doc(code)
+.get()
 
 .then(function(doc){
 
-
 if(!doc.exists){
-alert("❌ كود الاشتراك غير صحيح");
-return;
+
+throw new Error(
+"❌ كود الاشتراك غير صحيح"
+);
+
 }
 
 
 const student = doc.data();
 
 
-let deviceId = localStorage.getItem("deviceId");
+// كلمة المرور
+
+if(student.password !== password){
+
+throw new Error(
+"❌ كلمة المرور غير صحيحة"
+);
+
+}
+
+
+// الاشتراك مفعل؟
+
+if(student.active !== true){
+
+throw new Error(
+"❌ هذا الاشتراك غير مفعل"
+);
+
+}
+
+
+// تاريخ الانتهاء
+
+if(student.expiresAt){
+
+let expiry;
+
+if(
+typeof student.expiresAt.toDate === "function"
+){
+
+expiry =
+student.expiresAt.toDate();
+
+}else{
+
+expiry =
+new Date(student.expiresAt);
+
+}
+
+
+if(isNaN(expiry.getTime())){
+
+throw new Error(
+"❌ تاريخ انتهاء الاشتراك غير صحيح"
+);
+
+}
+
+
+if(new Date() >= expiry){
+
+throw new Error(
+"❌ انتهى اشتراكك، يرجى تجديد الاشتراك"
+);
+
+}
+
+}
+
+
+// إنشاء Device ID
+
+let deviceId =
+localStorage.getItem("deviceId");
 
 
 if(!deviceId){
 
-deviceId = Date.now().toString();
+deviceId =
+"device_" +
+Date.now() +
+"_" +
+Math.random()
+.toString(36)
+.substring(2,10);
 
-localStorage.setItem("deviceId",deviceId);
-
-}
-
-
-
-if(student.password !== password){
-
-alert("❌ كلمة المرور غير صحيحة");
-return;
-
-}
-
-
-
-if(student.active !== true){
-
-alert("❌ هذا الاشتراك غير مفعل");
-return;
+localStorage.setItem(
+"deviceId",
+deviceId
+);
 
 }
 
-// فحص تاريخ الاشتراك
 
-let today = new Date();
+// أول جهاز
 
-let expiry = new Date(student.expiresAt);
+if(
+!student.deviceId ||
+student.deviceId === "null" ||
+student.deviceId === ""
+){
 
+return db.collection("students")
+.doc(code)
+.update({
 
-if(today > expiry){
-
-alert("❌ انتهى اشتراكك، يرجى تجديد الاشتراك");
-
-return;
-
-}
-
-// أول دخول
-
-if(student.deviceId === "null" || student.deviceId === ""){
-
-
-db.collection("students").doc(code).update({
-
-deviceId:deviceId
+deviceId: deviceId
 
 })
+
 .then(function(){
 
-
-localStorage.setItem("studentCode",code);
-localStorage.setItem("studentName",student.name);
-localStorage.setItem("studentGrade",student.grade);
-
-
-alert("✅ تم تسجيل الدخول");
-
-window.location.href="index.html";
-
+return student;
 
 });
-
 
 }
 
 
 // نفس الجهاز
 
-else if(student.deviceId === deviceId){
+if(student.deviceId === deviceId){
 
-
-localStorage.setItem("studentCode",code);
-localStorage.setItem("studentName",student.name);
-localStorage.setItem("studentGrade",student.grade);
-
-
-alert("✅ تم تسجيل الدخول");
-
-window.location.href="index.html";
-
+return student;
 
 }
 
 
 // جهاز آخر
 
-else{
-
-
-alert("❌ هذا الاشتراك مستخدم على جهاز آخر");
-
-
-}
-
+throw new Error(
+"❌ هذا الاشتراك مستخدم على جهاز آخر"
+);
 
 })
 
+.then(function(student){
+
+// حفظ بيانات الطالب
+
+localStorage.setItem(
+"studentCode",
+code
+);
+
+localStorage.setItem(
+"studentName",
+student.name || ""
+);
+
+localStorage.setItem(
+"studentGrade",
+student.grade || ""
+);
+
+
+// الدخول
+
+window.location.replace(
+"index.html"
+);
+
+})
 
 .catch(function(error){
 
@@ -190,10 +274,16 @@ console.log(error);
 
 alert(error.message);
 
+isLoggingIn = false;
+
+loginBtn.disabled = false;
+
+loginBtn.innerHTML =
+"تسجيل الدخول";
+
 });
 
-
-  }
+}
 
 </script>
 

@@ -24,8 +24,13 @@
 🩺 بوابة التمريض
 </div>
 
-<button class="menu-toggle" onclick="toggleMenu()">
+<button
+class="menu-toggle"
+id="menuToggle"
+type="button">
+
 ☰
+
 </button>
 
 <ul id="menu">
@@ -61,15 +66,20 @@
 </li>
 
 <li>
-<a href="dashboard.html">
+<a href="student-dashboard.html">
 👨‍🎓 لوحة الطالب
 </a>
 </li>
-     
+
 <li>
 
-<button class="logout-btn" onclick="logout()">
+<button
+class="logout-btn"
+id="logoutBtn"
+type="button">
+
 🚪 تسجيل الخروج
+
 </button>
 
 </li>
@@ -78,8 +88,9 @@
 
 </nav>
 
+
 <!-- =========================
-      HEADER
+     HEADER
 ========================= -->
 
 <header>
@@ -89,51 +100,65 @@
 </h1>
 
 <p>
-
 منصة تعليمية متكاملة لطلاب مدارس التمريض
-
 </p>
 
 <p>
-
 شروحات • اختبارات • مراجعات • ملفات PDF
-
 </p>
 
 </header>
 
+
 <!-- =========================
-      HOME CARDS
+     HOME
 ========================= -->
 
 <section class="years">
 
 <h2>
-
 مرحبًا بك 👋
-
 </h2>
 
-  <div class="card" id="adminCard" style="display:none;">
 
-<div class="card-icon">🛠️</div>
+<!-- ADMIN -->
 
-<h3>لوحة تحكم الأدمن</h3>
+<div
+class="card"
+id="adminCard"
+style="display:none;">
+
+<div class="card-icon">
+🛠️
+</div>
+
+<h3>
+لوحة تحكم الأدمن
+</h3>
 
 <p>
 إدارة الطلاب والاختبارات والإحصائيات الخاصة بالمنصة.
 </p>
 
-<a class="button-link" href="admin-dashboard.html">
+<a
+class="button-link"
+href="admin-dashboard.html">
+
 دخول لوحة الأدمن
+
 </a>
 
-</div>   
+</div>
+
+
+<!-- STUDENT DASHBOARD -->
 
 <div class="card">
 
-<div class="card-icon">📊</div>
-     
+<div class="card-icon">
+📊
+</div>
+
 <h2>
 📊 لوحة الطالب
 </h2>
@@ -142,89 +167,145 @@
 تابع درجاتك ومتوسطك النهائي ونتائج الاختبارات
 </p>
 
-<a href="student-dashboard.html" class="button-link">
+<a
+href="student-dashboard.html"
+class="button-link">
+
 دخول لوحة الطالب
+
 </a>
 
 </div>
 
+
+<!-- SCHEDULE -->
+
 <div class="card">
 
-    <div class="card-icon">📅</div>
+<div class="card-icon">
+📅
+</div>
 
-    <h3>جدول نزول المحاضرات</h3>
+<h3>
+جدول نزول المحاضرات
+</h3>
 
-    <p>
-        اعرف مواعيد نزول جميع محاضرات الصف الأول والثاني الثانوي تمريض،
-        وخطة نشر الشروحات على قناة بوابة التمريض.
-    </p>
+<p>
+اعرف مواعيد نزول جميع محاضرات الصف الأول والثاني الثانوي تمريض،
+وخطة نشر الشروحات على قناة بوابة التمريض.
+</p>
 
-    <a href="schedule.html" class="button-link">
-        📆 عرض الجدول
-    </a>
+<a
+href="schedule.html"
+class="button-link">
+
+📆 عرض الجدول
+
+</a>
 
 </div>
-     
+
+
+<!-- ADMISSION -->
+
 <div class="card">
 
-<div class="card-icon">📝</div>
+<div class="card-icon">
+📝
+</div>
 
-<h3>اختبارات القبول</h3>
+<h3>
+اختبارات القبول
+</h3>
 
 <p>
 ابدأ التدريب على اختبارات القبول لمدارس التمريض من خلال الفيديوهات والأسئلة.
 </p>
 
-<a class="button-link" href="admission.html">
+<a
+class="button-link"
+href="admission.html">
+
 ابدأ الآن
+
 </a>
 
 </div>
-     
+
+
+<!-- FIRST YEAR -->
+
 <div class="card">
 
-<div class="card-icon">📘</div>
+<div class="card-icon">
+📘
+</div>
 
-<h3>الصف الأول الثانوي</h3>
+<h3>
+الصف الأول الثانوي
+</h3>
 
 <p>
 ادخل إلى جميع مواد الصف الأول مع الشروحات والاختبارات والملفات.
 </p>
 
-<a class="button-link" href="first-year.html">
+<a
+class="button-link"
+href="first-year.html">
+
 دخول الصف الأول
+
 </a>
 
 </div>
 
-     <div class="card">
 
-<div class="card-icon">📗</div>
+<!-- SECOND YEAR -->
 
-<h3>الصف الثاني الثانوي</h3>
+<div class="card">
+
+<div class="card-icon">
+📗
+</div>
+
+<h3>
+الصف الثاني الثانوي
+</h3>
 
 <p>
 ادخل إلى جميع مواد الصف الثاني مع الشابترات والاختبارات.
 </p>
 
-<a class="button-link" href="second-year.html">
+<a
+class="button-link"
+href="second-year.html">
+
 دخول الصف الثاني
+
 </a>
 
-     </div>
+</div>
+
+
+<!-- LEADERBOARD -->
+
 <div class="card">
 
-<div class="card-icon">🏆</div>
+<div class="card-icon">
+🏆
+</div>
 
-<h3>ترتيب الطلاب</h3>
+<h3>
+ترتيب الطلاب
+</h3>
 
 <p>
-
 تعرف على أفضل الطلاب وأعلى الدرجات على المنصة.
-
 </p>
 
-<a class="button-link" href="leaderboard.html">
+<a
+class="button-link"
+href="leaderboard.html">
 
 عرض الترتيب
 
@@ -233,82 +314,109 @@
 </div>
 
 
+<!-- STUDENT -->
+
 <div class="card">
 
-<div class="card-icon">👨‍🎓</div>
+<div class="card-icon">
+👨‍🎓
+</div>
 
-<h3>لوحة الطالب</h3>
+<h3>
+لوحة الطالب
+</h3>
 
 <p>
 تابع درجاتك، الاختبارات التي قمت بحلها، ونسبة تقدمك في منصة بوابة التمريض.
 </p>
 
-<a class="button-link" href="dashboard.html">
+<a
+class="button-link"
+href="student-dashboard.html">
+
 دخول لوحة الطالب
+
 </a>
 
 </div>
-     
+
+
+<!-- BOOKS -->
+
 <div class="card">
 
-<div class="card-icon">📚</div>
+<div class="card-icon">
+📚
+</div>
 
-<h3>مكتبة بوابة التمريض</h3>
+<h3>
+مكتبة بوابة التمريض
+</h3>
 
 <p>
 الكتب والملخصات والملفات الرسمية الخاصة ببوابة التمريض.
 </p>
 
-<a class="button-link" href="books.html">
+<a
+class="button-link"
+href="books.html">
+
 دخول المكتبة
+
 </a>
 
-     </div>
-
-     
 </div>
 
+
 </section>
+
+
+<!-- =========================
+     WHY BAWABET
+========================= -->
 
 <section class="years">
 
 <h2>
-
 ⭐ لماذا بوابة التمريض؟
-
 </h2>
 
 <div class="cards">
 
 <div class="card">
 
-<h3>🎥 شروحات فيديو</h3>
+<h3>
+🎥 شروحات فيديو
+</h3>
 
 <p>
 شرح مبسط لجميع المواد مع أمثلة وأسئلة متوقعة.
-
 </p>
 
 </div>
 
+
 <div class="card">
 
-<h3>📝 اختبارات تفاعلية</h3>
+<h3>
+📝 اختبارات تفاعلية
+</h3>
 
 <p>
 اختبر نفسك بعد كل درس واعرف نتيجتك فورًا.
-
 </p>
 
 </div>
 
+
 <div class="card">
 
-<h3>📄 ملفات PDF</h3>
+<h3>
+📄 ملفات PDF
+</h3>
 
 <p>
 ملخصات منظمة تساعدك على المراجعة بسرعة.
-
 </p>
 
 </div>
@@ -316,63 +424,108 @@
 </div>
 
 </section>
+
+
 <!-- =========================
-      FOOTER
-==============================
+     FOOTER
+========================= -->
+
+<footer>
+
 <p>
 © 2026 بوابة التمريض - جميع الحقوق محفوظة
 </p>
 
 </footer>
 
+
 <!-- =========================
-      FIREBASE
+     FIREBASE
 ========================= -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script src="firebase.js"></script>
+
 <script src="auth.js"></script>
+
 <script src="script.js"></script>
 
+
 <!-- =========================
-      MENU
+     MENU + LOGOUT
 ========================= -->
 
 <script>
 
-function toggleMenu(){
+document.addEventListener("DOMContentLoaded", function(){
 
-document.getElementById("menu").classList.toggle("show");
+const menuToggle =
+document.getElementById("menuToggle");
 
-}
+const menu =
+document.getElementById("menu");
 
-// التحقق من تسجيل الدخول
+const logoutBtn =
+document.getElementById("logoutBtn");
 
-const studentCode = localStorage.getItem("studentCode");
 
-if(!studentCode){
+// ===============================
+// فتح وإغلاق القائمة
+// ===============================
 
-window.location.href = "login.html";
+menuToggle.addEventListener("click", function(){
 
-}
+menu.classList.toggle("show");
 
+});
+
+
+// ===============================
+// إغلاق القائمة عند الضغط على رابط
+// ===============================
+
+const menuLinks =
+menu.querySelectorAll("a");
+
+menuLinks.forEach(function(link){
+
+link.addEventListener("click", function(){
+
+menu.classList.remove("show");
+
+});
+
+});
+
+
+// ===============================
 // تسجيل الخروج
+// ===============================
 
-function logout(){
+logoutBtn.addEventListener("click", function(){
 
 localStorage.removeItem("studentCode");
+
 localStorage.removeItem("studentName");
+
 localStorage.removeItem("studentGrade");
 
-alert("تم تسجيل الخروج");
+localStorage.removeItem("deviceId");
+
+alert("✅ تم تسجيل الخروج");
 
 window.location.href = "login.html";
 
-}
+});
 
-       </script>
-       </body>
+});
+
+</script>
+
+
+</body>
 
 </html>

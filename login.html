@@ -48,17 +48,12 @@ placeholder="كلمة المرور">
 </div>
 
 
-<button
-id="loginBtn"
-type="button">
-
+<button id="loginBtn" type="button">
 تسجيل الدخول
-
 </button>
 
 
 <br><br>
-
 
 <p>
 إذا لم يكن لديك كود اشتراك، تواصل مع إدارة بوابة التمريض.
@@ -72,11 +67,11 @@ type="button">
 </div>
 
 
-<!-- ===============================
-     FIREBASE
-================================ -->
+<!-- Firebase -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -102,18 +97,12 @@ function login() {
     const code =
         document.getElementById("code").value.trim();
 
-
     const password =
         document.getElementById("password").value.trim();
-
 
     const loginBtn =
         document.getElementById("loginBtn");
 
-
-    // ==========================================
-    // التحقق من البيانات
-    // ==========================================
 
     if (!code || !password) {
 
@@ -125,10 +114,6 @@ function login() {
     }
 
 
-    // ==========================================
-    // منع الضغط المتكرر
-    // ==========================================
-
     isLoggingIn = true;
 
     loginBtn.disabled = true;
@@ -138,19 +123,14 @@ function login() {
 
 
     // ==========================================
-    // البحث عن الاشتراك
+    // قراءة بيانات الطالب
     // ==========================================
 
     db.collection("students")
         .doc(code)
         .get()
 
-
         .then(function(doc) {
-
-            // ==================================
-            // الكود غير موجود
-            // ==================================
 
             if (!doc.exists) {
 
@@ -161,17 +141,10 @@ function login() {
             }
 
 
-            const student =
-                doc.data();
+            const student = doc.data();
 
 
-            // ==================================
-            // كلمة المرور
-            // ==================================
-
-            if (
-                student.password !== password
-            ) {
+            if (student.password !== password) {
 
                 throw new Error(
                     "❌ كلمة المرور غير صحيحة"
@@ -180,13 +153,7 @@ function login() {
             }
 
 
-            // ==================================
-            // حالة الاشتراك
-            // ==================================
-
-            if (
-                student.active !== true
-            ) {
+            if (student.active !== true) {
 
                 throw new Error(
                     "❌ هذا الاشتراك غير مفعل"
@@ -204,8 +171,6 @@ function login() {
                 let expiry;
 
 
-                // Firebase Timestamp
-
                 if (
                     typeof student.expiresAt.toDate ===
                     "function"
@@ -214,26 +179,15 @@ function login() {
                     expiry =
                         student.expiresAt.toDate();
 
-                }
-
-
-                // تاريخ نصي
-
-                else {
+                } else {
 
                     expiry =
-                        new Date(
-                            student.expiresAt
-                        );
+                        new Date(student.expiresAt);
 
                 }
 
 
-                if (
-                    isNaN(
-                        expiry.getTime()
-                    )
-                ) {
+                if (isNaN(expiry.getTime())) {
 
                     throw new Error(
                         "❌ تاريخ انتهاء الاشتراك غير صحيح"
@@ -242,9 +196,7 @@ function login() {
                 }
 
 
-                if (
-                    new Date() >= expiry
-                ) {
+                if (new Date() >= expiry) {
 
                     throw new Error(
                         "❌ انتهى اشتراكك، يرجى تجديد الاشتراك"
@@ -255,14 +207,45 @@ function login() {
             }
 
 
-            // ==================================
-            // إنشاء معرف الجهاز
-            // ==================================
+            // نرجع بيانات الطالب
+            return student;
+
+        })
+
+
+        // ==========================================
+        // تسجيل دخول Firebase Anonymous
+        // ==========================================
+
+        .then(function(student) {
+
+            if (firebase.auth().currentUser) {
+
+                return student;
+
+            }
+
+
+            return firebase.auth()
+                .signInAnonymously()
+
+                .then(function() {
+
+                    return student;
+
+                });
+
+        })
+
+
+        // ==========================================
+        // ربط الجهاز
+        // ==========================================
+
+        .then(function(student) {
 
             let deviceId =
-                localStorage.getItem(
-                    "deviceId"
-                );
+                localStorage.getItem("deviceId");
 
 
             if (!deviceId) {
@@ -285,7 +268,7 @@ function login() {
 
 
             // ==================================
-            // أول تسجيل دخول
+            // أول جهاز
             // ==================================
 
             if (
@@ -298,8 +281,7 @@ function login() {
                     .doc(code)
                     .update({
 
-                        deviceId:
-                            deviceId
+                        deviceId: deviceId
 
                     })
 
@@ -326,7 +308,7 @@ function login() {
 
 
             // ==================================
-            // جهاز مختلف
+            // جهاز آخر
             // ==================================
 
             throw new Error(
@@ -337,7 +319,7 @@ function login() {
 
 
         // ==========================================
-        // نجاح تسجيل الدخول
+        // نجاح الدخول
         // ==========================================
 
         .then(function(student) {
@@ -347,12 +329,10 @@ function login() {
                 code
             );
 
-
             localStorage.setItem(
                 "studentName",
                 student.name || ""
             );
-
 
             localStorage.setItem(
                 "studentGrade",
@@ -368,7 +348,7 @@ function login() {
 
 
         // ==========================================
-        // معالجة الأخطاء
+        // الخطأ
         // ==========================================
 
         .catch(function(error) {
@@ -398,7 +378,7 @@ function login() {
 
 
 // ==========================================
-// زر تسجيل الدخول
+// زر الدخول
 // ==========================================
 
 document
@@ -410,7 +390,7 @@ document
 
 
 // ==========================================
-// الضغط على Enter
+// Enter
 // ==========================================
 
 document

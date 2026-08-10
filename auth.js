@@ -16,12 +16,11 @@
         window.location.href = "login.html";
 
         return;
-
     }
 
 
     // ===============================
-    // التحقق من الاشتراك
+    // جلب بيانات الطالب
     // ===============================
 
     db.collection("students")
@@ -32,14 +31,9 @@
 
             if (!doc.exists) {
 
-                localStorage.removeItem("studentCode");
-                localStorage.removeItem("studentName");
-                localStorage.removeItem("studentGrade");
-
-                window.location.href = "login.html";
+                logoutStudent();
 
                 return;
-
             }
 
 
@@ -47,21 +41,16 @@
 
 
             // ===============================
-            // التحقق من التفعيل
+            // التحقق من تفعيل الاشتراك
             // ===============================
 
             if (student.active !== true) {
 
                 alert("❌ هذا الاشتراك غير مفعل");
 
-                localStorage.removeItem("studentCode");
-                localStorage.removeItem("studentName");
-                localStorage.removeItem("studentGrade");
-
-                window.location.href = "login.html";
+                logoutStudent();
 
                 return;
-
             }
 
 
@@ -74,57 +63,107 @@
                 let expireDate;
 
 
+                // Firebase Timestamp
+
                 if (
-                    student.expiresAt &&
                     typeof student.expiresAt.toDate === "function"
                 ) {
 
-                    expireDate = student.expiresAt.toDate();
+                    expireDate =
+                        student.expiresAt.toDate();
 
-                } else {
+                }
 
-                    expireDate = new Date(student.expiresAt);
+                // تاريخ نصي
+
+                else {
+
+                    expireDate =
+                        new Date(student.expiresAt);
 
                 }
 
 
-                if (
-                    isNaN(expireDate.getTime())
-                ) {
+                // تاريخ غير صحيح
 
-                    console.log(
-                        "Invalid expiresAt:",
+                if (isNaN(expireDate.getTime())) {
+
+                    console.error(
+                        "تاريخ انتهاء غير صحيح:",
                         student.expiresAt
                     );
 
                     return;
-
                 }
 
 
                 const now = new Date();
 
 
+                // الاشتراك منتهي
+
                 if (now >= expireDate) {
 
                     alert(
-                        "❌ انتهى اشتراكك.\nيرجى تجديد الاشتراك."
+                        "❌ انتهى اشتراكك.\n\nيرجى تجديد الاشتراك."
                     );
 
-
-                    localStorage.removeItem("studentCode");
-                    localStorage.removeItem("studentName");
-                    localStorage.removeItem("studentGrade");
-
-                    window.location.href = "login.html";
+                    logoutStudent();
 
                     return;
-
                 }
 
             }
 
+
+            // ===============================
+            // حفظ بيانات الطالب
+            // ===============================
+
+            localStorage.setItem(
+                "studentName",
+                student.name || ""
+            );
+
+            localStorage.setItem(
+                "studentGrade",
+                student.grade || ""
+            );
+
+
+            // ===============================
+            // التحقق من الجهاز
+            // ===============================
+
+            const deviceId =
+                localStorage.getItem("deviceId");
+
+
+            if (
+                student.deviceId &&
+                student.deviceId !== "null" &&
+                student.deviceId !== "" &&
+                deviceId &&
+                student.deviceId !== deviceId
+            ) {
+
+                alert(
+                    "❌ هذا الاشتراك مستخدم على جهاز آخر."
+                );
+
+                logoutStudent();
+
+                return;
+            }
+
+
+            console.log(
+                "✅ تم التحقق من الاشتراك:",
+                studentCode
+            );
+
         })
+
 
         .catch(function (error) {
 
@@ -134,9 +173,26 @@
             );
 
             alert(
-                "❌ حدث خطأ في التحقق من الاشتراك"
+                "❌ حدث خطأ في التحقق من الاشتراك.\n\n" +
+                error.message
             );
 
         });
+
+
+    // ===============================
+    // تسجيل خروج الطالب
+    // ===============================
+
+    function logoutStudent() {
+
+        localStorage.removeItem("studentCode");
+
+        localStorage.removeItem("studentName");
+
+        localStorage.removeItem("studentGrade");
+
+        window.location.href = "login.html";
+    }
 
 })();

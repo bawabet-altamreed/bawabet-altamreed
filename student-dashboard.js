@@ -5,7 +5,6 @@
 
 const studentCode = localStorage.getItem("studentCode");
 
-
 // ==========================================
 // التحقق من تسجيل الدخول
 // ==========================================
@@ -13,6 +12,10 @@ const studentCode = localStorage.getItem("studentCode");
 if (!studentCode) {
 
     window.location.replace("login.html");
+
+} else {
+
+    loadStudentDashboard();
 
 }
 
@@ -36,7 +39,6 @@ function loadStudentDashboard() {
                 );
 
             }
-
 
             const student = studentDoc.data();
 
@@ -81,7 +83,17 @@ function loadStudentDashboard() {
 
         })
 
+
         .then(function(snapshot) {
+
+            if (!snapshot) {
+                return;
+            }
+
+
+            // ==================================
+            // لا توجد نتائج
+            // ==================================
 
             if (snapshot.empty) {
 
@@ -93,8 +105,13 @@ function loadStudentDashboard() {
                 document.getElementById(
                     "average"
                 ).innerHTML = `
+
                     <h1>⭐ 0%</h1>
-                    <p>عدد الاختبارات: 0</p>
+
+                    <p>
+                        عدد الاختبارات: 0
+                    </p>
+
                 `;
 
                 return;
@@ -229,25 +246,32 @@ function loadStudentDashboard() {
 
         })
 
+
         .catch(function(error) {
 
             console.error(
-                "Student Dashboard:",
+                "Student Dashboard Error:",
                 error
             );
+
 
             document.getElementById(
                 "studentInfo"
             ).innerHTML =
                 "❌ حدث خطأ أثناء تحميل البيانات";
 
+
+            document.getElementById(
+                "results"
+            ).innerHTML =
+                "❌ تعذر تحميل النتائج";
+
+
+            document.getElementById(
+                "average"
+            ).innerHTML =
+                "❌ تعذر حساب المتوسط";
+
         });
 
 }
-
-
-// ==========================================
-// تشغيل اللوحة
-// ==========================================
-
-loadStudentDashboard();

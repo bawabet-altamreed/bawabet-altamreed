@@ -22,6 +22,7 @@
 
 </header>
 
+
 <section class="years">
 
 <div class="card">
@@ -30,13 +31,25 @@
 ⏳ <span id="timer">05:00</span>
 </div>
 
+
 <div class="progress">
-<div class="progress-bar" id="progressBar"></div>
+
+<div
+class="progress-bar"
+id="progressBar">
 </div>
+
+</div>
+
+
+<p id="questionNumber"></p>
+
 
 <h2 id="question"></h2>
 
+
 <div id="answers"></div>
+
 
 <button id="nextBtn">
 ▶️ التالي
@@ -46,273 +59,644 @@
 
 </section>
 
+
+<!-- =========================
+     FIREBASE
+========================= -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script src="firebase.js"></script>
+
+
 <script>
 
-const questions=[
+// ==========================================
+// بيانات الطالب
+// ==========================================
+
+const studentCode =
+localStorage.getItem("studentCode");
+
+const studentName =
+localStorage.getItem("studentName");
+
+const studentGrade =
+localStorage.getItem("studentGrade");
+
+
+// ==========================================
+// التحقق من تسجيل الدخول
+// ==========================================
+
+if (!studentCode) {
+
+    window.location.replace("login.html");
+
+}
+
+
+// ==========================================
+// الأسئلة
+// ==========================================
+
+const questions = [
 
 {
 question:"Primary Health Care (PHC) is:",
 answers:[
-{text:"The first level of health care",correct:true},
-{text:"Hospital surgery",correct:false},
-{text:"Emergency care only",correct:false},
-{text:"Laboratory services",correct:false}
-]
+"The first level of health care",
+"Hospital surgery",
+"Emergency care only",
+"Laboratory services"
+],
+correct:0
 },
 
 {
 question:"Which of the following is NOT a principle of PHC?",
 answers:[
-{text:"Luxury Care",correct:true},
-{text:"Community Participation",correct:false},
-{text:"Appropriate Technology",correct:false},
-{text:"Equitable Distribution",correct:false}
-]
+"Luxury Care",
+"Community Participation",
+"Appropriate Technology",
+"Equitable Distribution"
+],
+correct:0
 },
 
 {
 question:"How many main components does PHC have?",
 answers:[
-{text:"3",correct:true},
-{text:"2",correct:false},
-{text:"5",correct:false},
-{text:"7",correct:false}
-]
+"3",
+"2",
+"5",
+"7"
+],
+correct:0
 },
 
 {
 question:"Community participation means:",
 answers:[
-{text:"People share in improving health",correct:true},
-{text:"Doctors work alone",correct:false},
-{text:"Hospitals only",correct:false},
-{text:"Ignoring families",correct:false}
-]
+"People share in improving health",
+"Doctors work alone",
+"Hospitals only",
+"Ignoring families"
+],
+correct:0
 },
 
 {
 question:"One element of PHC is:",
 answers:[
-{text:"Health Education",correct:true},
-{text:"Cosmetic Surgery",correct:false},
-{text:"Luxury Treatment",correct:false},
-{text:"Space Medicine",correct:false}
-]
+"Health Education",
+"Cosmetic Surgery",
+"Luxury Treatment",
+"Space Medicine"
+],
+correct:0
 },
 
 {
 question:"Maternal and Child Health aims to improve:",
 answers:[
-{text:"Health of mothers and children",correct:true},
-{text:"Only elderly people",correct:false},
-{text:"Animals only",correct:false},
-{text:"Factories",correct:false}
-]
+"Health of mothers and children",
+"Only elderly people",
+"Animals only",
+"Factories"
+],
+correct:0
 },
 
 {
 question:"Vaccination is part of:",
 answers:[
-{text:"Primary Health Care",correct:true},
-{text:"Road Safety",correct:false},
-{text:"Bank Services",correct:false},
-{text:"Engineering",correct:false}
-]
+"Primary Health Care",
+"Road Safety",
+"Bank Services",
+"Engineering"
+],
+correct:0
 },
 
 {
 question:"A Community Health Nurse provides:",
 answers:[
-{text:"Health Education",correct:true},
-{text:"Building Houses",correct:false},
-{text:"Driving Ambulances Only",correct:false},
-{text:"Selling Medicines",correct:false}
-]
+"Health Education",
+"Building Houses",
+"Driving Ambulances Only",
+"Selling Medicines"
+],
+correct:0
 },
 
 {
 question:"Safe Water and Sanitation are:",
 answers:[
-{text:"Elements of PHC",correct:true},
-{text:"Hospital Departments",correct:false},
-{text:"Types of Diseases",correct:false},
-{text:"Medicines",correct:false}
-]
+"Elements of PHC",
+"Hospital Departments",
+"Types of Diseases",
+"Medicines"
+],
+correct:0
 },
 
 {
 question:"The best answer about PHC is:",
 answers:[
-{text:"Promotes health and prevents disease",correct:true},
-{text:"Treats diseases only",correct:false},
-{text:"Works only in hospitals",correct:false},
-{text:"For children only",correct:false}
-]
+"Promotes health and prevents disease",
+"Treats diseases only",
+"Works only in hospitals",
+"For children only"
+],
+correct:0
 }
 
 ];
 
-let currentQuestion=0;
-let score=0;
 
-let timeLeft=300;
+// ==========================================
+// متغيرات الاختبار
+// ==========================================
 
-const timer=document.getElementById("timer");
+let currentQuestion = 0;
 
-const questionElement=document.getElementById("question");
-const answersElement=document.getElementById("answers");
-const nextButton=document.getElementById("nextBtn");
+let score = 0;
 
-const countdown=setInterval(function(){
+let answered = false;
 
-if(timeLeft<=0){
+let timeLeft = 300;
 
-showResult();
+let timerInterval;
 
-return;
+let examFinished = false;
 
-}
 
-timeLeft--;
+// ==========================================
+// عناصر الصفحة
+// ==========================================
 
-let minutes=Math.floor(timeLeft/60);
-let seconds=timeLeft%60;
+const questionElement =
+document.getElementById("question");
 
-timer.innerHTML=
-String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0");
+const answersElement =
+document.getElementById("answers");
 
-},1000);
+const nextButton =
+document.getElementById("nextBtn");
 
-function showQuestion(){
+const timer =
+document.getElementById("timer");
 
-resetState();
 
-document.getElementById("progressBar").style.width=((currentQuestion+1)/questions.length)*100+"%";
+// ==========================================
+// تحميل السؤال
+// ==========================================
 
-let q=questions[currentQuestion];
+function loadQuestion(){
 
-questionElement.innerHTML=(currentQuestion+1)+". "+q.question;
+    answered = false;
 
-q.answers.forEach(answer=>{
+    answersElement.innerHTML = "";
 
-const button=document.createElement("button");
+    nextButton.style.display = "none";
 
-button.innerHTML=answer.text;
 
-button.onclick=()=>selectAnswer(answer.correct,button);
+    const q =
+    questions[currentQuestion];
 
-answersElement.appendChild(button);
 
-});
+    questionElement.innerHTML =
+    q.question;
 
-}
 
-function resetState(){
+    document.getElementById(
+        "questionNumber"
+    ).innerHTML =
+    "Question " +
+    (currentQuestion + 1) +
+    " / " +
+    questions.length;
 
-nextButton.style.display="none";
 
-answersElement.innerHTML="";
+    document.getElementById(
+        "progressBar"
+    ).style.width =
+    (
+        (currentQuestion + 1) /
+        questions.length
+    ) * 100 + "%";
 
-}
 
-function selectAnswer(correct,button){
+    q.answers.forEach(
+        function(answer,index){
 
-if(correct){
+            const button =
+            document.createElement("button");
 
-score++;
 
-button.style.background="green";
+            button.innerHTML =
+            answer;
 
-}else{
 
-button.style.background="red";
+            button.className =
+            "quiz-answer";
 
-}
 
-Array.from(answersElement.children).forEach(btn=>btn.disabled=true);
+            button.onclick =
+            function(){
 
-nextButton.style.display="block";
+                selectAnswer(
+                    index,
+                    button
+                );
 
-}
+            };
 
-nextButton.onclick=function(){
 
-currentQuestion++;
+            answersElement.appendChild(
+                button
+            );
 
-if(currentQuestion<questions.length){
-
-showQuestion();
-
-}else{
-
-showResult();
-
-}
-
-}
-
-function showResult(){
-
-clearInterval(countdown);
-
-let percentage=Math.round((score/questions.length)*100);
-
-let message="";
-
-if(percentage>=90){
-
-message="🏆 ممتاز! أداء رائع.";
+        }
+    );
 
 }
 
-else if(percentage>=75){
 
-message="👏 أحسنت، مستواك ممتاز.";
+// ==========================================
+// اختيار الإجابة
+// ==========================================
+
+function selectAnswer(index,button){
+
+    if(answered) return;
+
+    answered = true;
+
+
+    const buttons =
+    answersElement.querySelectorAll(
+        "button"
+    );
+
+
+    buttons.forEach(
+        function(btn){
+
+            btn.disabled = true;
+
+        }
+    );
+
+
+    if(
+        index ===
+        questions[currentQuestion].correct
+    ){
+
+        score++;
+
+        button.style.background =
+        "green";
+
+        button.style.color =
+        "#fff";
+
+    }
+
+    else{
+
+        button.style.background =
+        "red";
+
+        button.style.color =
+        "#fff";
+
+
+        buttons[
+            questions[currentQuestion].correct
+        ].style.background =
+        "green";
+
+
+        buttons[
+            questions[currentQuestion].correct
+        ].style.color =
+        "#fff";
+
+    }
+
+
+    nextButton.style.display =
+    "block";
 
 }
 
-else if(percentage>=50){
 
-message="👍 جيد، راجع الشابتر مرة أخرى.";
+// ==========================================
+// زر التالي
+// ==========================================
+
+nextButton.onclick =
+function(){
+
+    if(!answered){
+
+        alert(
+            "من فضلك اختر إجابة أولاً"
+        );
+
+        return;
+
+    }
+
+
+    currentQuestion++;
+
+
+    if(
+        currentQuestion <
+        questions.length
+    ){
+
+        loadQuestion();
+
+    }
+
+    else{
+
+        finishExam();
+
+    }
+
+};
+
+
+// ==========================================
+// إنهاء الاختبار
+// ==========================================
+
+function finishExam(){
+
+    if(examFinished) return;
+
+    examFinished = true;
+
+
+    clearInterval(
+        timerInterval
+    );
+
+
+    const percentage =
+    Math.round(
+        (score / questions.length) * 100
+    );
+
+
+    saveResult(
+        percentage
+    );
 
 }
 
-else{
 
-message="📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار.";
+// ==========================================
+// حفظ النتيجة
+// ==========================================
+
+function saveResult(percentage){
+
+    if(!studentCode){
+
+        alert(
+            "❌ يجب تسجيل الدخول أولاً"
+        );
+
+        window.location.replace(
+            "login.html"
+        );
+
+        return;
+
+    }
+
+
+    db.collection("results")
+    .add({
+
+        studentCode:
+        studentCode,
+
+        name:
+        studentName || "",
+
+        grade:
+        studentGrade || "",
+
+        subject:
+        "Community Health Nursing",
+
+        chapter:
+        "Chapter 2",
+
+        score:
+        score,
+
+        total:
+        questions.length,
+
+        percentage:
+        percentage,
+
+        date:
+        firebase.firestore
+        .FieldValue
+        .serverTimestamp()
+
+    })
+
+
+    .then(
+        function(){
+
+            showResult(
+                percentage
+            );
+
+        }
+    )
+
+
+    .catch(
+        function(error){
+
+            console.error(
+                "Save Result Error:",
+                error
+            );
+
+
+            alert(
+                "❌ حدث خطأ أثناء حفظ النتيجة\n" +
+                error.message
+            );
+
+        }
+    );
 
 }
 
-document.querySelector(".card").innerHTML=`
 
-<div class="result-box">
+// ==========================================
+// عرض النتيجة
+// ==========================================
 
-<h2>🎉 انتهى الاختبار</h2>
+function showResult(percentage){
 
-<p>النتيجة</p>
+    const card =
+    document.querySelector(".card");
 
-<h1>${score} / ${questions.length}</h1>
 
-<h2>${percentage}%</h2>
+    let message = "";
 
-<p>${message}</p>
 
-<button onclick="location.reload()">🔄 إعادة الاختبار</button>
+    if(percentage >= 90){
 
-<br><br>
+        message =
+        "🏆 ممتاز! أداء رائع.";
 
-<button onclick="history.back()">🏠 العودة للشابتر</button>
+    }
 
-</div>
+    else if(percentage >= 75){
 
-`;
+        message =
+        "👏 أحسنت، مستواك ممتاز.";
+
+    }
+
+    else if(percentage >= 50){
+
+        message =
+        "👍 جيد، راجع الشابتر مرة أخرى.";
+
+    }
+
+    else{
+
+        message =
+        "📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار.";
+
+    }
+
+
+    card.innerHTML = `
+
+        <div class="result-box">
+
+            <h2>
+                🎉 انتهى الاختبار
+            </h2>
+
+            <p>
+                النتيجة
+            </p>
+
+            <h1>
+                ${score} / ${questions.length}
+            </h1>
+
+            <h2>
+                ${percentage}%
+            </h2>
+
+            <p>
+                ${message}
+            </p>
+
+            <button
+                onclick="location.reload()">
+                🔄 إعادة الاختبار
+            </button>
+
+            <br><br>
+
+            <button
+                onclick="history.back()">
+                🏠 العودة للشابتر
+            </button>
+
+        </div>
+
+    `;
 
 }
 
-showQuestion();
+
+// ==========================================
+// المؤقت
+// ==========================================
+
+function startTimer(){
+
+    timerInterval =
+    setInterval(
+        function(){
+
+            let minutes =
+            Math.floor(
+                timeLeft / 60
+            );
+
+
+            let seconds =
+            timeLeft % 60;
+
+
+            if(seconds < 10){
+
+                seconds =
+                "0" + seconds;
+
+            }
+
+
+            timer.innerHTML =
+            "⏳ " +
+            minutes +
+            ":" +
+            seconds;
+
+
+            timeLeft--;
+
+
+            if(timeLeft < 0){
+
+                finishExam();
+
+            }
+
+        },
+        1000
+    );
+
+}
+
+
+// ==========================================
+// تشغيل الاختبار
+// ==========================================
+
+loadQuestion();
+
+startTimer();
 
 </script>
-<script src="auth.js"></script>
+
 </body>
 
 </html>

@@ -1,18 +1,37 @@
-let currentUser = null;
+// ==========================================
+// بوابة التمريض
+// General Surgery - Chapter 2
+// ==========================================
 
-firebase.auth().onAuthStateChanged(function(user){
 
-if(user){
+// ==========================================
+// بيانات الطالب
+// ==========================================
 
-currentUser = user;
+const studentCode =
+localStorage.getItem("studentCode");
 
-}else{
+const studentName =
+localStorage.getItem("studentName");
 
-window.location.href = "login.html";
+const studentGrade =
+localStorage.getItem("studentGrade");
+
+
+// ==========================================
+// التحقق من تسجيل الدخول
+// ==========================================
+
+if (!studentCode) {
+
+    window.location.replace("login.html");
 
 }
 
-});
+
+// ==========================================
+// الأسئلة
+// ==========================================
 
 const questions = [
 
@@ -128,238 +147,422 @@ correct:2
 
 ];
 
+
+// ==========================================
+// متغيرات الاختبار
+// ==========================================
+
 let currentQuestion = 0;
+
 let score = 0;
+
 let answered = false;
-
-const question = document.getElementById("question");
-const answers = document.getElementById("answers");
-const nextBtn = document.getElementById("nextBtn");
-
-function loadQuestion(){
-
-answered = false;
-
-answers.innerHTML = "";
-
-question.innerHTML =
-questions[currentQuestion].question;
-
-document.getElementById("questionNumber").innerHTML =
-"السؤال " + (currentQuestion + 1) + " / " + questions.length;
-
-document.getElementById("progressFill").style.width =
-((currentQuestion + 1) / questions.length) * 100 + "%";
-
-questions[currentQuestion].answers.forEach((answer,index)=>{
-
-let button = document.createElement("button");
-
-button.innerHTML = answer;
-
-button.className = "quiz-answer";
-
-button.onclick=function(){
-
-if(answered) return;
-
-answered=true;
-
-let buttons =
-document.querySelectorAll("#answers button");
-
-buttons.forEach(btn=>{
-
-btn.disabled=true;
-
-});
-
-if(index === questions[currentQuestion].correct){
-
-score++;
-
-button.style.background="green";
-
-button.style.color="#fff";
-
-}else{
-
-button.style.background="red";
-
-button.style.color="#fff";
-
-buttons[questions[currentQuestion].correct].style.background="green";
-
-buttons[questions[currentQuestion].correct].style.color="#fff";
-
-}
-
-};
-
-answers.appendChild(button);
-
-});
-
-}
-
-nextBtn.onclick = function(){
-
-if(!answered){
-
-alert("من فضلك اختر إجابة أولاً");
-
-return;
-
-}
-
-currentQuestion++;
-
-if(currentQuestion < questions.length){
-
-loadQuestion();
-
-}else{
-
-let percentage = Math.round(
-(score / questions.length) * 100
-);
-
-saveResult(percentage);
-
-}
-
-};
-
-function saveResult(percentage){
-
-if(currentUser){
-
-db.collection("users")
-.doc(currentUser.uid)
-.get()
-
-.then((doc)=>{
-
-let userData = doc.data();
-
-return db.collection("results").add({
-
-uid: currentUser.uid,
-
-name: userData.name,
-
-grade: userData.grade,
-
-email: currentUser.email,
-
-subject:"General Surgery",
-
-chapter:"Chapter 2",
-
-score:score,
-
-total:questions.length,
-
-percentage:percentage,
-
-date:firebase.firestore.FieldValue.serverTimestamp()
-
-});
-
-})
-
-.then(()=>{
-
-showResult(percentage);
-
-})
-
-.catch((error)=>{
-
-console.log(error);
-
-showResult(percentage);
-
-});
-
-}else{
-
-showResult(percentage);
-
-}
-
-}
-
-function showResult(percentage){
-
-question.innerHTML="🎉 انتهى الاختبار";
-
-answers.innerHTML=`
-
-<h2>  
-درجتك: ${score} / ${questions.length}  
-</h2>  <h2>  
-النسبة: ${percentage}%  
-</h2>  <h3>  
-${percentage >= 50 ?  
-"🎉 مبروك لقد نجحت":  
-"❌ حاول مرة أخرى"}  
-</h3>  `;
-
-nextBtn.innerHTML="إعادة الاختبار";
-
-nextBtn.onclick=function(){
-
-location.reload();
-
-};
-
-}
-
-// Timer
 
 let timeLeft = 300;
 
 let timerInterval;
 
-const timer = document.getElementById("timer");
+
+// ==========================================
+// عناصر الصفحة
+// ==========================================
+
+const question =
+document.getElementById("question");
+
+const answers =
+document.getElementById("answers");
+
+const nextBtn =
+document.getElementById("nextBtn");
+
+const timer =
+document.getElementById("timer");
+
+
+// ==========================================
+// تحميل السؤال
+// ==========================================
+
+function loadQuestion(){
+
+    answered = false;
+
+    answers.innerHTML = "";
+
+    question.innerHTML =
+    questions[currentQuestion].question;
+
+
+    document.getElementById(
+        "questionNumber"
+    ).innerHTML =
+    "السؤال " +
+    (currentQuestion + 1) +
+    " / " +
+    questions.length;
+
+
+    document.getElementById(
+        "progressFill"
+    ).style.width =
+    ((currentQuestion + 1) /
+    questions.length) * 100 + "%";
+
+
+    questions[currentQuestion]
+    .answers
+    .forEach(function(answer,index){
+
+        let button =
+        document.createElement("button");
+
+
+        button.innerHTML = answer;
+
+        button.className =
+        "quiz-answer";
+
+
+        button.onclick =
+        function(){
+
+            if(answered) return;
+
+            answered = true;
+
+
+            let buttons =
+            document.querySelectorAll(
+                "#answers button"
+            );
+
+
+            buttons.forEach(
+                function(btn){
+
+                    btn.disabled = true;
+
+                }
+            );
+
+
+            if(
+                index ===
+                questions[currentQuestion].correct
+            ){
+
+                score++;
+
+                button.style.background =
+                "green";
+
+                button.style.color =
+                "#fff";
+
+            }
+
+            else{
+
+                button.style.background =
+                "red";
+
+                button.style.color =
+                "#fff";
+
+
+                buttons[
+                    questions[currentQuestion].correct
+                ].style.background =
+                "green";
+
+
+                buttons[
+                    questions[currentQuestion].correct
+                ].style.color =
+                "#fff";
+
+            }
+
+        };
+
+
+        answers.appendChild(button);
+
+    });
+
+}
+
+
+// ==========================================
+// زر التالي
+// ==========================================
+
+nextBtn.onclick =
+function(){
+
+    if(!answered){
+
+        alert(
+            "من فضلك اختر إجابة أولاً"
+        );
+
+        return;
+
+    }
+
+
+    currentQuestion++;
+
+
+    if(
+        currentQuestion <
+        questions.length
+    ){
+
+        loadQuestion();
+
+    }
+
+    else{
+
+        clearInterval(
+            timerInterval
+        );
+
+
+        let percentage =
+        Math.round(
+            (score /
+            questions.length) * 100
+        );
+
+
+        saveResult(
+            percentage
+        );
+
+    }
+
+};
+
+
+// ==========================================
+// حفظ النتيجة
+// ==========================================
+
+function saveResult(percentage){
+
+    if(!studentCode){
+
+        alert(
+            "❌ يجب تسجيل الدخول أولاً"
+        );
+
+        window.location.href =
+        "login.html";
+
+        return;
+
+    }
+
+
+    // ======================================
+    // تنظيف اسم الصف
+    // ======================================
+
+    const cleanGrade =
+    (studentGrade || "")
+    .replace(/\s+/g," ")
+    .trim();
+
+
+    // ======================================
+    // حفظ النتيجة
+    // ======================================
+
+    db.collection("results")
+    .add({
+
+        studentCode:
+        studentCode,
+
+        name:
+        studentName || "",
+
+        grade:
+        cleanGrade,
+
+        subject:
+        "General Surgery",
+
+        chapter:
+        "Chapter 2",
+
+        score:
+        score,
+
+        total:
+        questions.length,
+
+        percentage:
+        percentage,
+
+        date:
+        firebase.firestore
+        .FieldValue
+        .serverTimestamp()
+
+    })
+
+
+    .then(function(){
+
+        showResult(
+            percentage
+        );
+
+    })
+
+
+    .catch(function(error){
+
+        console.error(
+            "Save Result Error:",
+            error
+        );
+
+
+        alert(
+            "❌ حدث خطأ أثناء حفظ النتيجة"
+        );
+
+    });
+
+}
+
+
+// ==========================================
+// عرض النتيجة
+// ==========================================
+
+function showResult(percentage){
+
+    question.innerHTML =
+    "🎉 انتهى الاختبار";
+
+
+    answers.innerHTML = `
+
+        <h2>
+            درجتك:
+            ${score} /
+            ${questions.length}
+        </h2>
+
+        <h2>
+            النسبة:
+            ${percentage}%
+        </h2>
+
+        <h3>
+
+        ${
+            percentage >= 50
+
+            ?
+
+            "🎉 مبروك لقد نجحت"
+
+            :
+
+            "❌ حاول مرة أخرى"
+        }
+
+        </h3>
+
+    `;
+
+
+    nextBtn.innerHTML =
+    "إعادة الاختبار";
+
+
+    nextBtn.onclick =
+    function(){
+
+        location.reload();
+
+    };
+
+}
+
+
+// ==========================================
+// المؤقت
+// ==========================================
 
 function startTimer(){
 
-timerInterval=setInterval(()=>{
+    timerInterval =
+    setInterval(function(){
 
-let minutes=Math.floor(timeLeft/60);
+        let minutes =
+        Math.floor(
+            timeLeft / 60
+        );
 
-let seconds=timeLeft%60;
 
-if(seconds<10){
+        let seconds =
+        timeLeft % 60;
 
-seconds="0"+seconds;
+
+        if(seconds < 10){
+
+            seconds =
+            "0" + seconds;
+
+        }
+
+
+        timer.innerHTML =
+        "⏱️ الوقت: " +
+        minutes +
+        ":" +
+        seconds;
+
+
+        timeLeft--;
+
+
+        if(timeLeft < 0){
+
+            clearInterval(
+                timerInterval
+            );
+
+
+            let percentage =
+            Math.round(
+                (score /
+                questions.length) * 100
+            );
+
+
+            saveResult(
+                percentage
+            );
+
+        }
+
+    },1000);
 
 }
 
-timer.innerHTML=
-"⏱️ الوقت: "+minutes+":"+seconds;
 
-timeLeft--;
-
-if(timeLeft<0){
-
-clearInterval(timerInterval);
-
-let percentage=Math.round(
-(score/questions.length)*100
-);
-
-showResult(percentage);
-
-}
-
-},1000);
-
-}
-
-// Start Quiz
+// ==========================================
+// تشغيل الاختبار
+// ==========================================
 
 loadQuestion();
 

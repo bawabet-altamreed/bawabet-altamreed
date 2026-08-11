@@ -284,28 +284,7 @@ function adminLogin() {
 
         })
 
-        .catch(function(error) {
-
-            console.error(
-                "Admin Login Error:",
-                error
-            );
-
-
-            let message =
-                "❌ البريد الإلكتروني أو كلمة المرور غير صحيحة";
-
-
-            if (
-                error.code ===
-                "auth/too-many-requests"
-            ) {
-
-                message =
-                    "⚠️ تم إجراء محاولات كثيرة. حاول مرة أخرى لاحقًا.";
-
-            }
-
+        .
 
             errorMessage.textContent =
                 message;
@@ -320,7 +299,41 @@ function adminLogin() {
 
 }
 
+.catch(function(error) {
 
+    console.error(
+        "Admin Login Error:",
+        error
+    );
+
+
+    // إظهار كود ورسالة الخطأ الحقيقية مؤقتًا
+    let message =
+        error.code + " — " + error.message;
+
+
+    if (
+        error.code ===
+        "auth/too-many-requests"
+    ) {
+
+        message =
+            "⚠️ تم إجراء محاولات كثيرة. حاول مرة أخرى لاحقًا.";
+
+    }
+
+
+    errorMessage.textContent =
+        message;
+
+
+    loginBtn.disabled = false;
+
+    loginBtn.textContent =
+        "🔐 دخول لوحة الإدارة";
+
+});
+    
 loginBtn.addEventListener(
     "click",
     adminLogin

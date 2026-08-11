@@ -5,7 +5,8 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>دخول الإدارة | بوابة التمريض</title>
 
@@ -87,6 +88,7 @@ body {
     color: #d32f2f;
     margin-top: 15px;
     min-height: 20px;
+    line-height: 1.6;
 }
 
 </style>
@@ -94,6 +96,7 @@ body {
 </head>
 
 <body>
+
 
 <div class="admin-login-card">
 
@@ -142,7 +145,8 @@ body {
 
     <button
         id="loginBtn"
-        class="login-btn">
+        class="login-btn"
+        type="button">
 
         🔐 دخول لوحة الإدارة
 
@@ -157,7 +161,9 @@ body {
 </div>
 
 
-<!-- Firebase -->
+<!-- =====================================
+     Firebase
+===================================== -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
@@ -188,7 +194,7 @@ const errorMessage =
 
 
 // ==========================================
-// التحقق هل الأدمن مسجل بالفعل
+// التحقق من وجود جلسة أدمن بالفعل
 // ==========================================
 
 firebase.auth().onAuthStateChanged(
@@ -210,7 +216,7 @@ firebase.auth().onAuthStateChanged(
 
 
 // ==========================================
-// تسجيل الدخول
+// تسجيل دخول الأدمن
 // ==========================================
 
 function adminLogin() {
@@ -222,8 +228,14 @@ function adminLogin() {
         passwordInput.value;
 
 
+    // تنظيف الرسالة
+
     errorMessage.textContent = "";
 
+
+    // ==================================
+    // التحقق من البيانات
+    // ==================================
 
     if (!email || !password) {
 
@@ -235,11 +247,19 @@ function adminLogin() {
     }
 
 
+    // ==================================
+    // تعطيل الزر
+    // ==================================
+
     loginBtn.disabled = true;
 
     loginBtn.textContent =
         "⏳ جاري تسجيل الدخول...";
 
+
+    // ==================================
+    // Firebase Login
+    // ==================================
 
     firebase.auth()
         .signInWithEmailAndPassword(
@@ -247,14 +267,25 @@ function adminLogin() {
             password
         )
 
+
+        // ==================================
+        // نجاح تسجيل الدخول
+        // ==================================
+
         .then(function(result) {
 
             const user =
                 result.user;
 
 
+            console.log(
+                "Admin Login UID:",
+                user.uid
+            );
+
+
             // ==================================
-            // التحقق من UID
+            // التحقق من UID الأدمن
             // ==================================
 
             if (
@@ -263,6 +294,7 @@ function adminLogin() {
 
                 return firebase.auth()
                     .signOut()
+
                     .then(function() {
 
                         throw new Error(
@@ -275,7 +307,7 @@ function adminLogin() {
 
 
             // ==================================
-            // دخول ناجح
+            // الحساب صحيح
             // ==================================
 
             window.location.replace(
@@ -284,11 +316,51 @@ function adminLogin() {
 
         })
 
-        .
+
+        // ==================================
+        // معالجة الأخطاء
+        // ==================================
+
+        .catch(function(error) {
+
+            console.error(
+                "Admin Login Error:",
+                error
+            );
+
+
+            // إظهار الخطأ الحقيقي من Firebase
+
+            let message =
+                error.code +
+                " — " +
+                error.message;
+
+
+            // محاولات كثيرة
+
+            if (
+                error.code ===
+                "auth/too-many-requests"
+            ) {
+
+                message =
+                    "⚠️ تم إجراء محاولات كثيرة. حاول مرة أخرى لاحقًا.";
+
+            }
+
+
+            // ==================================
+            // عرض الخطأ
+            // ==================================
 
             errorMessage.textContent =
                 message;
 
+
+            // ==================================
+            // إعادة تفعيل الزر
+            // ==================================
 
             loginBtn.disabled = false;
 
@@ -298,52 +370,12 @@ function adminLogin() {
         });
 
 }
-.catch(function(error) {
-
-    console.error(
-        "Admin Login Error:",
-        error
-    );
 
 
-    // إظهار كود ورسالة الخطأ الحقيقية مؤقتًا
-    let message =
-        error.code + " — " + error.message;
+// ==========================================
+// زر تسجيل الدخول
+// ==========================================
 
-
-    if (
-        error.code ===
-        "auth/too-many-requests"
-    ) {
-
-        message =
-            "⚠️ تم إجراء محاولات كثيرة. حاول مرة أخرى لاحقًا.";
-
-    }
-
-
-    errorMessage.textContent =
-        message;
-
-
-    loginBtn.disabled = false;
-
-    loginBtn.textContent =
-        "🔐 دخول لوحة الإدارة";
-
-});
-
-    errorMessage.textContent =
-        message;
-
-
-    loginBtn.disabled = false;
-
-    loginBtn.textContent =
-        "🔐 دخول لوحة الإدارة";
-
-});
-    
 loginBtn.addEventListener(
     "click",
     adminLogin
@@ -351,7 +383,7 @@ loginBtn.addEventListener(
 
 
 // ==========================================
-// Enter
+// الضغط على Enter
 // ==========================================
 
 passwordInput.addEventListener(
@@ -373,4 +405,4 @@ passwordInput.addEventListener(
 
 </body>
 
-  </html>
+</html>

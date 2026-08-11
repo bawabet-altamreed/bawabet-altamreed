@@ -103,7 +103,9 @@ function loadLeaderboard(grade) {
                         grade:
                             resultGrade,
 
-                        chapters: {}
+                        totalPercentage: 0,
+
+                        count: 0
 
                     };
 
@@ -111,46 +113,30 @@ function loadLeaderboard(grade) {
 
 
                 // ======================================
-                // Chapter
+                // درجة الاختبار
                 // ======================================
-
-                const chapter =
-                    data.chapter ||
-                    "اختبار";
-
 
                 const percentage =
                     Number(data.percentage) || 0;
 
 
                 // ======================================
-                // أفضل نتيجة للـChapter
+                // حساب كل محاولة
                 // ======================================
 
-                if (
+                students[studentId]
+                    .totalPercentage += percentage;
 
-                    !students[studentId]
-                        .chapters[chapter]
 
-                    ||
+                students[studentId]
+                    .count++;
 
-                    percentage >
-                    students[studentId]
-                        .chapters[chapter]
-
-                ) {
-
-                    students[studentId]
-                        .chapters[chapter] =
-                        percentage;
-
-                }
 
             });
 
 
             // ==========================================
-            // حساب المتوسط
+            // حساب المتوسط النهائي
             // ==========================================
 
             let leaderboard = [];
@@ -163,32 +149,13 @@ function loadLeaderboard(grade) {
                         students[studentId];
 
 
-                    let total = 0;
-
-                    let count = 0;
-
-
-                    Object.keys(student.chapters)
-                        .forEach(function(chapter) {
-
-                            total +=
-                                student.chapters[chapter];
-
-                            count++;
-
-                        });
-
-
-                    if (count > 0) {
+                    if (student.count > 0) {
 
                         student.average =
                             (
-                                total / count
+                                student.totalPercentage /
+                                student.count
                             ).toFixed(2);
-
-
-                        student.count =
-                            count;
 
 
                         leaderboard.push(

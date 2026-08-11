@@ -298,7 +298,6 @@ function adminLogin() {
         });
 
 }
-
 .catch(function(error) {
 
     console.error(
@@ -322,6 +321,17 @@ function adminLogin() {
 
     }
 
+
+    errorMessage.textContent =
+        message;
+
+
+    loginBtn.disabled = false;
+
+    loginBtn.textContent =
+        "🔐 دخول لوحة الإدارة";
+
+});
 
     errorMessage.textContent =
         message;

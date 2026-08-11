@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Internal Medicine - Chapter 1 Quiz</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🫀 Internal Medicine</h1>
+
+<p>Chapter 1 - Heart and Blood Vessels Diseases</p>
+
+</header>
+
+
+<section class="years">
+
+<div class="card">
+
+<div class="timer">
+
+⏳ <span id="timer">05:00</span>
+
+</div>
+
+
+<div class="progress">
+
+<div class="progress-bar" id="progressBar"></div>
+
+</div>
+
+
+<h2 id="question"></h2>
+
+
+<div id="answers"></div>
+
+
+<button id="nextBtn">
+
+▶️ التالي
+
+</button>
+
+</div>
+
+</section>
+
+
+<script>
+
+
+// ==========================================
+// تسجيل دخول الطالب
+// ==========================================
+
+let currentUser = null;
+
+
+firebase.auth().onAuthStateChanged(function(user){
+
+    if(user){
+
+        currentUser = user;
+
+    }else{
+
+        window.location.href = "login.html";
+
+    }
+
+});
+
+
+// ==========================================
+// الأسئلة
+// ==========================================
+
+const questions = [
+
+
+{
+question:"Which of the following best describes Angina Pectoris?",
+
+answers:[
+{text:"Severe pain beneath the sternum",correct:true},
+{text:"A bacterial infection of the heart",correct:false},
+{text:"Permanent loss of brain function",correct:false},
+{text:"Inflammation of the lungs",correct:false}
+]
+
+},
+
+
+{
+question:"The main cause of Angina Pectoris is usually:",
+
+answers:[
+{text:"Lung infection",correct:false},
+{text:"Atherosclerosis of coronary arteries",correct:true},
+{text:"Kidney failure",correct:false},
+{text:"Bone disease",correct:false}
+]
+
+},
+
+
+{
+question:"Atherosclerosis means:",
+
+answers:[
+{text:"Inflammation of the heart muscle",correct:false},
+{text:"Complete stopping of the heart",correct:false},
+{text:"Deposition of fats and cholesterol in artery walls",correct:true},
+{text:"Increase in the size of the lungs",correct:false}
+]
+
+},
+
+
+{
+question:"Which symptom is commonly associated with Angina Pectoris?",
+
+answers:[
+{text:"Severe abdominal swelling",correct:false},
+{text:"Chest pain that may radiate to the arm or shoulder",correct:true},
+{text:"Loss of hearing",correct:false},
+{text:"Skin rash",correct:false}
+]
+
+},
+
+
+{
+question:"Myocardial Infarction occurs mainly because of:",
+
+answers:[
+{text:"Complete blockage of a coronary artery",correct:true},
+{text:"Mild dehydration",correct:false},
+{text:"Low body temperature",correct:false},
+{text:"Eye disease",correct:false}
+]
+
+},
+
+
+{
+question:"Compared with Angina Pectoris, pain of Myocardial Infarction is usually:",
+
+answers:[
+{text:"Shorter and milder",correct:false},
+{text:"Absent completely",correct:false},
+{text:"More severe and lasts longer",correct:true},
+{text:"Only felt in the legs",correct:false}
+]
+
+},
+
+
+{
+question:"Which of the following is a complication of Myocardial Infarction?",
+
+answers:[
+{text:"Heart failure",correct:true},
+{text:"Hair loss",correct:false},
+{text:"Improved vision",correct:false},
+{text:"Increased appetite",correct:false}
+]
+
+},
+
+
+{
+question:"According to the study material, Hypertension is diagnosed when blood pressure is:",
+
+answers:[
+{text:"100/60 mmHg",correct:false},
+{text:"110/70 mmHg",correct:false},
+{text:"120/80 mmHg",correct:false},
+{text:"140/90 mmHg or more",correct:true}
+]
+
+},
+
+
+{
+question:"Which of the following is usually true about Hypertension?",
+
+answers:[
+{text:"It always causes severe pain",correct:false},
+{text:"It often has no specific symptoms",correct:true},
+{text:"It only affects children",correct:false},
+{text:"It always causes fever",correct:false}
+]
+
+},
+
+
+{
+question:"Which of the following is a complication of Hypertension?",
+
+answers:[
+{text:"Brain hemorrhage",correct:true},
+{text:"Common cold",correct:false},
+{text:"Broken bone",correct:false},
+{text:"Ear infection",correct:false}
+]
+
+},
+
+
+{
+question:"Heart Failure means that the heart:",
+
+answers:[
+{text:"Pumps more blood than normal",correct:false},
+{text:"Cannot pump enough blood to body tissues",correct:true},
+{text:"Stops producing hormones",correct:false},
+{text:"Becomes an infectious organ",correct:false}
+]
+
+},
+
+
+{
+question:"Which symptom is commonly associated with Heart Failure?",
+
+answers:[
+{text:"Shortness of breath",correct:true},
+{text:"Improved exercise tolerance",correct:false},
+{text:"Increased hearing ability",correct:false},
+{text:"Skin pigmentation only",correct:false}
+]
+
+},
+
+
+{
+question:"Edema of the feet may occur in:",
+
+answers:[
+{text:"Heart Failure",correct:true},
+{text:"Simple headache",correct:false},
+{text:"Angina only",correct:false},
+{text:"Common cold",correct:false}
+]
+
+},
+
+
+{
+question:"Which of the following is a sign of cardiac and respiratory arrest?",
+
+answers:[
+{text:"Normal consciousness",correct:false},
+{text:"Strong pulse",correct:false},
+{text:"Loss of consciousness and absence of pulse",correct:true},
+{text:"Increased appetite",correct:false}
+]
+
+},
+
+
+{
+question:"The main purpose of CPR is to:",
+
+answers:[
+{text:"Treat skin infections",correct:false},
+{text:"Maintain circulation and breathing during cardiac arrest",correct:true},
+{text:"Reduce body weight",correct:false},
+{text:"Treat hypertension permanently",correct:false}
+]
+
+}
+
+];
+
+
+// ==========================================
+// متغيرات الاختبار
+// ==========================================
+
+let currentQuestion = 0;
+
+let score = 0;
+
+let answered = false;
+
+
+// ==========================================
+// عناصر الصفحة
+// ==========================================
+
+const questionElement =
+document.getElementById("question");
+
+
+const answersElement =
+document.getElementById("answers");
+
+
+const nextButton =
+document.getElementById("nextBtn");
+
+
+const progressBar =
+document.getElementById("progressBar");
+
+
+// ==========================================
+// تحميل السؤال
+// ==========================================
+
+function showQuestion(){
+
+    answered = false;
+
+    answersElement.innerHTML = "";
+
+    nextButton.style.display = "none";
+
+
+    let q =
+    questions[currentQuestion];
+
+
+    questionElement.innerHTML =
+    (currentQuestion + 1) +
+    ". " +
+    q.question;
+
+
+    progressBar.style.width =
+    ((currentQuestion + 1) /
+    questions.length) * 100 + "%";
+
+
+    document.title =
+    "Question " +
+    (currentQuestion + 1);
+
+
+    q.answers.forEach(function(answer){
+
+        const button =
+        document.createElement("button");
+
+
+        button.innerHTML =
+        answer.text;
+
+
+        button.className =
+        "quiz-answer";
+
+
+        button.onclick =
+        function(){
+
+            selectAnswer(
+                answer.correct,
+                button
+            );
+
+        };
+
+
+        answersElement.appendChild(button);
+
+    });
+
+}
+
+
+// ==========================================
+// اختيار الإجابة
+// ==========================================
+
+function selectAnswer(correct, button){
+
+    if(answered) return;
+
+
+    answered = true;
+
+
+    const buttons =
+    Array.from(
+        answersElement.children
+    );
+
+
+    buttons.forEach(function(btn){
+
+        btn.disabled = true;
+
+    });
+
+
+    if(correct){
+
+        score++;
+
+        button.style.background =
+        "green";
+
+        button.style.color =
+        "#fff";
+
+    }else{
+
+        button.style.background =
+        "red";
+
+        button.style.color =
+        "#fff";
+
+
+        const correctIndex =
+        questions[currentQuestion]
+        .answers
+        .findIndex(
+            answer => answer.correct === true
+        );
+
+
+        buttons[
+            correctIndex
+        ].style.background =
+        "green";
+
+
+        buttons[
+            correctIndex
+        ].style.color =
+        "#fff";
+
+    }
+
+
+    nextButton.style.display =
+    "block";
+
+}
+
+
+// ==========================================
+// زر التالي
+// ==========================================
+
+nextButton.onclick =
+function(){
+
+    if(!answered){
+
+        alert(
+            "من فضلك اختر إجابة أولاً"
+        );
+
+        return;
+
+    }
+
+
+    currentQuestion++;
+
+
+    if(
+        currentQuestion <
+        questions.length
+    ){
+
+        showQuestion();
+
+    }else{
+
+        clearInterval(
+            timerInterval
+        );
+
+
+        let percentage =
+        Math.round(
+            (score /
+            questions.length) * 100
+        );
+
+
+        saveResult(
+            percentage
+        );
+
+    }
+
+};
+
+
+// ==========================================
+// حفظ النتيجة في Firebase
+// ==========================================
+
+function saveResult(percentage){
+
+    if(!currentUser){
+
+        showResult(percentage);
+
+        return;
+
+    }
+
+
+    db.collection("users")
+
+    .doc(currentUser.uid)
+
+    .get()
+
+    .then(function(doc){
+
+        if(!doc.exists){
+
+            throw new Error(
+                "بيانات الطالب غير موجودة"
+            );
+
+        }
+
+
+        let userData =
+        doc.data();
+
+
+        return db.collection("results")
+
+        .add({
+
+            uid:
+            currentUser.uid,
+
+            studentCode:
+            userData.studentCode || "",
+
+            name:
+            userData.name || "",
+
+            grade:
+            userData.grade || "",
+
+            email:
+            currentUser.email || "",
+
+            subject:
+            "Internal Medicine",
+
+            chapter:
+            "Chapter 1",
+
+            score:
+            score,
+
+            total:
+            questions.length,
+
+            percentage:
+            percentage,
+
+            date:
+            firebase.firestore
+            .FieldValue
+            .serverTimestamp()
+
+        });
+
+    })
+
+    .then(function(){
+
+        showResult(
+            percentage
+        );
+
+    })
+
+    .catch(function(error){
+
+        console.error(
+            "Save Result Error:",
+            error
+        );
+
+
+        alert(
+            "❌ حدث خطأ أثناء حفظ النتيجة"
+        );
+
+
+        showResult(
+            percentage
+        );
+
+    });
+
+}
+
+
+// ==========================================
+// عرض النتيجة
+// ==========================================
+
+function showResult(percentage){
+
+    questionElement.innerHTML =
+    "🎉 انتهى الاختبار";
+
+
+    let message;
+
+
+    if(percentage >= 90){
+
+        message =
+        "🏆 ممتاز! أداء رائع.";
+
+    }
+
+    else if(percentage >= 75){
+
+        message =
+        "👏 أحسنت، مستواك ممتاز.";
+
+    }
+
+    else if(percentage >= 50){
+
+        message =
+        "👍 جيد، راجع الشابتر مرة أخرى.";
+
+    }
+
+    else{
+
+        message =
+        "📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار.";
+
+    }
+
+
+    answersElement.innerHTML = `
+
+        <div class="result-box">
+
+            <p>النتيجة</p>
+
+            <h1>
+                ${score} / ${questions.length}
+            </h1>
+
+            <h2>
+                ${percentage}%
+            </h2>
+
+            <p>
+                ${message}
+            </p>
+
+            <button
+            onclick="location.reload()">
+
+                🔄 إعادة الاختبار
+
+            </button>
+
+            <br><br>
+
+            <button
+            onclick="history.back()">
+
+                🏠 العودة للشابتر
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    nextButton.style.display =
+    "none";
+
+}
+
+
+// ==========================================
+// المؤقت
+// ==========================================
+
+let timeLeft = 300;
+
+let timerInterval;
+
+
+const timer =
+document.getElementById("timer");
+
+
+function startTimer(){
+
+    timerInterval =
+    setInterval(function(){
+
+        let minutes =
+        Math.floor(
+            timeLeft / 60
+        );
+
+
+        let seconds =
+        timeLeft % 60;
+
+
+        if(seconds < 10){
+
+            seconds =
+            "0" + seconds;
+
+        }
+
+
+        timer.innerHTML =
+        "⏱️ الوقت: " +
+        minutes +
+        ":" +
+        seconds;
+
+
+        timeLeft--;
+
+
+        if(timeLeft < 0){
+
+            clearInterval(
+                timerInterval
+            );
+
+
+            let percentage =
+            Math.round(
+                (score /
+                questions.length) * 100
+            );
+
+
+            saveResult(
+                percentage
+            );
+
+        }
+
+    },1000);
+
+}
+
+
+// ==========================================
+// تشغيل الاختبار
+// ==========================================
+
+showQuestion();
+
+startTimer();
+
+
+</script>
+
+
+<script src="auth.js"></script>
+
+</body>
+
+</html>

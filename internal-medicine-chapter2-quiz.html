@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Internal Medicine - Chapter 2 Quiz</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>📝 Internal Medicine</h1>
+
+<p>Chapter 2 - Chest Diseases Quiz</p>
+
+</header>
+
+<section class="years">
+
+<div class="card">
+
+<div class="timer">
+⏳ <span id="timer">05:00</span>
+</div>
+
+<div class="progress">
+
+<div class="progress-bar" id="progressBar"></div>
+
+</div>
+
+<h2 id="question"></h2>
+
+<div id="answers"></div>
+
+<button id="nextBtn">
+▶️ التالي
+</button>
+
+</div>
+
+</section>
+
+<script>
+
+const questions = [
+
+{
+question:"1- Bronchial asthma is characterized by:",
+answers:[
+{text:"Permanent widening of the bronchi",correct:false},
+{text:"Recurrent narrowing of the bronchi with viscous secretions",correct:true},
+{text:"Complete destruction of the lungs",correct:false},
+{text:"Infection of the heart valves",correct:false}
+]
+},
+
+{
+question:"2- Which of the following can trigger an attack of bronchial asthma?",
+answers:[
+{text:"House dust",correct:true},
+{text:"Drinking water",correct:false},
+{text:"Sleeping",correct:false},
+{text:"Normal breathing",correct:false}
+]
+},
+
+{
+question:"3- A common symptom of bronchial asthma is:",
+answers:[
+{text:"Wheezing",correct:true},
+{text:"Severe abdominal swelling",correct:false},
+{text:"Bone pain",correct:false},
+{text:"Hearing loss",correct:false}
+]
+},
+
+{
+question:"4- Which medication is commonly used as a bronchodilator in asthma?",
+answers:[
+{text:"Ventolin",correct:true},
+{text:"Insulin",correct:false},
+{text:"Digoxin",correct:false},
+{text:"Heparin",correct:false}
+]
+},
+
+{
+question:"5- Pulmonary tuberculosis is caused by:",
+answers:[
+{text:"Streptococcus pneumoniae",correct:false},
+{text:"Mycobacterium tuberculosis",correct:true},
+{text:"Escherichia coli",correct:false},
+{text:"Staphylococcus aureus",correct:false}
+]
+},
+
+{
+question:"6- Which of the following increases the risk of tuberculosis infection?",
+answers:[
+{text:"Good ventilation",correct:false},
+{text:"Crowded and poorly ventilated places",correct:true},
+{text:"Regular exercise",correct:false},
+{text:"Balanced nutrition",correct:false}
+]
+},
+
+{
+question:"7- A typical symptom of pulmonary tuberculosis is:",
+answers:[
+{text:"Night sweating and weight loss",correct:true},
+{text:"Sudden hearing loss",correct:false},
+{text:"Increased appetite",correct:false},
+{text:"Joint stiffness only",correct:false}
+]
+},
+
+{
+question:"8- How many sputum samples may be collected for TB diagnosis according to the provided material?",
+answers:[
+{text:"One sample",correct:false},
+{text:"Two samples",correct:false},
+{text:"Three samples",correct:true},
+{text:"Ten samples",correct:false}
+]
+},
+
+{
+question:"9- Pneumonia is an acute inflammation of:",
+answers:[
+{text:"The liver",correct:false},
+{text:"One or more lobes of the lung",correct:true},
+{text:"The kidneys",correct:false},
+{text:"The stomach",correct:false}
+]
+},
+
+{
+question:"10- A common symptom of pneumonia is:",
+answers:[
+{text:"Sudden fever and chills",correct:true},
+{text:"Hair loss",correct:false},
+{text:"Blurred vision only",correct:false},
+{text:"Low appetite without fever",correct:false}
+]
+},
+
+{
+question:"11- One possible complication of pneumonia is:",
+answers:[
+{text:"Respiratory failure",correct:true},
+{text:"Improved lung function",correct:false},
+{text:"Increased bone density",correct:false},
+{text:"Hearing improvement",correct:false}
+]
+},
+
+{
+question:"12- Which of the following is an important cause of COPD?",
+answers:[
+{text:"Smoking",correct:true},
+{text:"Drinking milk",correct:false},
+{text:"Reading",correct:false},
+{text:"Regular sleep",correct:false}
+]
+},
+
+{
+question:"13- A characteristic symptom of COPD is:",
+answers:[
+{text:"Persistent cough with sputum",correct:true},
+{text:"Sudden blindness",correct:false},
+{text:"Severe toothache",correct:false},
+{text:"Loss of hearing",correct:false}
+]
+},
+
+{
+question:"14- Which investigation can help assess lung function in COPD?",
+answers:[
+{text:"Pulmonary function tests",correct:true},
+{text:"ECG only",correct:false},
+{text:"Urinalysis only",correct:false},
+{text:"Eye examination",correct:false}
+]
+},
+
+{
+question:"15- An important measure in the treatment of COPD is:",
+answers:[
+{text:"Continuing smoking",correct:false},
+{text:"Complete smoking cessation",correct:true},
+{text:"Avoiding all fluids",correct:false},
+{text:"Stopping all physical activity",correct:false}
+]
+}
+
+];
+
+
+let currentQuestion = 0;
+
+let score = 0;
+
+let timeLeft = 300;
+
+let answered = false;
+
+
+const timer =
+document.getElementById("timer");
+
+const questionElement =
+document.getElementById("question");
+
+const answersElement =
+document.getElementById("answers");
+
+const nextButton =
+document.getElementById("nextBtn");
+
+const progressBar =
+document.getElementById("progressBar");
+
+
+const countdown = setInterval(function(){
+
+if(timeLeft <= 0){
+
+clearInterval(countdown);
+
+showResult();
+
+return;
+
+}
+
+timeLeft--;
+
+let minutes =
+Math.floor(timeLeft / 60);
+
+let seconds =
+timeLeft % 60;
+
+timer.innerHTML =
+String(minutes).padStart(2,"0")
++
+":"
++
+String(seconds).padStart(2,"0");
+
+},1000);
+
+
+function showQuestion(){
+
+answered = false;
+
+nextButton.style.display = "none";
+
+answersElement.innerHTML = "";
+
+
+progressBar.style.width =
+((currentQuestion + 1) /
+questions.length) * 100 + "%";
+
+
+let q =
+questions[currentQuestion];
+
+
+questionElement.innerHTML =
+q.question;
+
+
+q.answers.forEach(function(answer){
+
+const button =
+document.createElement("button");
+
+button.innerHTML =
+answer.text;
+
+
+button.className =
+"quiz-answer";
+
+
+button.onclick = function(){
+
+selectAnswer(
+answer.correct,
+button
+);
+
+};
+
+
+answersElement.appendChild(button);
+
+});
+
+}
+
+
+function selectAnswer(correct,button){
+
+if(answered) return;
+
+answered = true;
+
+
+if(correct){
+
+score++;
+
+button.style.background =
+"green";
+
+button.style.color =
+"#fff";
+
+}else{
+
+button.style.background =
+"red";
+
+button.style.color =
+"#fff";
+
+
+let buttons =
+Array.from(
+answersElement.children
+);
+
+
+let current =
+questions[currentQuestion];
+
+
+let correctIndex =
+current.answers.findIndex(
+answer => answer.correct
+);
+
+
+buttons[
+correctIndex
+].style.background =
+"green";
+
+buttons[
+correctIndex
+].style.color =
+"#fff";
+
+}
+
+
+Array.from(
+answersElement.children
+).forEach(function(btn){
+
+btn.disabled = true;
+
+});
+
+
+nextButton.style.display =
+"block";
+
+}
+
+
+nextButton.onclick = function(){
+
+if(!answered){
+
+alert(
+"من فضلك اختر إجابة أولاً"
+);
+
+return;
+
+}
+
+
+currentQuestion++;
+
+
+if(currentQuestion <
+questions.length){
+
+showQuestion();
+
+}else{
+
+showResult();
+
+}
+
+};
+
+
+function showResult(){
+
+clearInterval(countdown);
+
+
+let percentage =
+Math.round(
+(score / questions.length) * 100
+);
+
+
+let message = "";
+
+
+if(percentage >= 90){
+
+message =
+"🏆 ممتاز! أداء رائع.";
+
+}
+
+else if(percentage >= 75){
+
+message =
+"👏 أحسنت، مستواك ممتاز.";
+
+}
+
+else if(percentage >= 50){
+
+message =
+"👍 جيد، راجع الشابتر مرة أخرى.";
+
+}
+
+else{
+
+message =
+"📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار.";
+
+}
+
+
+document.querySelector(".card").innerHTML = `
+
+<div class="result-box">
+
+<h2>🎉 انتهى الاختبار</h2>
+
+<p>النتيجة</p>
+
+<h1>
+${score} / ${questions.length}
+</h1>
+
+<h2>
+${percentage}%
+</h2>
+
+<p>
+${message}
+</p>
+
+<button onclick="location.reload()">
+🔄 إعادة الاختبار
+</button>
+
+<br><br>
+
+<button onclick="history.back()">
+🏠 العودة للشابتر
+</button>
+
+</div>
+
+`;
+
+}
+
+
+showQuestion();
+
+</script>
+
+<script src="auth.js"></script>
+
+</body>
+
+</html>

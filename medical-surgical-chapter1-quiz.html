@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Medical-Surgical Nursing - Chapter 1 Quiz</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🩺 Medical-Surgical Nursing</h1>
+
+<p>Chapter 1 - Foundation for Medical-Surgical Nursing</p>
+
+</header>
+
+
+<section class="years">
+
+<div class="card">
+
+<div class="timer">
+⏳ <span id="timer">05:00</span>
+</div>
+
+
+<div class="progress">
+
+<div class="progress-bar" id="progressBar"></div>
+
+</div>
+
+
+<h2 id="question"></h2>
+
+
+<div id="answers"></div>
+
+
+<button id="nextBtn">
+▶️ التالي
+</button>
+
+</div>
+
+</section>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script src="firebase.js"></script>
+
+
+<script>
+
+
+// ==========================================
+// بيانات الطالب
+// ==========================================
+
+const studentCode =
+localStorage.getItem("studentCode");
+
+const studentName =
+localStorage.getItem("studentName");
+
+const studentGrade =
+localStorage.getItem("studentGrade");
+
+
+// ==========================================
+// التحقق من تسجيل الدخول
+// ==========================================
+
+if (!studentCode) {
+
+    window.location.replace("login.html");
+
+}
+
+
+// ==========================================
+// الأسئلة
+// ==========================================
+
+const questions = [
+
+{
+
+question:
+"1- Nursing is mainly concerned with:",
+
+answers:[
+
+"Protecting, promoting and optimizing health",
+
+"Treating diseases only",
+
+"Performing surgeries",
+
+"Prescribing medications"
+
+],
+
+correct:0
+
+},
+
+
+{
+
+question:
+"2- Medical-Surgical Nursing focuses on caring for:",
+
+answers:[
+
+"Children only",
+
+"Adolescent to elderly patients",
+
+"Pregnant women only",
+
+"Healthy people only"
+
+],
+
+correct:1
+
+},
+
+
+{
+
+question:
+"3- Which of the following is a role of the medical-surgical nurse?",
+
+answers:[
+
+"Developing individualized patient care plans",
+
+"Performing all surgeries",
+
+"Replacing physicians",
+
+"Diagnosing every disease independently"
+
+],
+
+correct:0
+
+},
+
+
+{
+
+question:
+"4- A medical-surgical nurse may be responsible for:",
+
+answers:[
+
+"Providing wound care and starting IVs",
+
+"Building hospital rooms",
+
+"Manufacturing medications",
+
+"Performing laboratory research only"
+
+],
+
+correct:0
+
+},
+
+
+{
+
+question:
+"5- Which factor influences professional nursing practice?",
+
+answers:[
+
+"Technology and knowledge growth",
+
+"Hair color",
+
+"Favorite food",
+
+"Personal hobbies"
+
+],
+
+correct:0
+
+},
+
+
+{
+
+question:
+"6- Complementary and Alternative Therapies are generally:",
+
+answers:[
+
+"Part of conventional surgery only",
+
+"Practices not generally considered part of conventional medicine",
+
+"Used only in intensive care",
+
+"Used only by physicians"
+
+],
+
+correct:1
+
+},
+
+
+{
+
+question:
+"7- Which is an example of a mind-body therapy?",
+
+answers:[
+
+"Herbal therapy",
+
+"Meditation",
+
+"Blood transfusion",
+
+"Wound dressing"
+
+],
+
+correct:1
+
+},
+
+
+{
+
+question:
+"8- The main goal of palliative care is to:",
+
+answers:[
+
+"Cure every terminal disease",
+
+"Reduce symptoms and improve quality of life",
+
+"Delay death at all costs",
+
+"Stop all medical treatment"
+
+],
+
+correct:1
+
+},
+
+
+{
+
+question:
+"9- Hospice care focuses mainly on:",
+
+answers:[
+
+"Compassion and comfort for patients with terminal illness",
+
+"Emergency surgery",
+
+"Preventing all diseases",
+
+"Treating minor injuries"
+
+],
+
+correct:0
+
+},
+
+
+{
+
+question:
+"10- Which sense usually remains until the last at the end of life?",
+
+answers:[
+
+"Sight",
+
+"Taste",
+
+"Hearing",
+
+"Smell"
+
+],
+
+correct:2
+
+}
+
+];
+
+
+// ==========================================
+// متغيرات الاختبار
+// ==========================================
+
+let currentQuestion = 0;
+
+let score = 0;
+
+let answered = false;
+
+let timeLeft = 300;
+
+let timerInterval;
+
+
+// ==========================================
+// عناصر الصفحة
+// ==========================================
+
+const question =
+document.getElementById("question");
+
+const answers =
+document.getElementById("answers");
+
+const nextBtn =
+document.getElementById("nextBtn");
+
+const timer =
+document.getElementById("timer");
+
+
+// ==========================================
+// تحميل السؤال
+// ==========================================
+
+function loadQuestion(){
+
+    answered = false;
+
+    answers.innerHTML = "";
+
+    question.innerHTML =
+    questions[currentQuestion].question;
+
+
+    document.getElementById(
+        "progressBar"
+    ).style.width =
+
+    ((currentQuestion + 1) /
+    questions.length) * 100 + "%";
+
+
+    questions[currentQuestion]
+    .answers
+    .forEach(function(answer,index){
+
+        let button =
+        document.createElement("button");
+
+
+        button.innerHTML = answer;
+
+        button.className =
+        "quiz-answer";
+
+
+        button.onclick =
+        function(){
+
+            if(answered) return;
+
+            answered = true;
+
+
+            let buttons =
+            document.querySelectorAll(
+                "#answers button"
+            );
+
+
+            buttons.forEach(
+                function(btn){
+
+                    btn.disabled = true;
+
+                }
+            );
+
+
+            if(
+                index ===
+                questions[currentQuestion].correct
+            ){
+
+                score++;
+
+                button.style.background =
+                "green";
+
+                button.style.color =
+                "#fff";
+
+            }
+
+            else{
+
+                button.style.background =
+                "red";
+
+                button.style.color =
+                "#fff";
+
+
+                buttons[
+                    questions[currentQuestion].correct
+                ].style.background =
+                "green";
+
+
+                buttons[
+                    questions[currentQuestion].correct
+                ].style.color =
+                "#fff";
+
+            }
+
+        };
+
+
+        answers.appendChild(button);
+
+    });
+
+}
+
+
+// ==========================================
+// زر التالي
+// ==========================================
+
+nextBtn.onclick =
+function(){
+
+    if(!answered){
+
+        alert(
+            "من فضلك اختر إجابة أولاً"
+        );
+
+        return;
+
+    }
+
+
+    currentQuestion++;
+
+
+    if(
+        currentQuestion <
+        questions.length
+    ){
+
+        loadQuestion();
+
+    }
+
+    else{
+
+        clearInterval(
+            timerInterval
+        );
+
+
+        let percentage =
+        Math.round(
+            (score /
+            questions.length) * 100
+        );
+
+
+        saveResult(
+            percentage
+        );
+
+    }
+
+};
+
+
+// ==========================================
+// حفظ النتيجة
+// ==========================================
+
+function saveResult(percentage){
+
+    if(!studentCode){
+
+        alert(
+            "❌ يجب تسجيل الدخول أولاً"
+        );
+
+        window.location.href =
+        "login.html";
+
+        return;
+
+    }
+
+
+    db.collection("results")
+    .add({
+
+        studentCode:
+        studentCode,
+
+        name:
+        studentName || "",
+
+        grade:
+        studentGrade || "",
+
+        subject:
+        "Medical-Surgical Nursing",
+
+        chapter:
+        "Chapter 1",
+
+        score:
+        score,
+
+        total:
+        questions.length,
+
+        percentage:
+        percentage,
+
+        date:
+        firebase.firestore
+        .FieldValue
+        .serverTimestamp()
+
+    })
+
+
+    .then(function(){
+
+        showResult(
+            percentage
+        );
+
+    })
+
+
+    .catch(function(error){
+
+        console.error(
+            "Save Result Error:",
+            error
+        );
+
+
+        alert(
+            "❌ حدث خطأ أثناء حفظ النتيجة"
+        );
+
+    });
+
+}
+
+
+// ==========================================
+// عرض النتيجة
+// ==========================================
+
+function showResult(percentage){
+
+    question.innerHTML =
+    "🎉 انتهى الاختبار";
+
+
+    answers.innerHTML = `
+
+        <div class="result-box">
+
+            <h2>
+                النتيجة
+            </h2>
+
+            <h1>
+                ${score} /
+                ${questions.length}
+            </h1>
+
+            <h2>
+                ${percentage}%
+            </h2>
+
+            <p>
+
+            ${
+                percentage >= 90
+
+                ?
+
+                "🏆 ممتاز! أداء رائع."
+
+                :
+
+                percentage >= 75
+
+                ?
+
+                "👏 أحسنت، مستواك ممتاز."
+
+                :
+
+                percentage >= 50
+
+                ?
+
+                "👍 جيد، راجع الشابتر مرة أخرى."
+
+                :
+
+                "📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار."
+
+            }
+
+            </p>
+
+        </div>
+
+    `;
+
+
+    nextBtn.innerHTML =
+    "🔄 إعادة الاختبار";
+
+
+    nextBtn.onclick =
+    function(){
+
+        location.reload();
+
+    };
+
+}
+
+
+// ==========================================
+// المؤقت
+// ==========================================
+
+function startTimer(){
+
+    timerInterval =
+    setInterval(function(){
+
+        let minutes =
+        Math.floor(
+            timeLeft / 60
+        );
+
+
+        let seconds =
+        timeLeft % 60;
+
+
+        if(seconds < 10){
+
+            seconds =
+            "0" + seconds;
+
+        }
+
+
+        timer.innerHTML =
+        "⏱️ الوقت: " +
+        minutes +
+        ":" +
+        seconds;
+
+
+        timeLeft--;
+
+
+        if(timeLeft < 0){
+
+            clearInterval(
+                timerInterval
+            );
+
+
+            let percentage =
+            Math.round(
+                (score /
+                questions.length) * 100
+            );
+
+
+            saveResult(
+                percentage
+            );
+
+        }
+
+    },1000);
+
+}
+
+
+// ==========================================
+// تشغيل الاختبار
+// ==========================================
+
+loadQuestion();
+
+startTimer();
+
+
+</script>
+
+</body>
+
+</html>

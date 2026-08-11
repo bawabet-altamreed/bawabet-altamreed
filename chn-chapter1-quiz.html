@@ -7,7 +7,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Community Health Nursing Quiz</title>
+<title>Community Health Nursing | Chapter 1</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -23,6 +23,7 @@
 
 </header>
 
+
 <section class="years">
 
 <div class="card">
@@ -31,13 +32,25 @@
 ⏳ <span id="timer">05:00</span>
 </div>
 
+
 <div class="progress">
-<div class="progress-bar" id="progressBar"></div>
+
+<div
+class="progress-bar"
+id="progressBar">
 </div>
+
+</div>
+
+
+<p id="questionNumber"></p>
+
 
 <h2 id="question"></h2>
 
+
 <div id="answers"></div>
+
 
 <button id="nextBtn">
 ▶️ التالي
@@ -47,278 +60,639 @@
 
 </section>
 
+
+<!-- =========================
+     FIREBASE
+========================= -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script src="firebase.js"></script>
+
+
 <script>
 
-const questions=[
+// ==========================================
+// بيانات الطالب
+// ==========================================
+
+const studentCode =
+localStorage.getItem("studentCode");
+
+const studentName =
+localStorage.getItem("studentName");
+
+const studentGrade =
+localStorage.getItem("studentGrade");
+
+
+// ==========================================
+// التحقق من تسجيل الدخول
+// ==========================================
+
+if (!studentCode) {
+
+    window.location.replace("login.html");
+
+}
+
+
+// ==========================================
+// الأسئلة
+// ==========================================
+
+const questions = [
 
 {
 
-question:"Community Health Nursing focuses mainly on:",
+question:
+"Community Health Nursing focuses mainly on:",
 
 answers:[
 
-{text:"The whole community",correct:true},
+"The whole community",
 
-{text:"Only hospital patients",correct:false},
+"Only hospital patients",
 
-{text:"Doctors only",correct:false},
+"Doctors only",
 
-{text:"Medical laboratories",correct:false}
+"Medical laboratories"
 
-]
+],
+
+correct:0
 
 },
 
 {
 
-question:"According to WHO, health includes:",
+question:
+"According to WHO, health includes:",
 
 answers:[
 
-{text:"Physical, mental and social well-being",correct:true},
+"Physical, mental and social well-being",
 
-{text:"Only absence of disease",correct:false},
+"Only absence of disease",
 
-{text:"Physical health only",correct:false},
+"Physical health only",
 
-{text:"Mental health only",correct:false}
+"Mental health only"
 
-]
+],
+
+correct:0
 
 },
 
 {
 
-question:"Which organization defined Community Health Nursing?",
+question:
+"Which organization defined Community Health Nursing?",
 
 answers:[
 
-{text:"American Nursing Association (ANA)",correct:true},
+"American Nursing Association (ANA)",
 
-{text:"UNICEF",correct:false},
+"UNICEF",
 
-{text:"WHO",correct:false},
+"WHO",
 
-{text:"Red Crescent",correct:false}
+"Red Crescent"
 
-]
+],
+
+correct:0
 
 },
 
 {
 
-question:"Primary prevention aims to:",
+question:
+"Primary prevention aims to:",
 
 answers:[
 
-{text:"Prevent disease before it occurs",correct:true},
+"Prevent disease before it occurs",
 
-{text:"Treat disease",correct:false},
+"Treat disease",
 
-{text:"Reduce disability",correct:false},
+"Reduce disability",
 
-{text:"Rehabilitation",correct:false}
+"Rehabilitation"
 
-]
+],
+
+correct:0
 
 },
 
 {
 
-question:"One determinant of health is:",
+question:
+"One determinant of health is:",
 
 answers:[
 
-{text:"Education",correct:true},
+"Education",
 
-{text:"Hair color",correct:false},
+"Hair color",
 
-{text:"Eye color",correct:false},
+"Eye color",
 
-{text:"Favorite food",correct:false}
+"Favorite food"
 
-]
+],
+
+correct:0
 
 }
 
 ];
 
-let currentQuestion=0;
+
+// ==========================================
+// متغيرات الاختبار
+// ==========================================
+
+let currentQuestion = 0;
+
+let score = 0;
+
+let answered = false;
+
+let timeLeft = 300;
+
+let timerInterval;
+
+let examFinished = false;
 
 
-let timeLeft=300;
+// ==========================================
+// عناصر الصفحة
+// ==========================================
 
-const timer=document.getElementById("timer");
+const questionElement =
+document.getElementById("question");
 
-const countdown=setInterval(function(){
+const answersElement =
+document.getElementById("answers");
 
-if(timeLeft<=0){
+const nextButton =
+document.getElementById("nextBtn");
 
-clearInterval(countdown);
+const timer =
+document.getElementById("timer");
 
-showResult();
 
-return;
+// ==========================================
+// تحميل السؤال
+// ==========================================
 
-}
+function loadQuestion(){
 
-timeLeft--;
+    answered = false;
 
-let minutes=Math.floor(timeLeft/60);
+    answersElement.innerHTML = "";
 
-let seconds=timeLeft%60;
+    nextButton.style.display = "none";
 
-timer.innerHTML=
 
-String(minutes).padStart(2,"0")
+    const q =
+    questions[currentQuestion];
 
-+":"
 
-+
+    questionElement.innerHTML =
+    q.question;
 
-String(seconds).padStart(2,"0");
 
-},1000);
+    document.getElementById(
+        "questionNumber"
+    ).innerHTML =
+    "Question " +
+    (currentQuestion + 1) +
+    " / " +
+    questions.length;
 
-let score=0;
 
-const questionElement=document.getElementById("question");
+    document.getElementById(
+        "progressBar"
+    ).style.width =
+    (
+        (currentQuestion + 1) /
+        questions.length
+    ) * 100 + "%";
 
-const answersElement=document.getElementById("answers");
 
-const nextButton=document.getElementById("nextBtn");
+    q.answers.forEach(
+        function(answer,index){
 
-function showQuestion(){
+            const button =
+            document.createElement("button");
 
-resetState();
 
-let q=questions[currentQuestion];
+            button.innerHTML =
+            answer;
 
-document.getElementById("progressBar").style.width =
-((currentQuestion + 1) / questions.length) * 100 + "%";
-  
-questionElement.innerHTML=(currentQuestion+1)+". "+q.question;
 
-q.answers.forEach(answer=>{
+            button.className =
+            "quiz-answer";
 
-const button=document.createElement("button");
 
-button.innerHTML=answer.text;
+            button.onclick =
+            function(){
 
-button.onclick=()=>selectAnswer(answer.correct,button);
+                selectAnswer(
+                    index,
+                    button
+                );
 
-answersElement.appendChild(button);
+            };
 
-});
 
-}
+            answersElement.appendChild(
+                button
+            );
 
-function resetState(){
-
-nextButton.style.display="none";
-
-answersElement.innerHTML="";
-
-}
-
-function selectAnswer(correct,button){
-
-if(correct){
-
-score++;
-
-button.style.background="green";
-
-}else{
-
-button.style.background="red";
-
-}
-
-Array.from(answersElement.children).forEach(btn=>btn.disabled=true);
-
-nextButton.style.display="block";
-
-}
-
-nextButton.onclick=function(){
-
-currentQuestion++;
-
-if(currentQuestion<questions.length){
-
-showQuestion();
-
-}else{
-
-showResult();
+        }
+    );
 
 }
 
+
+// ==========================================
+// اختيار الإجابة
+// ==========================================
+
+function selectAnswer(index,button){
+
+    if(answered) return;
+
+    answered = true;
+
+
+    const buttons =
+    answersElement.querySelectorAll(
+        "button"
+    );
+
+
+    buttons.forEach(
+        function(btn){
+
+            btn.disabled = true;
+
+        }
+    );
+
+
+    if(
+        index ===
+        questions[currentQuestion].correct
+    ){
+
+        score++;
+
+        button.style.background =
+        "green";
+
+        button.style.color =
+        "#fff";
+
+    }
+
+    else{
+
+        button.style.background =
+        "red";
+
+        button.style.color =
+        "#fff";
+
+
+        buttons[
+            questions[currentQuestion].correct
+        ].style.background =
+        "green";
+
+
+        buttons[
+            questions[currentQuestion].correct
+        ].style.color =
+        "#fff";
+
+    }
+
+
+    nextButton.style.display =
+    "block";
+
 }
 
-  function showResult(){
 
-clearInterval(countdown);
+// ==========================================
+// زر التالي
+// ==========================================
 
-let percentage=Math.round((score/questions.length)*100);
+nextButton.onclick =
+function(){
 
-let message="";
+    if(!answered){
 
-if(percentage>=90){
+        alert(
+            "Please select an answer first."
+        );
 
-message="🏆 ممتاز! أداء رائع.";
+        return;
+
+    }
+
+
+    currentQuestion++;
+
+
+    if(
+        currentQuestion <
+        questions.length
+    ){
+
+        loadQuestion();
+
+    }
+
+    else{
+
+        finishExam();
+
+    }
+
+};
+
+
+// ==========================================
+// إنهاء الاختبار
+// ==========================================
+
+function finishExam(){
+
+    if(examFinished) return;
+
+    examFinished = true;
+
+
+    clearInterval(
+        timerInterval
+    );
+
+
+    const percentage =
+    Math.round(
+        (score / questions.length) * 100
+    );
+
+
+    saveResult(
+        percentage
+    );
 
 }
 
-else if(percentage>=75){
 
-message="👏 أحسنت، مستواك ممتاز.";
+// ==========================================
+// حفظ النتيجة في Firestore
+// ==========================================
+
+function saveResult(percentage){
+
+    if(!studentCode){
+
+        alert(
+            "❌ يجب تسجيل الدخول أولاً"
+        );
+
+        window.location.replace(
+            "login.html"
+        );
+
+        return;
+
+    }
+
+
+    db.collection("results")
+    .add({
+
+        studentCode:
+        studentCode,
+
+        name:
+        studentName || "",
+
+        grade:
+        studentGrade || "",
+
+        subject:
+        "Community Health Nursing",
+
+        chapter:
+        "Chapter 1",
+
+        score:
+        score,
+
+        total:
+        questions.length,
+
+        percentage:
+        percentage,
+
+        date:
+        firebase.firestore
+        .FieldValue
+        .serverTimestamp()
+
+    })
+
+
+    .then(
+        function(){
+
+            showResult(
+                percentage
+            );
+
+        }
+    )
+
+
+    .catch(
+        function(error){
+
+            console.error(
+                "Save Result Error:",
+                error
+            );
+
+
+            alert(
+                "❌ حدث خطأ أثناء حفظ النتيجة\n" +
+                error.message
+            );
+
+        }
+    );
 
 }
 
-else if(percentage>=50){
 
-message="👍 جيد، راجع الشابتر مرة أخرى.";
+// ==========================================
+// عرض النتيجة
+// ==========================================
+
+function showResult(percentage){
+
+    const card =
+    document.querySelector(".card");
+
+
+    let message = "";
+
+
+    if(percentage >= 90){
+
+        message =
+        "🏆 Excellent! Great performance.";
+
+    }
+
+    else if(percentage >= 75){
+
+        message =
+        "👏 Well done! Excellent level.";
+
+    }
+
+    else if(percentage >= 50){
+
+        message =
+        "👍 Good. Review the chapter again.";
+
+    }
+
+    else{
+
+        message =
+        "📚 You need to review the chapter and try again.";
+
+    }
+
+
+    card.innerHTML = `
+
+        <div class="result-box">
+
+            <h2>
+                🎉 Quiz Completed
+            </h2>
+
+            <p>
+                Your Score
+            </p>
+
+            <h1>
+                ${score} / ${questions.length}
+            </h1>
+
+            <h2>
+                ${percentage}%
+            </h2>
+
+            <p>
+                ${message}
+            </p>
+
+            <button
+                onclick="location.reload()">
+                🔄 Retry Quiz
+            </button>
+
+            <br><br>
+
+            <button
+                onclick="history.back()">
+                🏠 Back
+            </button>
+
+        </div>
+
+    `;
 
 }
 
-else{
 
-message="📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار.";
+// ==========================================
+// المؤقت
+// ==========================================
+
+function startTimer(){
+
+    timerInterval =
+    setInterval(
+        function(){
+
+            let minutes =
+            Math.floor(
+                timeLeft / 60
+            );
+
+
+            let seconds =
+            timeLeft % 60;
+
+
+            if(seconds < 10){
+
+                seconds =
+                "0" + seconds;
+
+            }
+
+
+            timer.innerHTML =
+            "⏳ " +
+            minutes +
+            ":" +
+            seconds;
+
+
+            timeLeft--;
+
+
+            if(timeLeft < 0){
+
+                finishExam();
+
+            }
+
+        },
+        1000
+    );
 
 }
 
-document.querySelector(".card").innerHTML=`
 
-<div class="result-box">
+// ==========================================
+// تشغيل الاختبار
+// ==========================================
 
-<h2>🎉 انتهى الاختبار</h2>
+loadQuestion();
 
-<p>النتيجة</p>
-
-<h1>${score} / ${questions.length}</h1>
-
-<h2>${percentage}%</h2>
-
-<p>${message}</p>
-
-<button onclick="location.reload()">🔄 إعادة الاختبار</button>
-
-<br><br>
-
-<button onclick="history.back()">🏠 العودة للشابتر</button>
-
-</div>
-
-`;
-
-  }
-  
-showQuestion();
+startTimer();
 
 </script>
-<script src="auth.js"></script>
+
 </body>
 
 </html>

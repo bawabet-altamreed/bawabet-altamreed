@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Medical-Surgical Nursing - Chapter 2 Quiz</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🩺 Medical-Surgical Nursing</h1>
+
+<p>Chapter 2 - Perioperative Care Quiz</p>
+
+</header>
+
+
+<section class="years">
+
+<div class="card">
+
+<div class="timer">
+⏳ <span id="timer">05:00</span>
+</div>
+
+<div class="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+<h2 id="question"></h2>
+
+<div id="answers"></div>
+
+<button id="nextBtn">
+▶️ التالي
+</button>
+
+</div>
+
+</section>
+
+
+<script>
+
+// ==========================================
+// Firebase Authentication
+// ==========================================
+
+let currentUser = null;
+
+firebase.auth().onAuthStateChanged(function(user){
+
+    if(user){
+
+        currentUser = user;
+
+    }else{
+
+        window.location.href = "login.html";
+
+    }
+
+});
+
+
+// ==========================================
+// Questions
+// ==========================================
+
+const questions = [
+
+{
+question:"1- Perioperative nursing includes which three phases?",
+
+answers:[
+
+{text:"Assessment, Diagnosis and Treatment",correct:false},
+
+{text:"Preoperative, Intraoperative and Postoperative",correct:true},
+
+{text:"Admission, Surgery and Discharge",correct:false},
+
+{text:"Planning, Surgery and Rehabilitation",correct:false}
+
+]
+
+},
+
+{
+
+question:"2- The preoperative phase begins when:",
+
+answers:[
+
+{text:"The patient enters the recovery room",correct:false},
+
+{text:"The patient receives anesthesia",correct:false},
+
+{text:"The decision for surgical intervention is made",correct:true},
+
+{text:"The surgical wound is closed",correct:false}
+
+]
+
+},
+
+{
+
+question:"3- Which type of surgery requires immediate attention to maintain life?",
+
+answers:[
+
+{text:"Elective surgery",correct:false},
+
+{text:"Optional surgery",correct:false},
+
+{text:"Required surgery",correct:false},
+
+{text:"Emergent surgery",correct:true}
+
+]
+
+},
+
+{
+
+question:"4- A biopsy is an example of which type of surgery according to purpose?",
+
+answers:[
+
+{text:"Diagnostic surgery",correct:true},
+
+{text:"Palliative surgery",correct:false},
+
+{text:"Aesthetic surgery",correct:false},
+
+{text:"Reconstructive surgery",correct:false}
+
+]
+
+},
+
+{
+
+question:"5- Which nursing action is an important part of preoperative preparation?",
+
+answers:[
+
+{text:"Allowing the patient to eat immediately before surgery",correct:false},
+
+{text:"Ignoring the patient's questions",correct:false},
+
+{text:"Explaining the procedure and answering questions",correct:true},
+
+{text:"Preventing communication with the healthcare team",correct:false}
+
+]
+
+},
+
+{
+
+question:"6- What is the main purpose of informed consent?",
+
+answers:[
+
+{text:"To replace the nursing assessment",correct:false},
+
+{text:"To give permission for a specific procedure",correct:true},
+
+{text:"To guarantee that complications will not occur",correct:false},
+
+{text:"To determine the patient's discharge date",correct:false}
+
+]
+
+},
+
+{
+
+question:"7- Which nurse is responsible for maintaining the sterile field and passing instruments to the surgeon?",
+
+answers:[
+
+{text:"Circulating nurse",correct:false},
+
+{text:"Nursing assistant",correct:false},
+
+{text:"Scrub nurse",correct:true},
+
+{text:"Recovery room nurse",correct:false}
+
+]
+
+},
+
+{
+
+question:"8- Which position is commonly used for spinal surgery?",
+
+answers:[
+
+{text:"Lithotomy",correct:false},
+
+{text:"Trendelenburg",correct:false},
+
+{text:"Lateral",correct:false},
+
+{text:"Prone",correct:true}
+
+]
+
+},
+
+{
+
+question:"9- Which of the following is a principle of surgical asepsis?",
+
+answers:[
+
+{text:"Sterile articles may touch any surface",correct:false},
+
+{text:"Sterile equipment should be kept below the waist",correct:false},
+
+{text:"Sterile articles should touch only sterile articles or surfaces",correct:true},
+
+{text:"Unnecessary traffic around the sterile area should be encouraged",correct:false}
+
+]
+
+},
+
+{
+
+question:"10- Which intervention helps prevent postoperative pulmonary complications?",
+
+answers:[
+
+{text:"Encouraging deep breathing, coughing and early ambulation",correct:true},
+
+{text:"Keeping the patient completely immobile",correct:false},
+
+{text:"Restricting all fluids",correct:false},
+
+{text:"Avoiding respiratory exercises",correct:false}
+
+]
+
+}
+
+];
+
+
+// ==========================================
+// Quiz Variables
+// ==========================================
+
+let currentQuestion = 0;
+
+let score = 0;
+
+let answered = false;
+
+
+// ==========================================
+// Page Elements
+// ==========================================
+
+const questionElement =
+document.getElementById("question");
+
+const answersElement =
+document.getElementById("answers");
+
+const nextButton =
+document.getElementById("nextBtn");
+
+
+// ==========================================
+// Load Question
+// ==========================================
+
+function showQuestion(){
+
+    answered = false;
+
+    nextButton.style.display = "none";
+
+    answersElement.innerHTML = "";
+
+    const q = questions[currentQuestion];
+
+
+    questionElement.innerHTML =
+    (currentQuestion + 1) +
+    ". " +
+    q.question;
+
+
+    document.getElementById("progressBar").style.width =
+    ((currentQuestion + 1) /
+    questions.length) * 100 + "%";
+
+
+    q.answers.forEach(function(answer){
+
+        const button =
+        document.createElement("button");
+
+
+        button.innerHTML =
+        answer.text;
+
+
+        button.className =
+        "quiz-answer";
+
+
+        button.onclick =
+        function(){
+
+            selectAnswer(
+                answer.correct,
+                button
+            );
+
+        };
+
+
+        answersElement.appendChild(button);
+
+    });
+
+}
+
+
+// ==========================================
+// Select Answer
+// ==========================================
+
+function selectAnswer(correct, button){
+
+    if(answered) return;
+
+    answered = true;
+
+
+    const buttons =
+    Array.from(
+        answersElement.children
+    );
+
+
+    buttons.forEach(function(btn){
+
+        btn.disabled = true;
+
+    });
+
+
+    if(correct){
+
+        score++;
+
+        button.style.background =
+        "green";
+
+        button.style.color =
+        "#fff";
+
+    }else{
+
+        button.style.background =
+        "red";
+
+        button.style.color =
+        "#fff";
+
+
+        const correctIndex =
+        questions[currentQuestion]
+        .answers
+        .findIndex(function(answer){
+
+            return answer.correct;
+
+        });
+
+
+        buttons[
+            correctIndex
+        ].style.background =
+        "green";
+
+
+        buttons[
+            correctIndex
+        ].style.color =
+        "#fff";
+
+    }
+
+
+    nextButton.style.display =
+    "block";
+
+}
+
+
+// ==========================================
+// Next Button
+// ==========================================
+
+nextButton.onclick = function(){
+
+    if(!answered){
+
+        alert(
+            "من فضلك اختر إجابة أولاً"
+        );
+
+        return;
+
+    }
+
+
+    currentQuestion++;
+
+
+    if(
+        currentQuestion <
+        questions.length
+    ){
+
+        showQuestion();
+
+    }else{
+
+        clearInterval(
+            countdown
+        );
+
+
+        let percentage =
+        Math.round(
+            (score /
+            questions.length) * 100
+        );
+
+
+        saveResult(
+            percentage
+        );
+
+    }
+
+};
+
+
+// ==========================================
+// Save Result
+// ==========================================
+
+function saveResult(percentage){
+
+    if(!currentUser){
+
+        showResult(percentage);
+
+        return;
+
+    }
+
+
+    db.collection("users")
+    .doc(currentUser.uid)
+    .get()
+
+
+    .then(function(doc){
+
+        let userData =
+        doc.data() || {};
+
+
+        return db.collection("results")
+        .add({
+
+            uid:
+            currentUser.uid,
+
+            name:
+            userData.name || "",
+
+            grade:
+            userData.grade || "",
+
+            email:
+            currentUser.email || "",
+
+            subject:
+            "Medical-Surgical Nursing",
+
+            chapter:
+            "Chapter 2",
+
+            score:
+            score,
+
+            total:
+            questions.length,
+
+            percentage:
+            percentage,
+
+            date:
+            firebase.firestore
+            .FieldValue
+            .serverTimestamp()
+
+        });
+
+    })
+
+
+    .then(function(){
+
+        showResult(
+            percentage
+        );
+
+    })
+
+
+    .catch(function(error){
+
+        console.error(
+            "Save Result Error:",
+            error
+        );
+
+        showResult(
+            percentage
+        );
+
+    });
+
+}
+
+
+// ==========================================
+// Show Result
+// ==========================================
+
+function showResult(percentage){
+
+    questionElement.innerHTML =
+    "🎉 انتهى الاختبار";
+
+
+    answersElement.innerHTML = `
+
+        <div class="result-box">
+
+            <p>النتيجة</p>
+
+            <h1>
+                ${score} / ${questions.length}
+            </h1>
+
+            <h2>
+                ${percentage}%
+            </h2>
+
+            <p>
+
+            ${
+                percentage >= 90
+
+                ?
+
+                "🏆 ممتاز! أداء رائع."
+
+                :
+
+                percentage >= 75
+
+                ?
+
+                "👏 أحسنت، مستواك ممتاز."
+
+                :
+
+                percentage >= 50
+
+                ?
+
+                "👍 جيد، راجع الشابتر مرة أخرى."
+
+                :
+
+                "📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار."
+
+            }
+
+            </p>
+
+
+            <button
+            onclick="location.reload()">
+
+            🔄 إعادة الاختبار
+
+            </button>
+
+
+            <br><br>
+
+
+            <button
+            onclick="history.back()">
+
+            🏠 العودة للشابتر
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    nextButton.style.display =
+    "none";
+
+}
+
+
+// ==========================================
+// Timer - 5 Minutes
+// ==========================================
+
+let timeLeft = 300;
+
+
+const timer =
+document.getElementById("timer");
+
+
+const countdown =
+setInterval(function(){
+
+    if(timeLeft <= 0){
+
+        clearInterval(
+            countdown
+        );
+
+
+        let percentage =
+        Math.round(
+            (score /
+            questions.length) * 100
+        );
+
+
+        saveResult(
+            percentage
+        );
+
+
+        return;
+
+    }
+
+
+    timeLeft--;
+
+
+    let minutes =
+    Math.floor(
+        timeLeft / 60
+    );
+
+
+    let seconds =
+    timeLeft % 60;
+
+
+    timer.innerHTML =
+
+    String(minutes)
+    .padStart(2,"0")
+
+    +
+
+    ":"
+
+    +
+
+    String(seconds)
+    .padStart(2,"0");
+
+
+},1000);
+
+
+// ==========================================
+// Start Quiz
+// ==========================================
+
+showQuestion();
+
+</script>
+
+
+<script src="auth.js"></script>
+
+</body>
+
+</html>

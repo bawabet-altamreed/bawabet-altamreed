@@ -1113,14 +1113,7 @@ function loadAvailableContent() {
     }
 
 
-    // ==================================
-    // عرض المواد
-    // ==================================
-
-    renderSubjects();
-
-}
-// ==========================================
+    // ==========================================
 // عرض المواد
 // ==========================================
 
@@ -1136,6 +1129,10 @@ function renderSubjects() {
         return;
     }
 
+
+    // ==================================
+    // لا توجد مواد
+    // ==================================
 
     if (!allContent.length) {
 
@@ -1160,54 +1157,19 @@ function renderSubjects() {
     }
 
 
-    const subjects = {};
-
-
-    allContent.forEach(
-        function (content) {
-
-            const subject =
-                content.subject ||
-                "مادة غير محددة";
-
-
-            if (!subjects[subject]) {
-
-                subjects[subject] = {
-
-                    count: 0,
-
-                    chapters: {}
-
-                };
-
-            }
-
-
-            subjects[subject].count++;
-
-
-            const chapter =
-                content.chapter ||
-                "-";
-
-
-            subjects[subject]
-                .chapters[chapter] = true;
-
-        }
-    );
-
-
-    const subjectNames =
-        Object.keys(subjects);
-
+    // ==================================
+    // عدد المواد
+    // ==================================
 
     setText(
         "totalSubjects",
-        subjectNames.length
+        allContent.length
     );
 
+
+    // ==================================
+    // إنشاء الكروت
+    // ==================================
 
     let html = `
 
@@ -1216,24 +1178,30 @@ function renderSubjects() {
     `;
 
 
-    subjectNames.forEach(
-        function (subject) {
-
-            const chapters =
-                Object.keys(
-                    subjects[subject]
-                        .chapters
-                );
-
+    allContent.forEach(
+        function (content) {
 
             html += `
 
                 <div class="subject-card">
 
+                    <div
+                        style="
+                            font-size: 35px;
+                            margin-bottom: 10px;
+                        "
+                    >
+
+                        ${content.icon || "📚"}
+
+                    </div>
+
+
                     <h3>
 
-                        📚 ${escapeHtml(
-                            subject
+                        ${escapeHtml(
+                            content.name ||
+                            "مادة دراسية"
                         )}
 
                     </h3>
@@ -1241,19 +1209,30 @@ function renderSubjects() {
 
                     <p class="subject-count">
 
-                        📦 عدد المحتويات:
-                        ${subjects[subject].count}
+                        📖 محتوى المادة متاح
 
                     </p>
 
 
-                    <p class="subject-count">
+                    <a
+                        href="${escapeHtml(
+                            content.url
+                        )}"
+                        style="
+                            display: block;
+                            margin-top: 12px;
+                            padding: 10px;
+                            background: #1976d2;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 10px;
+                            text-align: center;
+                        "
+                    >
 
-                        📖 Chapters:
+                        دخول المادة →
 
-                        ${chapters.length}
-
-                    </p>
+                    </a>
 
                 </div>
 
@@ -1273,7 +1252,6 @@ function renderSubjects() {
     container.innerHTML = html;
 
 }
-
 
 // ==========================================
 // حساب النسبة

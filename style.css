@@ -1667,3 +1667,358 @@ display:none !important;
     display:flex !important;
     flex-direction:column;
 }
+
+/* ==========================================
+   Achievements
+========================================== */
+
+.achievements-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,.65);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 15px;
+
+    z-index: 99999;
+
+}
+
+.achievements-modal.hidden {
+
+    display: none;
+
+}
+
+
+.achievements-box {
+
+    width: 100%;
+
+    max-width: 850px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: white;
+
+    border-radius: 22px;
+
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.3);
+
+}
+
+
+.achievements-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 22px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0d47a1,
+            #1976d2
+        );
+
+    border-radius: 22px 22px 0 0;
+
+}
+
+
+.achievements-header h2 {
+
+    margin: 0 0 5px;
+
+}
+
+
+.achievements-header p {
+
+    margin: 0;
+
+    opacity: .9;
+
+}
+
+
+.achievements-close {
+
+    width: 40px;
+
+    height: 40px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.2);
+
+    color: white;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+}
+
+
+/* ==========================================
+   Statistics
+========================================== */
+
+.achievements-stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 12px;
+
+    padding: 20px;
+
+}
+
+
+.achievement-stat {
+
+    background: #f5f7fb;
+
+    border-radius: 15px;
+
+    padding: 15px;
+
+    text-align: center;
+
+}
+
+
+.achievement-stat span {
+
+    display: block;
+
+    font-size: 25px;
+
+    margin-bottom: 5px;
+
+}
+
+
+.achievement-stat strong {
+
+    display: block;
+
+    font-size: 25px;
+
+    color: #0d47a1;
+
+}
+
+
+.achievement-stat small {
+
+    color: #777;
+
+}
+
+
+/* ==========================================
+   Achievement Cards
+========================================== */
+
+.achievements-list {
+
+    padding: 0 20px 25px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 15px;
+
+}
+
+
+.achievement-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px;
+
+    border-radius: 16px;
+
+    border: 1px solid #e5e9f0;
+
+    background: white;
+
+    transition: .25s;
+
+}
+
+
+.achievement-item.unlocked {
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff8df,
+            #ffffff
+        );
+
+    border-color: #ffd54f;
+
+    box-shadow:
+        0 5px 18px rgba(255,193,7,.15);
+
+}
+
+
+.achievement-item.locked {
+
+    opacity: .55;
+
+    filter: grayscale(.7);
+
+}
+
+
+.achievement-icon {
+
+    width: 58px;
+
+    height: 58px;
+
+    min-width: 58px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background: #f1f5fa;
+
+    font-size: 30px;
+
+}
+
+
+.unlocked .achievement-icon {
+
+    background: #fff3c4;
+
+}
+
+
+.achievement-info {
+
+    flex: 1;
+
+}
+
+
+.achievement-info h3 {
+
+    margin: 0 0 5px;
+
+    font-size: 17px;
+
+}
+
+
+.achievement-info p {
+
+    margin: 0;
+
+    color: #777;
+
+    font-size: 13px;
+
+}
+
+
+.achievement-status {
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    margin-top: 7px;
+
+}
+
+
+.unlocked .achievement-status {
+
+    color: #2e7d32;
+
+}
+
+
+.locked .achievement-status {
+
+    color: #777;
+
+}
+
+
+/* ==========================================
+   Mobile
+========================================== */
+
+@media (max-width: 650px) {
+
+    .achievements-stats {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+
+    .achievements-list {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+@media (max-width: 380px) {
+
+    .achievements-stats {
+
+        grid-template-columns: 1fr 1fr;
+
+        padding: 12px;
+
+    }
+
+}

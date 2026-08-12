@@ -17,7 +17,6 @@
         href="style.css"
     >
 
-    <!-- لو عندك CSS خاص بالإنجازات -->
     <link
         rel="stylesheet"
         href="achievements.css"
@@ -29,9 +28,9 @@
 <body>
 
 
-<!-- ========================================== -->
-<!-- NAVBAR -->
-<!-- ========================================== -->
+<!-- ==========================================
+     NAVBAR
+========================================== -->
 
 <nav>
 
@@ -64,74 +63,50 @@
 </nav>
 
 
-<!-- ========================================== -->
-<!-- MAIN -->
-<!-- ========================================== -->
+
+<!-- ==========================================
+     MAIN
+========================================== -->
 
 <main class="achievements-page">
 
 
-    <!-- ====================================== -->
-    <!-- HEADER -->
-    <!-- ====================================== -->
+    <!-- ======================================
+         GAMING HEADER
+    ====================================== -->
 
-    <section class="achievements-header">
+    <section class="gaming-hero">
 
-        <div class="achievement-trophy">
+        <div class="hero-trophy">
             🏆
         </div>
 
-        <h1>
-            إنجازاتي
-        </h1>
 
-        <p id="welcomeAchievement">
-            تابع تقدمك واجمع الإنجازات داخل بوابة التمريض
-        </p>
+        <div class="hero-content">
 
-    </section>
-
-
-    <!-- ====================================== -->
-    <!-- STUDENT INFO -->
-    <!-- ====================================== -->
-
-    <section class="achievement-student-card">
-
-        <div>
-
-            <span>
-                👨‍🎓 الطالب
+            <span class="hero-small-title">
+                🩺 بوابة التمريض • GAMING SYSTEM
             </span>
 
-            <strong id="studentName">
-                جاري التحميل...
-            </strong>
+            <h1>
+                إنجازاتي
+            </h1>
+
+            <p id="welcomeAchievement">
+                تابع تقدمك وارتقِ بمستواك داخل بوابة التمريض
+            </p>
 
         </div>
 
 
-        <div>
+        <div class="hero-level">
 
             <span>
-                🎓 الصف
+                LEVEL
             </span>
 
-            <strong id="studentGrade">
-                -
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span>
-                🔑 الكود
-            </span>
-
-            <strong id="studentCode">
-                -
+            <strong id="studentLevel">
+                1
             </strong>
 
         </div>
@@ -139,9 +114,231 @@
     </section>
 
 
-    <!-- ====================================== -->
-    <!-- STATISTICS -->
-    <!-- ====================================== -->
+
+    <!-- ======================================
+         PLAYER CARD
+    ====================================== -->
+
+    <section class="player-card">
+
+        <div class="player-avatar">
+            👨‍🎓
+        </div>
+
+
+        <div class="player-info">
+
+            <div class="player-name-row">
+
+                <h2 id="studentName">
+                    جاري التحميل...
+                </h2>
+
+                <span
+                    id="rankBadge"
+                    class="rank-badge bronze"
+                >
+                    🥉 BRONZE
+                </span>
+
+            </div>
+
+
+            <div class="player-meta">
+
+                <span>
+                    🎓
+                    <b id="studentGrade">-</b>
+                </span>
+
+                <span>
+                    🔑
+                    <b id="studentCode">-</b>
+                </span>
+
+            </div>
+
+
+            <!-- XP -->
+
+            <div class="xp-area">
+
+                <div class="xp-top">
+
+                    <span>
+                        ⚡ XP
+                    </span>
+
+                    <strong>
+                        <span id="currentXP">
+                            0
+                        </span>
+                        /
+                        <span id="nextXP">
+                            100
+                        </span>
+                    </strong>
+
+                </div>
+
+
+                <div class="xp-bar">
+
+                    <div
+                        id="xpFill"
+                        class="xp-fill"
+                        style="width:0%"
+                    ></div>
+
+                </div>
+
+
+                <div class="xp-bottom">
+
+                    <span>
+                        المستوى الحالي
+                    </span>
+
+                    <span id="xpRemaining">
+                        100 XP للمستوى التالي
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RANK -->
+
+        <div class="player-rank">
+
+            <span>
+                🏆 ترتيبك
+            </span>
+
+            <strong id="leaderboardRank">
+                -
+            </strong>
+
+            <small>
+                على لوحة المتصدرين
+            </small>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================
+         LEVEL PROGRESSION
+    ====================================== -->
+
+    <section class="level-system-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-mini">
+                    🎮 LEVEL SYSTEM
+                </span>
+
+                <h2>
+                    مستوياتك
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="levels">
+
+
+            <div
+                id="bronzeLevel"
+                class="level-card bronze-level"
+            >
+
+                <div class="level-medal">
+                    🥉
+                </div>
+
+                <div>
+
+                    <strong>
+                        BRONZE
+                    </strong>
+
+                    <span>
+                        بداية الطريق
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="silverLevel"
+                class="level-card silver-level"
+            >
+
+                <div class="level-medal">
+                    🥈
+                </div>
+
+                <div>
+
+                    <strong>
+                        SILVER
+                    </strong>
+
+                    <span>
+                        طالب متقدم
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="goldLevel"
+                class="level-card gold-level"
+            >
+
+                <div class="level-medal">
+                    🥇
+                </div>
+
+                <div>
+
+                    <strong>
+                        GOLD
+                    </strong>
+
+                    <span>
+                        طالب النخبة
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================
+         STATS
+    ====================================== -->
 
     <section class="achievement-stats">
 
@@ -217,67 +414,98 @@
     </section>
 
 
-    <!-- ====================================== -->
-    <!-- PROGRESS -->
-    <!-- ====================================== -->
+
+    <!-- ======================================
+         PROGRESS
+    ====================================== -->
 
     <section class="achievement-progress-card">
 
-        <div class="section-title">
+        <div class="progress-heading">
 
-            <h2>
-                📈 مستوى تقدمك
-            </h2>
-
-        </div>
-
-
-        <div class="achievement-progress">
-
-            <div class="achievement-progress-top">
+            <div>
 
                 <span>
-                    نسبة الإنجاز
+                    📈 PROGRESS
                 </span>
 
-                <strong id="progressPercentage">
-                    0%
-                </strong>
+                <h2>
+                    مستوى تقدمك
+                </h2>
 
             </div>
 
-
-            <div class="achievement-progress-bar">
-
-                <div
-                    id="progressFill"
-                    class="achievement-progress-fill"
-                    style="width:0%">
-                </div>
-
-            </div>
+            <strong id="progressPercentage">
+                0%
+            </strong>
 
         </div>
 
+
+        <div class="achievement-progress-bar">
+
+            <div
+                id="progressFill"
+                class="achievement-progress-fill"
+                style="width:0%"
+            ></div>
+
+        </div>
+
+
+        <div class="progress-info">
+
+            <span>
+                استمر في حل الاختبارات لرفع مستواك 🔥
+            </span>
+
+            <span id="progressText">
+                0 / 10 اختبارات
+            </span>
+
+        </div>
 
     </section>
 
 
-    <!-- ====================================== -->
-    <!-- BADGES -->
-    <!-- ====================================== -->
+
+    <!-- ======================================
+         ACHIEVEMENTS
+    ====================================== -->
 
     <section class="badges-section">
 
         <div class="section-title">
 
-            <h2>
-                🏆 إنجازاتي وشاراتي
-            </h2>
+            <div>
 
-            <p>
-                كلما تطورت في المنصة، افتح إنجازات جديدة
-            </p>
+                <span>
+                    🏆 ACHIEVEMENTS
+                </span>
+
+                <h2>
+                    إنجازاتي وشاراتي
+                </h2>
+
+                <p>
+                    افتح الإنجازات وارفع مستوى حسابك
+                </p>
+
+            </div>
+
+            <div class="achievement-counter">
+
+                <strong id="achievementUnlockedCount">
+                    0
+                </strong>
+
+                /
+                
+                <span id="achievementTotalCount">
+                    0
+                </span>
+
+            </div>
 
         </div>
 
@@ -288,7 +516,7 @@
         >
 
             <div class="achievement-loading">
-                ⏳ جاري تحميل إنجازاتك...
+                ⏳ جاري تحميل الإنجازات...
             </div>
 
         </div>
@@ -296,9 +524,10 @@
     </section>
 
 
-    <!-- ====================================== -->
-    <!-- MOTIVATION -->
-    <!-- ====================================== -->
+
+    <!-- ======================================
+         MOTIVATION
+    ====================================== -->
 
     <section
         id="motivationCard"
@@ -311,9 +540,10 @@
 </main>
 
 
-<!-- ========================================== -->
-<!-- FIREBASE -->
-<!-- ========================================== -->
+
+<!-- ==========================================
+     FIREBASE
+========================================== -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
@@ -322,9 +552,9 @@
 <script src="firebase.js"></script>
 
 
-<!-- ========================================== -->
-<!-- Achievements JS -->
-<!-- ========================================== -->
+<!-- ==========================================
+     ACHIEVEMENTS JS
+========================================== -->
 
 <script src="achievements.js"></script>
 

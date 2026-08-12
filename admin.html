@@ -451,127 +451,6 @@ th {
 
 
 /* ==========================================
-   Materials Grid
-========================================== */
-
-.materials-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(auto-fit, minmax(280px, 1fr));
-
-    gap: 15px;
-
-    margin-top: 20px;
-}
-
-
-/* ==========================================
-   Material Card
-========================================== */
-
-.material-card {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 15px;
-
-    padding: 18px;
-
-    background: #f8fafc;
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 16px;
-
-    text-decoration: none;
-
-    color: #222;
-
-    transition: .25s;
-}
-
-.material-card:hover {
-
-    transform: translateY(-4px);
-
-    border-color: #1976d2;
-
-    box-shadow:
-        0 8px 20px rgba(0,0,0,.10);
-}
-
-
-/* ==========================================
-   Material Icon
-========================================== */
-
-.material-icon {
-
-    width: 58px;
-
-    height: 58px;
-
-    min-width: 58px;
-
-    border-radius: 15px;
-
-    background: #e3f2fd;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 28px;
-}
-
-
-/* ==========================================
-   Material Info
-========================================== */
-
-.material-info {
-
-    flex: 1;
-}
-
-.material-info h3 {
-
-    margin: 0 0 6px;
-
-    color: #0d47a1;
-
-    font-size: 17px;
-}
-
-.material-info p {
-
-    margin: 0;
-
-    color: #777;
-
-    font-size: 13px;
-}
-
-
-/* ==========================================
-   Material Arrow
-========================================== */
-
-.material-arrow {
-
-    font-size: 24px;
-
-    color: #1976d2;
-}
-
-
-/* ==========================================
    Mobile
 ========================================== */
 
@@ -584,24 +463,20 @@ th {
         margin: 20px auto;
     }
 
-
     .admin-header {
 
         padding: 20px;
     }
-
 
     .admin-header h1 {
 
         font-size: 22px;
     }
 
-
     .admin-header p {
 
         font-size: 14px;
     }
-
 
     .admin-nav {
 
@@ -610,7 +485,6 @@ th {
 
         gap: 10px;
     }
-
 
     .admin-nav button {
 
@@ -621,12 +495,10 @@ th {
         font-size: 14px;
     }
 
-
     .admin-card {
 
         padding: 15px;
     }
-
 
     .stats {
 
@@ -636,24 +508,20 @@ th {
         gap: 10px;
     }
 
-
     .stat-card {
 
         padding: 15px 10px;
     }
-
 
     .stat-card h3 {
 
         font-size: 14px;
     }
 
-
     .stat-number {
 
         font-size: 25px;
     }
-
 
     table .admin-btn {
 
@@ -672,30 +540,21 @@ th {
         border-radius: 7px;
     }
 
-
     .student-info-grid {
 
         grid-template-columns: 1fr;
     }
-
 
     .student-modal {
 
         padding: 10px;
     }
 
-
     .student-modal-box {
 
         max-height: 92vh;
 
         border-radius: 15px;
-    }
-
-
-    .materials-grid {
-
-        grid-template-columns: 1fr;
     }
 
 }
@@ -711,7 +570,6 @@ th {
 
         grid-template-columns: 1fr;
     }
-
 
     .stats {
 
@@ -776,9 +634,7 @@ th {
      class="admin-container hidden">
 
 
-    <!-- ==========================================
-         Header
-    ========================================== -->
+    <!-- Header -->
 
     <div class="admin-header">
 
@@ -793,65 +649,36 @@ th {
     </div>
 
 
-    <!-- ==========================================
-         Navigation
-    ========================================== -->
+    <!-- Navigation -->
 
     <div class="admin-nav">
 
-        <button
-            onclick="showSection('dashboard')">
-
+        <button onclick="showSection('dashboard')">
             📊 الرئيسية
-
         </button>
 
-
-        <button
-            onclick="showSection('students')">
-
+        <button onclick="showSection('students')">
             👨‍🎓 الطلاب
-
         </button>
 
-
-        <button
-            onclick="showSection('codes')">
-
+        <button onclick="showSection('codes')">
             🔑 أكواد الاشتراك
-
         </button>
 
-
-        <button
-            onclick="showSection('results')">
-
+        <button onclick="showSection('results')">
             📝 النتائج
-
         </button>
 
-
-        <button
-            onclick="showSection('leaderboard')">
-
+        <button onclick="showSection('leaderboard')">
             🏆 Leaderboard
-
         </button>
 
-
-        <button
-            onclick="showSection('content')">
-
-            📚 المواد والمحتوى
-
+        <button onclick="showSection('content')">
+            🎥 المحتوى
         </button>
 
-
-        <button
-            onclick="logoutAdmin()">
-
+        <button onclick="logoutAdmin()">
             🚪 خروج
-
         </button>
 
     </div>
@@ -861,12 +688,9 @@ th {
          Dashboard
     ========================================== -->
 
-    <section
-        id="dashboard"
-        class="section active">
+    <section id="dashboard" class="section active">
 
         <div class="stats">
-
 
             <div class="stat-card">
 
@@ -874,12 +698,9 @@ th {
                     👨‍🎓 إجمالي الطلاب
                 </h3>
 
-                <div
-                    id="totalStudents"
-                    class="stat-number">
-
+                <div id="totalStudents"
+                     class="stat-number">
                     0
-
                 </div>
 
             </div>
@@ -891,12 +712,9 @@ th {
                     ✅ الطلاب النشطين
                 </h3>
 
-                <div
-                    id="activeStudents"
-                    class="stat-number">
-
+                <div id="activeStudents"
+                     class="stat-number">
                     0
-
                 </div>
 
             </div>
@@ -908,12 +726,9 @@ th {
                     ⛔ المنتهية
                 </h3>
 
-                <div
-                    id="expiredStudents"
-                    class="stat-number">
-
+                <div id="expiredStudents"
+                     class="stat-number">
                     0
-
                 </div>
 
             </div>
@@ -925,12 +740,9 @@ th {
                     📝 إجمالي النتائج
                 </h3>
 
-                <div
-                    id="totalResults"
-                    class="stat-number">
-
+                <div id="totalResults"
+                     class="stat-number">
                     0
-
                 </div>
 
             </div>
@@ -942,16 +754,12 @@ th {
                     📈 متوسط الدرجات
                 </h3>
 
-                <div
-                    id="averageScore"
-                    class="stat-number">
-
+                <div id="averageScore"
+                     class="stat-number">
                     0%
-
                 </div>
 
             </div>
-
 
         </div>
 
@@ -962,10 +770,7 @@ th {
          Students
     ========================================== -->
 
-    <section
-        id="students"
-        class="section">
-
+    <section id="students" class="section">
 
         <div class="admin-card">
 
@@ -976,13 +781,19 @@ th {
             <input
                 id="studentSearch"
                 type="text"
-                placeholder="🔎 البحث بالكود أو الاسم أو الإيميل">
+                placeholder="🔎 البحث بالكود أو الاسم أو الإيميل"
+                style="
+                    width:100%;
+                    box-sizing:border-box;
+                    padding:12px;
+                    border:1px solid #ddd;
+                    border-radius:10px;
+                ">
 
         </div>
 
 
-        <div
-            class="admin-card table-container">
+        <div class="admin-card table-container">
 
             <table>
 
@@ -991,25 +802,17 @@ th {
                     <tr>
 
                         <th>الكود</th>
-
                         <th>الاسم</th>
-
                         <th>الصف</th>
-
                         <th>الحالة</th>
-
                         <th>الانتهاء</th>
-
-                        <th>الجهاز</th>
+                        <th>الإجراءات</th>
 
                     </tr>
 
                 </thead>
 
-
-                <tbody id="studentsTable">
-
-                </tbody>
+                <tbody id="studentsTable"></tbody>
 
             </table>
 
@@ -1022,10 +825,7 @@ th {
          Codes
     ========================================== -->
 
-    <section
-        id="codes"
-        class="section">
-
+    <section id="codes" class="section">
 
         <div class="admin-card">
 
@@ -1033,27 +833,22 @@ th {
                 🔑 إضافة كود اشتراك
             </h2>
 
-
             <div class="form-grid">
-
 
                 <input
                     id="newCode"
                     type="text"
                     placeholder="كود الاشتراك">
 
-
                 <input
                     id="newPassword"
                     type="text"
                     placeholder="كلمة المرور">
 
-
                 <input
                     id="newName"
                     type="text"
                     placeholder="اسم الطالب">
-
 
                 <select id="newGrade">
 
@@ -1061,22 +856,15 @@ th {
                         اختر الصف
                     </option>
 
-                    <option
-                        value="الصف الأول الثانوي التمريض">
-
+                    <option value="الصف الأول الثانوي التمريض">
                         الصف الأول
-
                     </option>
 
-                    <option
-                        value="الصف الثاني الثانوي التمريض">
-
+                    <option value="الصف الثاني الثانوي التمريض">
                         الصف الثاني
-
                     </option>
 
                 </select>
-
 
                 <select id="subscriptionDays">
 
@@ -1084,12 +872,8 @@ th {
                         15 يوم
                     </option>
 
-                    <option
-                        value="30"
-                        selected>
-
+                    <option value="30" selected>
                         شهر
-
                     </option>
 
                     <option value="90">
@@ -1106,12 +890,9 @@ th {
 
                 </select>
 
-
             </div>
 
-
             <br>
-
 
             <button
                 class="admin-btn primary-btn"
@@ -1124,14 +905,11 @@ th {
         </div>
 
 
-        <div
-            class="admin-card table-container">
-
+        <div class="admin-card table-container">
 
             <h2>
                 📋 الأكواد الحالية
             </h2>
-
 
             <table>
 
@@ -1140,25 +918,17 @@ th {
                     <tr>
 
                         <th>الكود</th>
-
                         <th>الاسم</th>
-
                         <th>الصف</th>
-
                         <th>الحالة</th>
-
                         <th>الانتهاء</th>
-
                         <th>إجراء</th>
 
                     </tr>
 
                 </thead>
 
-
-                <tbody id="codesTable">
-
-                </tbody>
+                <tbody id="codesTable"></tbody>
 
             </table>
 
@@ -1171,17 +941,13 @@ th {
          Results
     ========================================== -->
 
-    <section
-        id="results"
-        class="section">
-
+    <section id="results" class="section">
 
         <div class="admin-card">
 
             <h2>
                 📝 نتائج الاختبارات
             </h2>
-
 
             <div
                 id="resultsTable"
@@ -1200,17 +966,13 @@ th {
          Leaderboard
     ========================================== -->
 
-    <section
-        id="leaderboard"
-        class="section">
-
+    <section id="leaderboard" class="section">
 
         <div class="admin-card">
 
             <h2>
                 🏆 لوحة الترتيب
             </h2>
-
 
             <div id="leaderboardTable">
 
@@ -1224,257 +986,214 @@ th {
 
 
     <!-- ==========================================
-         Content / Materials
+         Content Management
     ========================================== -->
 
-    <section
-        id="content"
-        class="section">
+    <section id="content" class="section">
 
+
+        <!-- إضافة محتوى -->
 
         <div class="admin-card">
 
             <h2>
-                📚 المواد والمحتوى
+                🎥 إضافة محتوى جديد
             </h2>
 
-            <p>
-                اختر المادة للدخول إلى صفحتها وإدارة محتواها.
-            </p>
+            <div class="form-grid">
 
+                <select id="contentGrade">
 
-            <div class="materials-grid">
+                    <option value="">
+                        اختر الصف
+                    </option>
 
+                    <option value="الصف الأول الثانوي التمريض">
+                        الصف الأول
+                    </option>
 
-                <!-- ==================================
-                     General Surgery
-                ================================== -->
+                    <option value="الصف الثاني الثانوي التمريض">
+                        الصف الثاني
+                    </option>
 
-                <a
-                    href="surgery.html"
-                    class="material-card">
+                </select>
 
 
-                    <div class="material-icon">
+                <select id="contentSubject">
 
-                        🩺
+                    <option value="">
+                        اختر المادة
+                    </option>
 
-                    </div>
+                    <option value="General Surgery">
+                        🩺 General Surgery
+                    </option>
 
+                    <option value="Internal Medicine">
+                        🫀 Internal Medicine
+                    </option>
 
-                    <div class="material-info">
+                    <option value="Community Health Nursing">
+                        🏥 Community Health Nursing
+                    </option>
 
-                        <h3>
-                            General Surgery
-                        </h3>
+                    <option value="Anatomy">
+                        🦴 Anatomy
+                    </option>
 
-                        <p>
-                            الجراحة العامة
-                        </p>
+                    <option value="Fundamental of Nursing">
+                        👩‍⚕️ Fundamental of Nursing
+                    </option>
 
-                    </div>
+                </select>
 
 
-                    <span class="material-arrow">
+                <input
+                    id="contentChapter"
+                    type="text"
+                    placeholder="Chapter 1">
 
-                        ←
 
-                    </span>
+                <input
+                    id="contentTitle"
+                    type="text"
+                    placeholder="عنوان المحتوى">
 
-                </a>
 
+                <select id="contentType">
 
-                <!-- ==================================
-                     Medical-Surgical Nursing
-                ================================== -->
+                    <option value="">
+                        اختر نوع المحتوى
+                    </option>
 
-                <a
-                    href="medical-surgical.html"
-                    class="material-card">
+                    <option value="pdf">
+                        📄 PDF
+                    </option>
 
+                    <option value="video">
+                        🎬 فيديو YouTube
+                    </option>
 
-                    <div class="material-icon">
+                    <option value="quiz">
+                        📝 اختبار
+                    </option>
 
-                        🏥
+                    <option value="chapter">
+                        📚 Chapter
+                    </option>
 
-                    </div>
+                </select>
 
 
-                    <div class="material-info">
-
-                        <h3>
-                            Medical-Surgical Nursing
-                        </h3>
-
-                        <p>
-                            تمريض الباطنة والجراحة
-                        </p>
-
-                    </div>
-
-
-                    <span class="material-arrow">
-
-                        ←
-
-                    </span>
-
-                </a>
-
-
-                <!-- ==================================
-                     Internal Medicine
-                ================================== -->
-
-                <a
-                    href="internal-medicine.html"
-                    class="material-card">
-
-
-                    <div class="material-icon">
-
-                        🫀
-
-                    </div>
-
-
-                    <div class="material-info">
-
-                        <h3>
-                            Internal Medicine
-                        </h3>
-
-                        <p>
-                            الباطنة
-                        </p>
-
-                    </div>
-
-
-                    <span class="material-arrow">
-
-                        ←
-
-                    </span>
-
-                </a>
-
-
-                <!-- ==================================
-                     Community Health Nursing
-                ================================== -->
-
-                <a
-                    href="community-health.html"
-                    class="material-card">
-
-
-                    <div class="material-icon">
-
-                        🏥
-
-                    </div>
-
-
-                    <div class="material-info">
-
-                        <h3>
-                            Community Health Nursing
-                        </h3>
-
-                        <p>
-                            تمريض صحة المجتمع
-                        </p>
-
-                    </div>
-
-
-                    <span class="material-arrow">
-
-                        ←
-
-                    </span>
-
-                </a>
-
-
-                <!-- ==================================
-                     Anatomy
-                ================================== -->
-
-                <a
-                    href="anatomy.html"
-                    class="material-card">
-
-
-                    <div class="material-icon">
-
-                        🦴
-
-                    </div>
-
-
-                    <div class="material-info">
-
-                        <h3>
-                            Anatomy
-                        </h3>
-
-                        <p>
-                            التشريح
-                        </p>
-
-                    </div>
-
-
-                    <span class="material-arrow">
-
-                        ←
-
-                    </span>
-
-                </a>
-
-
-                <!-- ==================================
-                     Fundamental of Nursing
-                ================================== -->
-
-                <a
-                    href="fundamental.html"
-                    class="material-card">
-
-
-                    <div class="material-icon">
-
-                        👩‍⚕️
-
-                    </div>
-
-
-                    <div class="material-info">
-
-                        <h3>
-                            Fundamental of Nursing
-                        </h3>
-
-                        <p>
-                            أساسيات التمريض
-                        </p>
-
-                    </div>
-
-
-                    <span class="material-arrow">
-
-                        ←
-
-                    </span>
-
-                </a>
-
+                <input
+                    id="contentUrl"
+                    type="url"
+                    placeholder="رابط PDF أو YouTube أو صفحة الاختبار">
 
             </div>
+
+            <br>
+
+            <button
+                class="admin-btn primary-btn"
+                onclick="createContent()">
+
+                ➕ إضافة المحتوى
+
+            </button>
+
+        </div>
+
+
+        <!-- فلترة المحتوى -->
+
+        <div class="admin-card">
+
+            <h2>
+                🔎 البحث والفلترة
+            </h2>
+
+            <div class="form-grid">
+
+                <select id="filterSubject">
+
+                    <option value="">
+                        كل المواد
+                    </option>
+
+                    <option value="General Surgery">
+                        🩺 General Surgery
+                    </option>
+
+                    <option value="Internal Medicine">
+                        🫀 Internal Medicine
+                    </option>
+
+                    <option value="Community Health Nursing">
+                        🏥 Community Health Nursing
+                    </option>
+
+                    <option value="Anatomy">
+                        🦴 Anatomy
+                    </option>
+
+                    <option value="Fundamental of Nursing">
+                        👩‍⚕️ Fundamental of Nursing
+                    </option>
+
+                </select>
+
+
+                <select id="filterGrade">
+
+                    <option value="">
+                        كل الصفوف
+                    </option>
+
+                    <option value="الصف الأول الثانوي التمريض">
+                        الصف الأول
+                    </option>
+
+                    <option value="الصف الثاني الثانوي التمريض">
+                        الصف الثاني
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- المحتوى الحالي -->
+
+        <div class="admin-card table-container">
+
+            <h2>
+                📚 المحتوى الحالي
+            </h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>الصف</th>
+                        <th>المادة</th>
+                        <th>Chapter</th>
+                        <th>العنوان</th>
+                        <th>النوع</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="contentTable"></tbody>
+
+            </table>
 
         </div>
 
@@ -1505,16 +1224,13 @@ th {
     id="studentModal"
     class="student-modal hidden">
 
-
     <div class="student-modal-box">
-
 
         <div class="student-modal-header">
 
             <h2>
                 👨‍🎓 تفاصيل الطالب
             </h2>
-
 
             <button
                 class="modal-close"
@@ -1532,7 +1248,6 @@ th {
             جاري تحميل بيانات الطالب...
 
         </div>
-
 
     </div>
 

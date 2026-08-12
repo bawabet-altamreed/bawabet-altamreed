@@ -1030,7 +1030,6 @@ function renderProgress() {
 
 }
 
-
 // ==========================================
 // تحميل المحتوى المتاح
 // ==========================================
@@ -1038,11 +1037,6 @@ function renderProgress() {
 function loadAvailableContent() {
 
     return db.collection("content")
-        .where(
-            "active",
-            "==",
-            true
-        )
         .get()
 
         .then(function (snapshot) {
@@ -1057,12 +1051,12 @@ function loadAvailableContent() {
 
 
                 // ==================================
-                // عرض محتوى الصف الخاص بالطالب فقط
+                // المحتوى مفعل
                 // ==================================
 
                 if (
-                    content.grade ===
-                    currentStudent.grade
+                    content.active === true &&
+                    content.grade === currentStudent.grade
                 ) {
 
                     allContent.push({
@@ -1090,22 +1084,29 @@ function loadAvailableContent() {
             );
 
 
-            document.getElementById(
-                "subjects"
-            ).innerHTML = `
+            const subjects =
+                document.getElementById(
+                    "subjects"
+                );
 
-                <div class="empty-state">
 
-                    ❌ تعذر تحميل المواد
+            if (subjects) {
 
-                </div>
+                subjects.innerHTML = `
 
-            `;
+                    <div class="empty-state">
+
+                        ❌ تعذر تحميل المواد
+
+                    </div>
+
+                `;
+
+            }
 
         });
 
 }
-
 
 // ==========================================
 // عرض المواد

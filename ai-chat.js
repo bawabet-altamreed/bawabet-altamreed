@@ -5,6 +5,14 @@
 
 
 // ==========================================
+// رابط الـWorker
+// ==========================================
+
+const AI_WORKER_URL =
+    "https://bawabet-altamreed-ai.bawabet-altamreed.workers.dev/";
+
+
+// ==========================================
 // العناصر
 // ==========================================
 
@@ -91,67 +99,84 @@ async function sendMessage() {
 
     try {
 
-        /*
-         *
-         * هنا هنربط الـ Backend
-         *
-         * مثال:
-         *
-         * const response = await fetch(
-         *
-         *     "YOUR_BACKEND_URL",
-         *
-         *     {
-         *
-         *         method: "POST",
-         *
-         *         headers: {
-         *
-         *             "Content-Type":
-         *                 "application/json"
-         *         },
-         *
-         *         body: JSON.stringify({
-         *
-         *             message: message,
-         *
-         *             history:
-         *                 chatHistory
-         *
-         *         })
-         *
-         *     }
-         *
-         * );
-         *
-         */
+        // ==================================
+        // الاتصال بالـWorker
+        // ==================================
+
+        const response =
+            await fetch(
+                AI_WORKER_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        question: message
+
+                    })
+
+                }
+            );
 
 
-        // مؤقتًا
-        await new Promise(
-            function(resolve) {
+        // ==================================
+        // قراءة النتيجة
+        // ==================================
 
-                setTimeout(
-                    resolve,
-                    900
-                );
+        const data =
+            await response.json();
 
-            }
-        );
 
+        // ==================================
+        // حذف Loading
+        // ==================================
 
         removeTyping(
             typing
         );
 
 
+        // ==================================
+        // التأكد من نجاح الطلب
+        // ==================================
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            console.error(
+                "AI Worker Error:",
+                data
+            );
+
+
+            addAIMessage(
+
+                data.error ||
+                "❌ حصل خطأ أثناء تشغيل مساعد بوابة التمريض."
+
+            );
+
+
+            return;
+
+        }
+
+
+        // ==================================
+        // عرض إجابة AI
+        // ==================================
+
         addAIMessage(
 
-            "🔥 الواجهة شغالة تمام يا بطل!\n\n" +
-
-            "دلوقتي باقي خطوة ربط المساعد الحقيقي بالـAI API، " +
-
-            "وبعدها هتقدر تسألني وأنا أرد عليك فعليًا 🤖🩺"
+            data.answer ||
+            "لم أتمكن من الحصول على إجابة حاليًا."
 
         );
 
@@ -173,7 +198,7 @@ async function sendMessage() {
 
         addAIMessage(
 
-            "❌ حصل خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى."
+            "❌ حصل خطأ أثناء الاتصال بمساعد بوابة التمريض. حاول مرة أخرى."
 
         );
 

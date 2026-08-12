@@ -1,731 +1,574 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>لوحة الإدارة | بوابة التمريض</title>
-
-<link rel="stylesheet" href="style.css">
-
-<style>
-
-/* ==========================================
-   Admin Panel
-========================================== */
-
-body {
-    background: #f4f7fb;
-    overflow-x: hidden;
-}
-
-.admin-container {
-    width: 95%;
-    max-width: 1200px;
-    margin: 30px auto;
-    box-sizing: border-box;
-}
-
-.admin-header {
-    background: linear-gradient(135deg, #0d47a1, #1976d2);
-    color: white;
-    padding: 25px;
-    border-radius: 18px;
-    margin-bottom: 20px;
-    box-sizing: border-box;
-}
-
-.admin-header h1 {
-    margin: 0 0 8px;
-}
-
-.admin-header p {
-    margin: 0;
-    opacity: .9;
-}
-
-
-/* ==========================================
-   Navigation
-========================================== */
-
-.admin-nav {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.admin-nav button {
-    border: none;
-    padding: 15px;
-    border-radius: 12px;
-    background: white;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: bold;
-    box-shadow: 0 3px 10px rgba(0,0,0,.08);
-}
-
-.admin-nav button:hover {
-    transform: translateY(-2px);
-}
-
-
-/* ==========================================
-   Sections
-========================================== */
-
-.section {
-    display: none;
-}
-
-.section.active {
-    display: block;
-}
-
-
-/* ==========================================
-   Statistics
-========================================== */
-
-.stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-}
-
-.stat-card {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
-    box-sizing: border-box;
-}
-
-.stat-card h3 {
-    margin: 0 0 10px;
-    color: #555;
-}
-
-.stat-number {
-    font-size: 30px;
-    font-weight: bold;
-    color: #0d47a1;
-}
-
-
-/* ==========================================
-   Cards
-========================================== */
-
-.admin-card {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
-    box-sizing: border-box;
-}
-
-
-/* ==========================================
-   Forms
-========================================== */
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-}
-
-.form-grid input,
-.form-grid select {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-}
-
-
-/* ==========================================
-   Buttons
-========================================== */
-
-.admin-btn {
-    border: none;
-    padding: 12px 18px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.primary-btn {
-    background: #1976d2;
-    color: white;
-}
-
-.danger-btn {
-    background: #d32f2f;
-    color: white;
-}
-
-.success-btn {
-    background: #2e7d32;
-    color: white;
-}
-
-
-/* ==========================================
-   Tables
-========================================== */
-
-.table-container {
-    overflow-x: auto;
-    overflow-y: visible;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-th,
-td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    text-align: center;
-    white-space: nowrap;
-}
-
-th {
-    background: #f1f5fa;
-}
-
-
-/* ==========================================
-   System
-========================================== */
+<!DOCTYPE html>  <html lang="ar" dir="rtl">  <head>  <meta charset="UTF-8">  <meta name="viewport"  
+content="width=device-width, initial-scale=1.0">
+
+<title>لوحة الإدارة | بوابة التمريض</title>  <link rel="stylesheet" href="style.css">  <style>  
+  
+body {  
+    background: #f4f7fb;  
+}  
+  
+.admin-container {  
+    width: 95%;  
+    max-width: 1200px;  
+    margin: 30px auto;  
+}  
+  
+.admin-header {  
+    background: linear-gradient(135deg, #0d47a1, #1976d2);  
+    color: white;  
+    padding: 25px;  
+    border-radius: 18px;  
+    margin-bottom: 20px;  
+}  
+  
+.admin-header h1 {  
+    margin: 0 0 8px;  
+}  
+  
+.admin-header p {  
+    margin: 0;  
+    opacity: .9;  
+}  
+  
+.admin-nav {  
+    display: grid;  
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));  
+    gap: 12px;  
+    margin-bottom: 20px;  
+}  
+  
+.admin-nav button {  
+    border: none;  
+    padding: 15px;  
+    border-radius: 12px;  
+    background: white;  
+    cursor: pointer;  
+    font-size: 15px;  
+    font-weight: bold;  
+    box-shadow: 0 3px 10px rgba(0,0,0,.08);  
+}  
+  
+.admin-nav button:hover {  
+    transform: translateY(-2px);  
+}  
+  
+.section {  
+    display: none;  
+}  
+  
+.section.active {  
+    display: block;  
+}  
+  
+.stats {  
+    display: grid;  
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));  
+    gap: 15px;  
+}  
+  
+.stat-card {  
+    background: white;  
+    padding: 20px;  
+    border-radius: 15px;  
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);  
+}  
+  
+.stat-card h3 {  
+    margin: 0 0 10px;  
+    color: #555;  
+}  
+  
+.stat-number {  
+    font-size: 30px;  
+    font-weight: bold;  
+    color: #0d47a1;  
+}  
+  
+.admin-card {  
+    background: white;  
+    padding: 20px;  
+    border-radius: 15px;  
+    margin-bottom: 20px;  
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);  
+}  
+  
+.form-grid {  
+    display: grid;  
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));  
+    gap: 12px;  
+}  
+  
+.form-grid input,  
+.form-grid select {  
+    width: 100%;  
+    box-sizing: border-box;  
+    padding: 12px;  
+    border: 1px solid #ddd;  
+    border-radius: 10px;  
+}  
+  
+.admin-btn {  
+    border: none;  
+    padding: 12px 18px;  
+    border-radius: 10px;  
+    cursor: pointer;  
+    font-weight: bold;  
+}  
+  
+.primary-btn {  
+    background: #1976d2;  
+    color: white;  
+}  
+  
+.danger-btn {  
+    background: #d32f2f;  
+    color: white;  
+}  
+  
+.success-btn {  
+    background: #2e7d32;  
+    color: white;  
+}  
+  
+.table-container {  
+    overflow-x: auto;  
+}  
+  
+table {  
+    width: 100%;  
+    border-collapse: collapse;  
+    margin-top: 15px;  
+}  
+  
+th,  
+td {  
+    padding: 12px;  
+    border-bottom: 1px solid #eee;  
+    text-align: center;  
+    white-space: nowrap;  
+}  
+  
+th {  
+    background: #f1f5fa;  
+}  
+  
+.hidden {  
+    display: none !important;  
+}  
+  
+.loading {  
+    text-align: center;  
+    padding: 30px;  
+}  
+  
+.logout-btn {  
+    margin-top: 20px;  
+}  
+  
+</style>  </head>  <body>  <div id="loading" class="loading">  <h2>🔐 جاري التحقق من صلاحيات الإدارة...</h2>
+
+</div>  <div id="accessDenied"  
+     class="loading hidden">  <h2>❌ غير مصرح لك بالدخول</h2>  
+
+<p>  
+    هذه الصفحة مخصصة لإدارة بوابة التمريض فقط.  
+</p>  
+
+<button  
+    class="admin-btn primary-btn"  
+    onclick="window.location.href='index.html'">  
+
+    العودة للمنصة  
+
+</button>
+
+</div>  <div id="adminPanel"  
+     class="admin-container hidden">  <!-- ========================= -->  
+<!-- Header -->  
+<!-- ========================= -->  
+
+<div class="admin-header">  
+
+    <h1>👑 لوحة إدارة بوابة التمريض</h1>  
+
+    <p>  
+        مرحبًا بك في لوحة التحكم الخاصة بالإدارة  
+    </p>  
 
-.hidden {
-    display: none !important;
-}
+</div>  
+
+
+<!-- ========================= -->  
+<!-- Navigation -->  
+<!-- ========================= -->  
 
-.loading {
-    text-align: center;
-    padding: 30px;
-}
+<div class="admin-nav">  
 
-.logout-btn {
-    margin-top: 20px;
-}
+    <button onclick="showSection('dashboard')">  
+        📊 الرئيسية  
+    </button>  
 
+    <button onclick="showSection('students')">  
+        👨‍🎓 الطلاب  
+    </button>  
 
-/* ==========================================
-   Mobile
-========================================== */
+    <button onclick="showSection('codes')">  
+        🔑 أكواد الاشتراك  
+    </button>  
 
-@media (max-width: 600px) {
+    <button onclick="showSection('results')">  
+        📝 النتائج  
+    </button>  
 
-    .admin-container {
-        width: 94%;
-        margin: 20px auto;
-    }
+    <button onclick="showSection('leaderboard')">  
+        🏆 Leaderboard  
+    </button>  
 
-    .admin-header {
-        padding: 20px;
-    }
+    <button onclick="showSection('content')">  
+        🎥 المحتوى  
+    </button>  
 
-    .admin-header h1 {
-        font-size: 22px;
-    }
+    <button onclick="logoutAdmin()">  
+        🚪 خروج  
+    </button>  
 
-    .admin-header p {
-        font-size: 14px;
-    }
+</div>  
 
-    .admin-nav {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
 
-    .admin-nav button {
-        padding: 12px 7px;
-        font-size: 14px;
-    }
+<!-- ========================= -->  
+<!-- Dashboard -->  
+<!-- ========================= -->  
 
-    .admin-card {
-        padding: 15px;
-    }
+<section  
+    id="dashboard"  
+    class="section active">  
 
-    .stats {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
+    <div class="stats">  
 
-    .stat-card {
-        padding: 15px 10px;
-    }
+        <div class="stat-card">  
 
-    .stat-card h3 {
-        font-size: 14px;
-    }
+            <h3>👨‍🎓 إجمالي الطلاب</h3>  
 
-    .stat-number {
-        font-size: 25px;
-    }
+            <div  
+                id="totalStudents"  
+                class="stat-number">  
 
-}
+                0  
 
+            </div>  
 
-/* ==========================================
-   Small Mobile
-========================================== */
+        </div>  
 
-@media (max-width: 380px) {
 
-    .admin-nav {
-        grid-template-columns: 1fr;
-    }
+        <div class="stat-card">  
 
-    .stats {
-        grid-template-columns: 1fr;
-    }
+            <h3>✅ الطلاب النشطين</h3>  
 
-}
+            <div  
+                id="activeStudents"  
+                class="stat-number">  
 
-</style>
+                0  
 
-</head>
+            </div>  
 
-<body>
+        </div>  
 
 
-<div id="loading" class="loading">
+        <div class="stat-card">  
 
-    <h2>🔐 جاري التحقق من صلاحيات الإدارة...</h2>
+            <h3>⛔ المنتهية</h3>  
 
-</div>
+            <div  
+                id="expiredStudents"  
+                class="stat-number">  
 
+                0  
 
-<div id="accessDenied"
-     class="loading hidden">
+            </div>  
 
-    <h2>❌ غير مصرح لك بالدخول</h2>
+        </div>  
 
-    <p>
-        هذه الصفحة مخصصة لإدارة بوابة التمريض فقط.
-    </p>
 
-    <button
-        class="admin-btn primary-btn"
-        onclick="window.location.href='index.html'">
+        <div class="stat-card">  
 
-        العودة للمنصة
+            <h3>📝 إجمالي النتائج</h3>  
 
-    </button>
+            <div  
+                id="totalResults"  
+                class="stat-number">  
 
-</div>
+                0  
 
+            </div>  
 
-<div id="adminPanel"
-     class="admin-container hidden">
+        </div>  
 
 
-    <!-- ========================= -->
-    <!-- Header -->
-    <!-- ========================= -->
+        <div class="stat-card">  
 
-    <div class="admin-header">
+            <h3>📈 متوسط الدرجات</h3>  
 
-        <h1>👑 لوحة إدارة بوابة التمريض</h1>
+            <div  
+                id="averageScore"  
+                class="stat-number">  
 
-        <p>
-            مرحبًا بك في لوحة التحكم الخاصة بالإدارة
-        </p>
+                0%  
 
-    </div>
+            </div>  
 
+        </div>  
 
-    <!-- ========================= -->
-    <!-- Navigation -->
-    <!-- ========================= -->
+    </div>  
 
-    <div class="admin-nav">
+</section>  
 
-        <button onclick="showSection('dashboard')">
-            📊 الرئيسية
-        </button>
 
-        <button onclick="showSection('students')">
-            👨‍🎓 الطلاب
-        </button>
+<!-- ========================= -->  
+<!-- Students -->  
+<!-- ========================= -->  
 
-        <button onclick="showSection('codes')">
-            🔑 أكواد الاشتراك
-        </button>
+<section  
+    id="students"  
+    class="section">  
 
-        <button onclick="showSection('results')">
-            📝 النتائج
-        </button>
+    <div class="admin-card">  
 
-        <button onclick="showSection('leaderboard')">
-            🏆 Leaderboard
-        </button>
+        <h2>👨‍🎓 إدارة الطلاب</h2>  
 
-        <button onclick="showSection('content')">
-            🎥 المحتوى
-        </button>
+        <input  
+            id="studentSearch"  
+            type="text"  
+            placeholder="🔎 البحث بالكود أو الاسم أو الإيميل">  
 
-        <button onclick="logoutAdmin()">
-            🚪 خروج
-        </button>
+    </div>  
 
-    </div>
 
+    <div class="admin-card table-container">  
 
-    <!-- ========================= -->
-    <!-- Dashboard -->
-    <!-- ========================= -->
+        <table>  
 
-    <section id="dashboard"
-             class="section active">
+            <thead>  
 
-        <div class="stats">
+                <tr>  
 
-            <div class="stat-card">
+                    <th>الكود</th>  
+                    <th>الاسم</th>  
+                    <th>الصف</th>  
+                    <th>الحالة</th>  
+                    <th>الانتهاء</th>  
+                    <th>الجهاز</th>  
 
-                <h3>👨‍🎓 إجمالي الطلاب</h3>
+                </tr>  
 
-                <div id="totalStudents"
-                     class="stat-number">
+            </thead>  
 
-                    0
+            <tbody id="studentsTable">  
 
-                </div>
+            </tbody>  
 
-            </div>
+        </table>  
 
+    </div>  
 
-            <div class="stat-card">
+</section>  
 
-                <h3>✅ الطلاب النشطين</h3>
 
-                <div id="activeStudents"
-                     class="stat-number">
+<!-- ========================= -->  
+<!-- Codes -->  
+<!-- ========================= -->  
 
-                    0
+<section  
+    id="codes"  
+    class="section">  
 
-                </div>
+    <div class="admin-card">  
 
-            </div>
+        <h2>🔑 إضافة كود اشتراك</h2>  
 
+        <div class="form-grid">  
 
-            <div class="stat-card">
+            <input  
+                id="newCode"  
+                type="text"  
+                placeholder="كود الاشتراك">  
 
-                <h3>⛔ المنتهية</h3>
+            <input  
+                id="newPassword"  
+                type="text"  
+                placeholder="كلمة المرور">  
 
-                <div id="expiredStudents"
-                     class="stat-number">
+            <input  
+                id="newName"  
+                type="text"  
+                placeholder="اسم الطالب">  
 
-                    0
+            <select id="newGrade">  
 
-                </div>
+                <option value="">  
+                    اختر الصف  
+                </option>  
 
-            </div>
+                <option value="الصف الأول الثانوي التمريض">  
+                    الصف الأول  
+                </option>  
 
+                <option value="الصف الثاني الثانوي التمريض">  
+                    الصف الثاني  
+                </option>  
 
-            <div class="stat-card">
+            </select>  
 
-                <h3>📝 إجمالي النتائج</h3>
+            <select id="subscriptionDays">  
 
-                <div id="totalResults"
-                     class="stat-number">
+                <option value="15">  
+                    15 يوم  
+                </option>  
 
-                    0
+                <option value="30" selected>  
+                    شهر  
+                </option>  
 
-                </div>
+                <option value="90">  
+                    3 شهور  
+                </option>  
 
-            </div>
+                <option value="180">  
+                    6 شهور  
+                </option>  
 
+                <option value="365">  
+                    سنة  
+                </option>  
 
-            <div class="stat-card">
+            </select>  
 
-                <h3>📈 متوسط الدرجات</h3>
+        </div>  
 
-                <div id="averageScore"
-                     class="stat-number">
 
-                    0%
+        <br>  
 
-                </div>
+        <button  
+            class="admin-btn primary-btn"  
+            onclick="createStudentCode()">  
 
-            </div>
+            ➕ إضافة الكود  
 
-        </div>
+        </button>  
 
-    </section>
+    </div>  
 
 
-    <!-- ========================= -->
-    <!-- Students -->
-    <!-- ========================= -->
+    <div class="admin-card table-container">  
 
-    <section id="students"
-             class="section">
+        <h2>📋 الأكواد الحالية</h2>  
 
-        <div class="admin-card">
+        <table>  
 
-            <h2>👨‍🎓 إدارة الطلاب</h2>
+            <thead>  
 
-            <input
-                id="studentSearch"
-                type="text"
-                placeholder="🔎 البحث بالكود أو الاسم أو الإيميل">
+                <tr>  
 
-        </div>
+                    <th>الكود</th>  
+                    <th>الاسم</th>  
+                    <th>الصف</th>  
+                    <th>الحالة</th>  
+                    <th>الانتهاء</th>  
+                    <th>إجراء</th>  
 
+                </tr>  
 
-        <div class="admin-card table-container">
+            </thead>  
 
-            <table>
+            <tbody id="codesTable">  
 
-                <thead>
+            </tbody>  
 
-                    <tr>
+        </table>  
 
-                        <th>الكود</th>
-                        <th>الاسم</th>
-                        <th>الصف</th>
-                        <th>الحالة</th>
-                        <th>الانتهاء</th>
-                        <th>الجهاز</th>
+    </div>  
 
-                    </tr>
+</section>  
 
-                </thead>
 
-                <tbody id="studentsTable"></tbody>
+<!-- ========================= -->  
+<!-- Results -->  
+<!-- ========================= -->  
 
-            </table>
+<section  
+    id="results"  
+    class="section">  
 
-        </div>
+    <div class="admin-card">  
 
-    </section>
+        <h2>📝 نتائج الاختبارات</h2>  
 
+        <div  
+            id="resultsTable"  
+            class="table-container">  
 
-    <!-- ========================= -->
-    <!-- Codes -->
-    <!-- ========================= -->
+            جاري التحميل...  
 
-    <section id="codes"
-             class="section">
+        </div>  
 
-        <div class="admin-card">
+    </div>  
 
-            <h2>🔑 إضافة كود اشتراك</h2>
+</section>  
 
-            <div class="form-grid">
 
-                <input
-                    id="newCode"
-                    type="text"
-                    placeholder="كود الاشتراك">
+<!-- ========================= -->  
+<!-- Leaderboard -->  
+<!-- ========================= -->  
 
-                <input
-                    id="newPassword"
-                    type="text"
-                    placeholder="كلمة المرور">
+<section  
+    id="leaderboard"  
+    class="section">  
 
-                <input
-                    id="newName"
-                    type="text"
-                    placeholder="اسم الطالب">
+    <div class="admin-card">  
 
-                <select id="newGrade">
+        <h2>🏆 لوحة الترتيب</h2>  
 
-                    <option value="">
-                        اختر الصف
-                    </option>
+        <div  
+            id="leaderboardTable">  
 
-                    <option value="الصف الأول الثانوي التمريض">
-                        الصف الأول
-                    </option>
+            جاري التحميل...  
 
-                    <option value="الصف الثاني الثانوي التمريض">
-                        الصف الثاني
-                    </option>
+        </div>  
 
-                </select>
+    </div>  
 
-                <select id="subscriptionDays">
+</section>  
 
-                    <option value="15">
-                        15 يوم
-                    </option>
 
-                    <option value="30" selected>
-                        شهر
-                    </option>
+<!-- ========================= -->  
+<!-- Content -->  
+<!-- ========================= -->  
 
-                    <option value="90">
-                        3 شهور
-                    </option>
+<section  
+    id="content"  
+    class="section">  
 
-                    <option value="180">
-                        6 شهور
-                    </option>
+    <div class="admin-card">  
 
-                    <option value="365">
-                        سنة
-                    </option>
+        <h2>🎥 إدارة المحتوى</h2>  
 
-                </select>
+        <p>  
+            قسم إدارة الفيديوهات والمحتوى سيتم تطويره في الخطوة التالية.  
+        </p>  
 
-            </div>
+    </div>  
 
+</section>  
 
-            <br>
 
-            <button
-                class="admin-btn primary-btn"
-                onclick="createStudentCode()">
+<button  
+    class="admin-btn danger-btn logout-btn"  
+    onclick="logoutAdmin()">  
 
-                ➕ إضافة الكود
+    🚪 تسجيل خروج الأدمن  
 
-            </button>
+</button>
 
-        </div>
-
-
-        <div class="admin-card table-container">
-
-            <h2>📋 الأكواد الحالية</h2>
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>الكود</th>
-                        <th>الاسم</th>
-                        <th>الصف</th>
-                        <th>الحالة</th>
-                        <th>الانتهاء</th>
-                        <th>إجراء</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="codesTable"></tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- Results -->
-    <!-- ========================= -->
-
-    <section id="results"
-             class="section">
-
-        <div class="admin-card">
-
-            <h2>📝 نتائج الاختبارات</h2>
-
-            <div id="resultsTable"
-                 class="table-container">
-
-                جاري التحميل...
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- Leaderboard -->
-    <!-- ========================= -->
-
-    <section id="leaderboard"
-             class="section">
-
-        <div class="admin-card">
-
-            <h2>🏆 لوحة الترتيب</h2>
-
-            <div id="leaderboardTable">
-
-                جاري التحميل...
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ========================= -->
-    <!-- Content -->
-    <!-- ========================= -->
-
-    <section id="content"
-             class="section">
-
-        <div class="admin-card">
-
-            <h2>🎥 إدارة المحتوى</h2>
-
-            <p>
-                قسم إدارة الفيديوهات والمحتوى سيتم تطويره في الخطوة التالية.
-            </p>
-
-        </div>
-
-    </section>
-
-
-    <button
-        class="admin-btn danger-btn logout-btn"
-        onclick="logoutAdmin()">
-
-        🚪 تسجيل خروج الأدمن
-
-    </button>
-
-
-</div>
-
-
-<!-- ==========================
-     Firebase
-========================== -->
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-<script src="firebase.js"></script>
-
-<script src="admin.js"></script>
-
-</body>
-
-</html>
+</div>  <!-- ==========================  
+     Firebase  
+========================== -->  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>  <script src="firebase.js"></script>  <script src="admin.js"></script>  </body>  </html>

@@ -1,0 +1,1418 @@
+/* =====================================================
+   🩺 بوابة التمريض
+   GAMING ACHIEVEMENTS SYSTEM
+===================================================== */
+
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.achievements-page {
+
+    width: 100%;
+
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 30px 20px 60px;
+
+}
+
+
+/* =====================================================
+   GAMING HERO
+===================================================== */
+
+.gaming-hero {
+
+    position: relative;
+
+    overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 25px;
+
+    padding: 35px;
+
+    margin-bottom: 25px;
+
+    border-radius: 25px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #071b3a,
+            #0d47a1,
+            #1565c0
+        );
+
+    box-shadow:
+        0 15px 45px rgba(13,71,161,.25);
+
+}
+
+
+.gaming-hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 250px;
+
+    height: 250px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.05);
+
+    top: -100px;
+
+    left: -50px;
+
+}
+
+
+.gaming-hero::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 180px;
+
+    height: 180px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,193,7,.08);
+
+    bottom: -90px;
+
+    right: 20%;
+
+}
+
+
+.hero-trophy {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: 90px;
+
+    height: 90px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 25px;
+
+    font-size: 52px;
+
+    background:
+        rgba(255,255,255,.1);
+
+    border:
+        1px solid rgba(255,255,255,.2);
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.2);
+
+}
+
+
+.hero-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    flex: 1;
+
+}
+
+
+.hero-small-title {
+
+    display: block;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+    opacity: .75;
+
+    margin-bottom: 5px;
+
+}
+
+
+.hero-content h1 {
+
+    margin: 0 0 8px;
+
+    font-size: 38px;
+
+}
+
+
+.hero-content p {
+
+    margin: 0;
+
+    opacity: .85;
+
+}
+
+
+.hero-level {
+
+    position: relative;
+
+    z-index: 2;
+
+    text-align: center;
+
+    min-width: 100px;
+
+}
+
+
+.hero-level span {
+
+    display: block;
+
+    font-size: 12px;
+
+    opacity: .7;
+
+    letter-spacing: 2px;
+
+}
+
+
+.hero-level strong {
+
+    display: block;
+
+    font-size: 50px;
+
+    line-height: 1;
+
+}
+
+
+/* =====================================================
+   PLAYER CARD
+===================================================== */
+
+.player-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 25px;
+
+    margin-bottom: 25px;
+
+    background: white;
+
+    border-radius: 22px;
+
+    border: 1px solid #e8edf5;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.07);
+
+}
+
+
+.player-avatar {
+
+    width: 85px;
+
+    height: 85px;
+
+    min-width: 85px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 22px;
+
+    font-size: 45px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e3f2fd,
+            #bbdefb
+        );
+
+}
+
+
+.player-info {
+
+    flex: 1;
+
+}
+
+
+.player-name-row {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.player-name-row h2 {
+
+    margin: 0;
+
+    font-size: 24px;
+
+}
+
+
+.rank-badge {
+
+    padding: 5px 12px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+}
+
+
+.rank-badge.bronze {
+
+    background: #f3e0d0;
+
+    color: #8d5524;
+
+}
+
+
+.rank-badge.silver {
+
+    background: #e5e7eb;
+
+    color: #555;
+
+}
+
+
+.rank-badge.gold {
+
+    background: #fff1b8;
+
+    color: #9a6b00;
+
+}
+
+
+.player-meta {
+
+    display: flex;
+
+    gap: 20px;
+
+    color: #777;
+
+    font-size: 13px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.player-meta b {
+
+    color: #333;
+
+}
+
+
+/* =====================================================
+   XP
+===================================================== */
+
+.xp-area {
+
+    max-width: 650px;
+
+}
+
+
+.xp-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+
+}
+
+
+.xp-top strong {
+
+    color: #1565c0;
+
+}
+
+
+.xp-bar {
+
+    height: 13px;
+
+    border-radius: 20px;
+
+    background: #edf1f7;
+
+    overflow: hidden;
+
+}
+
+
+.xp-fill {
+
+    height: 100%;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #1565c0,
+            #42a5f5,
+            #64b5f6
+        );
+
+    transition:
+        width 1s ease;
+
+    box-shadow:
+        0 0 12px rgba(33,150,243,.35);
+
+}
+
+
+.xp-bottom {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 6px;
+
+    color: #999;
+
+    font-size: 11px;
+
+}
+
+
+/* =====================================================
+   PLAYER RANK
+===================================================== */
+
+.player-rank {
+
+    min-width: 150px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff,
+            #edf5ff
+        );
+
+}
+
+
+.player-rank span {
+
+    display: block;
+
+    color: #777;
+
+    font-size: 12px;
+
+}
+
+
+.player-rank strong {
+
+    display: block;
+
+    font-size: 38px;
+
+    color: #0d47a1;
+
+    line-height: 1.2;
+
+}
+
+
+.player-rank small {
+
+    color: #999;
+
+    font-size: 10px;
+
+}
+
+
+/* =====================================================
+   LEVEL SYSTEM
+===================================================== */
+
+.level-system-card {
+
+    padding: 25px;
+
+    margin-bottom: 25px;
+
+    background: white;
+
+    border-radius: 22px;
+
+    border: 1px solid #e8edf5;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.05);
+
+}
+
+
+.section-heading {
+
+    margin-bottom: 20px;
+
+}
+
+
+.section-mini {
+
+    color: #1976d2;
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+
+    font-weight: bold;
+
+}
+
+
+.section-heading h2 {
+
+    margin: 5px 0 0;
+
+}
+
+
+.levels {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+
+}
+
+
+.level-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px;
+
+    border-radius: 18px;
+
+    border: 2px solid transparent;
+
+    opacity: .4;
+
+    transition: .3s;
+
+}
+
+
+.level-card.active {
+
+    opacity: 1;
+
+    transform: translateY(-3px);
+
+}
+
+
+.level-medal {
+
+    font-size: 38px;
+
+}
+
+
+.level-card strong {
+
+    display: block;
+
+    font-size: 17px;
+
+}
+
+
+.level-card span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 11px;
+
+    color: #777;
+
+}
+
+
+.bronze-level {
+
+    background: #fbefe5;
+
+    border-color: #d49a6a;
+
+}
+
+
+.bronze-level strong {
+
+    color: #8d5524;
+
+}
+
+
+.silver-level {
+
+    background: #f1f3f5;
+
+    border-color: #aeb4bb;
+
+}
+
+
+.silver-level strong {
+
+    color: #666;
+
+}
+
+
+.gold-level {
+
+    background: #fff7d6;
+
+    border-color: #e5b93f;
+
+}
+
+
+.gold-level strong {
+
+    color: #a07800;
+
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+.achievement-stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.achievement-stat {
+
+    padding: 22px 15px;
+
+    text-align: center;
+
+    border-radius: 20px;
+
+    background: white;
+
+    border: 1px solid #e8edf5;
+
+    box-shadow:
+        0 6px 20px rgba(0,0,0,.05);
+
+}
+
+
+.stat-icon {
+
+    font-size: 28px;
+
+    margin-bottom: 7px;
+
+}
+
+
+.achievement-stat strong {
+
+    display: block;
+
+    color: #0d47a1;
+
+    font-size: 27px;
+
+}
+
+
+.achievement-stat span {
+
+    color: #777;
+
+    font-size: 12px;
+
+}
+
+
+/* =====================================================
+   PROGRESS
+===================================================== */
+
+.achievement-progress-card {
+
+    padding: 25px;
+
+    margin-bottom: 30px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #071b3a,
+            #0d47a1
+        );
+
+    color: white;
+
+    box-shadow:
+        0 12px 35px rgba(13,71,161,.2);
+
+}
+
+
+.progress-heading {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+
+}
+
+
+.progress-heading span {
+
+    font-size: 11px;
+
+    opacity: .7;
+
+    letter-spacing: 1px;
+
+}
+
+
+.progress-heading h2 {
+
+    margin: 5px 0 0;
+
+}
+
+
+.progress-heading > strong {
+
+    font-size: 35px;
+
+}
+
+
+.achievement-progress-bar {
+
+    height: 16px;
+
+    background:
+        rgba(255,255,255,.15);
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+}
+
+
+.achievement-progress-fill {
+
+    height: 100%;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #42a5f5,
+            #90caf9
+        );
+
+    box-shadow:
+        0 0 15px rgba(144,202,249,.5);
+
+    transition:
+        width 1s ease;
+
+}
+
+
+.progress-info {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 10px;
+
+    font-size: 11px;
+
+    opacity: .7;
+
+}
+
+
+/* =====================================================
+   BADGES HEADER
+===================================================== */
+
+.badges-section {
+
+    margin-bottom: 30px;
+
+}
+
+
+.section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 18px;
+
+}
+
+
+.section-title > div:first-child > span {
+
+    color: #1976d2;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+}
+
+
+.section-title h2 {
+
+    margin: 5px 0;
+
+    font-size: 25px;
+
+}
+
+
+.section-title p {
+
+    margin: 0;
+
+    color: #777;
+
+    font-size: 13px;
+
+}
+
+
+.achievement-counter {
+
+    padding: 10px 18px;
+
+    border-radius: 15px;
+
+    background: #edf5ff;
+
+    color: #1565c0;
+
+}
+
+
+.achievement-counter strong {
+
+    font-size: 25px;
+
+}
+
+
+/* =====================================================
+   BADGES
+===================================================== */
+
+.badges-container {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 16px;
+
+}
+
+
+.achievement-badge {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 20px;
+
+    min-height: 120px;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    border: 1px solid #e7ebf1;
+
+    background: white;
+
+    transition:
+        transform .25s,
+        box-shadow .25s;
+
+}
+
+
+.achievement-badge:hover {
+
+    transform:
+        translateY(-4px);
+
+}
+
+
+.achievement-badge.unlocked {
+
+    border-color: #ffd54f;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffdf2,
+            #ffffff
+        );
+
+    box-shadow:
+        0 8px 25px rgba(255,193,7,.12);
+
+}
+
+
+.achievement-badge.locked {
+
+    opacity: .55;
+
+    filter: grayscale(.7);
+
+}
+
+
+.badge-icon {
+
+    width: 75px;
+
+    height: 75px;
+
+    min-width: 75px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 20px;
+
+    font-size: 38px;
+
+    background:
+        #f1f4f8;
+
+}
+
+
+.unlocked .badge-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff1a8,
+            #fff8d7
+        );
+
+    box-shadow:
+        inset 0 0 0 2px #ffe082,
+        0 5px 15px rgba(255,193,7,.15);
+
+}
+
+
+.badge-content {
+
+    flex: 1;
+
+}
+
+
+.badge-content h3 {
+
+    margin: 0 0 6px;
+
+    font-size: 17px;
+
+}
+
+
+.badge-content p {
+
+    margin: 0;
+
+    color: #777;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+}
+
+
+.badge-status {
+
+    display: inline-block;
+
+    margin-top: 9px;
+
+    padding: 4px 9px;
+
+    border-radius: 10px;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+}
+
+
+.unlocked .badge-status {
+
+    color: #2e7d32;
+
+    background: #e8f5e9;
+
+}
+
+
+.locked .badge-status {
+
+    color: #777;
+
+    background: #f1f1f1;
+
+}
+
+
+/* =====================================================
+   MOTIVATION
+===================================================== */
+
+.achievement-motivation {
+
+    padding: 28px;
+
+    border-radius: 22px;
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e3f2fd,
+            #f5faff
+        );
+
+    border:
+        1px solid #bbdefb;
+
+}
+
+
+.achievement-motivation h2 {
+
+    margin: 0 0 8px;
+
+    color: #0d47a1;
+
+}
+
+
+.achievement-motivation p {
+
+    margin: 0;
+
+    color: #555;
+
+}
+
+
+/* =====================================================
+   LOADING / ERROR
+===================================================== */
+
+.achievement-loading,
+.achievement-empty,
+.achievement-error {
+
+    grid-column: 1 / -1;
+
+    padding: 50px 20px;
+
+    text-align: center;
+
+    border-radius: 20px;
+
+    background: white;
+
+    border: 1px solid #e8edf5;
+
+    color: #777;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 800px) {
+
+    .gaming-hero {
+
+        padding: 25px;
+
+    }
+
+
+    .hero-content h1 {
+
+        font-size: 30px;
+
+    }
+
+
+    .player-card {
+
+        flex-wrap: wrap;
+
+    }
+
+
+    .player-rank {
+
+        width: 100%;
+
+    }
+
+
+    .levels {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .achievement-stats {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+
+    .badges-container {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .achievements-page {
+
+        padding:
+            15px 12px 40px;
+
+    }
+
+
+    .gaming-hero {
+
+        padding: 22px;
+
+        gap: 15px;
+
+    }
+
+
+    .hero-trophy {
+
+        width: 65px;
+
+        height: 65px;
+
+        min-width: 65px;
+
+        font-size: 35px;
+
+        border-radius: 18px;
+
+    }
+
+
+    .hero-content h1 {
+
+        font-size: 25px;
+
+    }
+
+
+    .hero-content p {
+
+        font-size: 12px;
+
+    }
+
+
+    .hero-level {
+
+        min-width: 55px;
+
+    }
+
+
+    .hero-level strong {
+
+        font-size: 35px;
+
+    }
+
+
+    .player-avatar {
+
+        width: 65px;
+
+        height: 65px;
+
+        min-width: 65px;
+
+        font-size: 35px;
+
+    }
+
+
+    .player-name-row {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 6px;
+
+    }
+
+
+    .player-name-row h2 {
+
+        font-size: 20px;
+
+    }
+
+
+    .player-meta {
+
+        flex-direction: column;
+
+        gap: 5px;
+
+    }
+
+
+    .achievement-stat {
+
+        padding: 18px 10px;
+
+    }
+
+
+    .achievement-stat strong {
+
+        font-size: 23px;
+
+    }
+
+
+    .section-title {
+
+        align-items: flex-start;
+
+        gap: 10px;
+
+    }
+
+
+    .achievement-counter {
+
+        padding: 7px 12px;
+
+    }
+
+
+    .achievement-badge {
+
+        padding: 16px;
+
+    }
+
+
+    .badge-icon {
+
+        width: 62px;
+
+        height: 62px;
+
+        min-width: 62px;
+
+        font-size: 30px;
+
+    }
+
+
+    .badge-content h3 {
+
+        font-size: 15px;
+
+    }
+
+}
+
+
+@media (max-width: 380px) {
+
+    .achievement-stats {
+
+        gap: 8px;
+
+    }
+
+
+    .progress-info {
+
+        flex-direction: column;
+
+        gap: 5px;
+
+    }
+
+}

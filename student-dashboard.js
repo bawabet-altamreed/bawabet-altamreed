@@ -1030,83 +1030,96 @@ function renderProgress() {
 
 }
 
-
 // ==========================================
-// تحميل المحتوى المتاح
+// تحميل المواد المتاحة حسب الصف
 // ==========================================
 
 function loadAvailableContent() {
 
-    return db.collection("content")
-        .where(
-            "active",
-            "==",
-            true
-        )
-        .get()
-
-        .then(function (snapshot) {
-
-            allContent = [];
+    allContent = [];
 
 
-            snapshot.forEach(function (doc) {
+    // ==================================
+    // الصف الثاني الثانوي التمريض
+    // ==================================
 
-                const content =
-                    doc.data();
+    if (
+        currentStudent.grade ===
+        "الصف الثاني الثانوي التمريض"
+    ) {
+
+        allContent = [
+
+            {
+                id: "community-health",
+                name: "Community Health Nursing",
+                icon: "🏥",
+                url: "community-health.html"
+            },
+
+            {
+                id: "surgery",
+                name: "General Surgery",
+                icon: "🩺",
+                url: "surgery.html"
+            },
+
+            {
+                id: "medical-surgical",
+                name: "Medical-Surgical Nursing",
+                icon: "⚕️",
+                url: "medical-surgical.html"
+            },
+
+            {
+                id: "internal-medicine",
+                name: "Internal Medicine",
+                icon: "💊",
+                url: "internal-medicine.html"
+            }
+
+        ];
+
+    }
 
 
-                // ==================================
-                // عرض محتوى الصف الخاص بالطالب فقط
-                // ==================================
+    // ==================================
+    // الصف الأول الثانوي التمريض
+    // ==================================
 
-                if (
-                    content.grade ===
-                    currentStudent.grade
-                ) {
+    else if (
+        currentStudent.grade ===
+        "الصف الأول الثانوي التمريض"
+    ) {
 
-                    allContent.push({
+        allContent = [
 
-                        id: doc.id,
+            {
+                id: "anatomy",
+                name: "Anatomy",
+                icon: "🫀",
+                url: "anatomy.html"
+            },
 
-                        ...content
+            {
+                id: "fundamental",
+                name: "Fundamentals of Nursing",
+                icon: "👩‍⚕️",
+                url: "fundamental.html"
+            }
 
-                    });
+        ];
 
-                }
-
-            });
-
-
-            renderSubjects();
-
-        })
-
-        .catch(function (error) {
-
-            console.error(
-                "Content Error:",
-                error
-            );
+    }
 
 
-            document.getElementById(
-                "subjects"
-            ).innerHTML = `
+    // ==================================
+    // عرض المواد
+    // ==================================
 
-                <div class="empty-state">
-
-                    ❌ تعذر تحميل المواد
-
-                </div>
-
-            `;
-
-        });
+    renderSubjects();
 
 }
-
-
 // ==========================================
 // عرض المواد
 // ==========================================

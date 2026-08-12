@@ -21,8 +21,6 @@ let currentStudent = null;
 
 let allResults = [];
 
-let allContent = [];
-
 
 // ==========================================
 // التحقق من تسجيل الدخول
@@ -49,11 +47,6 @@ function loadStudentDashboard() {
         .then(function () {
 
             return loadStudentResults();
-
-        })
-        .then(function () {
-
-            return loadAvailableContent();
 
         })
         .catch(function (error) {
@@ -1030,238 +1023,6 @@ function renderProgress() {
 
 }
 
-// ==========================================
-// تحميل المحتوى المتاح
-// ==========================================
-
-function loadAvailableContent() {
-
-    return db.collection("content")
-        .get()
-
-        .then(function (snapshot) {
-
-            allContent = [];
-
-
-            snapshot.forEach(function (doc) {
-
-                const content =
-                    doc.data();
-
-
-                // ==================================
-                // المحتوى مفعل
-                // ==================================
-
-                if (
-                    content.active === true &&
-                    content.grade === currentStudent.grade
-                ) {
-
-                    allContent.push({
-
-                        id: doc.id,
-
-                        ...content
-
-                    });
-
-                }
-
-            });
-
-
-            renderSubjects();
-
-        })
-
-        .catch(function (error) {
-
-            console.error(
-                "Content Error:",
-                error
-            );
-
-
-            const subjects =
-                document.getElementById(
-                    "subjects"
-                );
-
-
-            if (subjects) {
-
-                subjects.innerHTML = `
-
-                    <div class="empty-state">
-
-                        ❌ تعذر تحميل المواد
-
-                    </div>
-
-                `;
-
-            }
-
-        });
-
-}
-
-// ==========================================
-// عرض المواد
-// ==========================================
-
-function renderSubjects() {
-
-    const container =
-        document.getElementById(
-            "subjects"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    if (!allContent.length) {
-
-        setText(
-            "totalSubjects",
-            0
-        );
-
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-
-                📚 لا يوجد محتوى متاح لك حاليًا
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    const subjects = {};
-
-
-    allContent.forEach(
-        function (content) {
-
-            const subject =
-                content.subject ||
-                "مادة غير محددة";
-
-
-            if (!subjects[subject]) {
-
-                subjects[subject] = {
-
-                    count: 0,
-
-                    chapters: {}
-
-                };
-
-            }
-
-
-            subjects[subject].count++;
-
-
-            const chapter =
-                content.chapter ||
-                "-";
-
-
-            subjects[subject]
-                .chapters[chapter] = true;
-
-        }
-    );
-
-
-    const subjectNames =
-        Object.keys(subjects);
-
-
-    setText(
-        "totalSubjects",
-        subjectNames.length
-    );
-
-
-    let html = `
-
-        <div class="subjects-grid">
-
-    `;
-
-
-    subjectNames.forEach(
-        function (subject) {
-
-            const chapters =
-                Object.keys(
-                    subjects[subject]
-                        .chapters
-                );
-
-
-            html += `
-
-                <div class="subject-card">
-
-                    <h3>
-
-                        📚 ${escapeHtml(
-                            subject
-                        )}
-
-                    </h3>
-
-
-                    <p class="subject-count">
-
-                        📦 عدد المحتويات:
-                        ${subjects[subject].count}
-
-                    </p>
-
-
-                    <p class="subject-count">
-
-                        📖 Chapters:
-
-                        ${chapters.length}
-
-                    </p>
-
-                </div>
-
-            `;
-
-        }
-    );
-
-
-    html += `
-
-        </div>
-
-    `;
-
-
-    container.innerHTML = html;
-
-}
-
 
 // ==========================================
 // حساب النسبة
@@ -1495,12 +1256,6 @@ function showError() {
         );
 
 
-    const subjects =
-        document.getElementById(
-            "subjects"
-        );
-
-
     const progress =
         document.getElementById(
             "progress"
@@ -1531,14 +1286,6 @@ function showError() {
 
         subscription.innerHTML =
             "❌ تعذر تحميل حالة الاشتراك";
-
-    }
-
-
-    if (subjects) {
-
-        subjects.innerHTML =
-            "❌ تعذر تحميل المواد";
 
     }
 

@@ -1,141 +1,71 @@
 // ==========================================
-// بوابة التمريض
-// Achievements System
+// 🩺 بوابة التمريض
 // نظام الإنجازات
 // ==========================================
 
 
 // ==========================================
-// بيانات الطالب
+// الحصول على كود الطالب
 // ==========================================
 
-const achievementStudentCode =
+const studentCode =
     localStorage.getItem("studentCode");
 
 
-let achievementStudent = null;
+// ==========================================
+// البيانات
+// ==========================================
 
-let achievementResults = [];
+let currentStudent = null;
 
-let achievementLeaderboard = [];
+let allResults = [];
+
+let achievements = [];
 
 
 // ==========================================
-// فتح Achievements
+// التحقق من تسجيل الدخول
 // ==========================================
 
-window.openAchievements =
-    function () {
+if (!studentCode) {
 
-        const modal =
-            document.getElementById(
-                "achievementsModal"
-            );
+    window.location.replace("login.html");
 
+} else {
 
-        if (!achievementStudentCode) {
+    loadAchievements();
 
-            alert(
-                "❌ يجب تسجيل الدخول أولاً"
-            );
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        if (modal) {
-
-            modal.classList.remove(
-                "hidden"
-            );
-
-        }
-
-
-        loadAchievements();
-
-    };
-
-
-// ==========================================
-// إغلاق Achievements
-// ==========================================
-
-window.closeAchievements =
-    function () {
-
-        const modal =
-            document.getElementById(
-                "achievementsModal"
-            );
-
-
-        if (modal) {
-
-            modal.classList.add(
-                "hidden"
-            );
-
-        }
-
-    };
+}
 
 
 // ==========================================
 // تحميل البيانات
 // ==========================================
 
-function loadAchievements() {
+async function loadAchievements() {
 
-    Promise.all([
+    try {
 
-        loadAchievementStudent(),
+        await loadStudentData();
 
-        loadAchievementResults(),
-
-        loadAchievementLeaderboard()
-
-    ])
-
-    .then(function () {
+        await loadStudentResults();
 
         calculateAchievements();
 
-    })
+        renderPage();
 
-    .catch(function (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Achievements Error:",
             error
         );
 
+        showError();
 
-        const list =
-            document.getElementById(
-                "achievementsList"
-            );
-
-
-        if (list) {
-
-            list.innerHTML = `
-
-                <div class="notification-empty">
-
-                    ❌ تعذر تحميل الإنجازات
-
-                </div>
-
-            `;
-
-        }
-
-    });
+    }
 
 }
 
@@ -144,29 +74,26 @@ function loadAchievements() {
 // بيانات الطالب
 // ==========================================
 
-function loadAchievementStudent() {
+async function loadStudentData() {
 
-    return db.collection("students")
-
-        .doc(achievementStudentCode)
-
-        .get()
-
-        .then(function (doc) {
-
-            if (!doc.exists) {
-
-                throw new Error(
-                    "بيانات الطالب غير موجودة"
-                );
-
-            }
+    const studentDoc =
+        await db
+            .collection("students")
+            .doc(studentCode)
+            .get();
 
 
-            achievementStudent =
-                doc.data();
+    if (!studentDoc.exists) {
 
-        });
+        throw new Error(
+            "بيانات الطالب غير موجودة"
+        );
+
+    }
+
+
+    currentStudent =
+        studentDoc.data();
 
 }
 
@@ -175,74 +102,56 @@ function loadAchievementStudent() {
 // نتائج الطالب
 // ==========================================
 
-function loadAchievementResults() {
+async function loadStudentResults() {
 
-    return db.collection("results")
-
-        .where(
-            "studentCode",
-            "==",
-            achievementStudentCode
-        )
-
-        .get()
-
-        .then(function (snapshot) {
-
-            achievementResults = [];
+    const snapshot =
+        await db
+            .collection("results")
+            .where(
+                "studentCode",
+                "==",
+                studentCode
+            )
+            .get();
 
 
-            snapshot.forEach(
-                function (doc) {
+    allResults = [];
 
-                    achievementResults.push({
 
-                        id:
-                            doc.id,
+    snapshot.forEach(
+        function (doc) {
 
-                        ...doc.data()
+            allResults.push({
 
-                    });
+                id: doc.id,
 
-                }
+                ...doc.data()
+
+            });
+
+        }
+    );
+
+
+    allResults.sort(
+        function (a, b) {
+
+            const dateA =
+                getDate(a.createdAt)
+                || new Date(0);
+
+            const dateB =
+                getDate(b.createdAt)
+                || new Date(0);
+
+
+            return (
+                dateB.getTime() -
+                dateA.getTime()
             );
 
-        });
-
-}
-
-
-// ==========================================
-// Leaderboard
-// ==========================================
-
-function loadAchievementLeaderboard() {
-
-    return db.collection("leaderboard")
-
-        .get()
-
-        .then(function (snapshot) {
-
-            achievementLeaderboard = [];
-
-
-            snapshot.forEach(
-                function (doc) {
-
-                    achievementLeaderboard.push({
-
-                        id:
-                            doc.id,
-
-                        ...doc.data()
-
-                    });
-
-                }
-            );
-
-        });
+        }
+    );
 
 }
 
@@ -253,19 +162,18 @@ function loadAchievementLeaderboard() {
 
 function calculateAchievements() {
 
-    const results =
-        achievementResults;
+    achievements = [];
 
 
     const totalTests =
-        results.length;
+        allResults.length;
 
 
     const percentages =
-        results.map(
+        allResults.map(
             function (result) {
 
-                return getAchievementPercentage(
+                return getPercentage(
                     result
                 );
 
@@ -290,11 +198,31 @@ function calculateAchievements() {
             : 0;
 
 
+    const highest =
+        totalTests > 0
+
+            ? Math.max(
+                ...percentages
+            )
+
+            : 0;
+
+
+    const excellentTests =
+        percentages.filter(
+            function (value) {
+
+                return value >= 85;
+
+            }
+        ).length;
+
+
     const perfectTests =
         percentages.filter(
             function (value) {
 
-                return value >= 100;
+                return value === 100;
 
             }
         ).length;
@@ -310,30 +238,22 @@ function calculateAchievements() {
         ).length;
 
 
-    // ======================================
-    // Chapters
-    // ======================================
-
     const chapters =
         new Set();
 
 
-    results.forEach(
+    allResults.forEach(
         function (result) {
 
-            if (result.chapter) {
+            if (
+                result.chapter
+            ) {
 
-                const key =
-                    (
-                        result.subject ||
-                        ""
-                    )
-                    +
-                    "|"
-                    +
-                    result.chapter;
-
-                chapters.add(key);
+                chapters.add(
+                    String(
+                        result.chapter
+                    ).trim()
+                );
 
             }
 
@@ -341,568 +261,658 @@ function calculateAchievements() {
     );
 
 
-    const chapterCount =
-        chapters.size;
+    // ======================================
+    // أول اختبار
+    // ======================================
+
+    if (totalTests >= 1) {
+
+        addAchievement({
+
+            icon: "🎯",
+
+            title: "أول خطوة",
+
+            description:
+                "أكملت أول اختبار لك داخل بوابة التمريض.",
+
+            type: "unlocked"
+
+        });
+
+    }
 
 
     // ======================================
-    // أعلى نتيجة
+    // 3 اختبارات
     // ======================================
 
-    const highestScore =
-        percentages.length
+    if (totalTests >= 3) {
 
-            ? Math.max(
-                ...percentages
+        addAchievement({
+
+            icon: "🔥",
+
+            title: "بداية قوية",
+
+            description:
+                "أكملت 3 اختبارات وبدأت طريق التفوق.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // 5 اختبارات
+    // ======================================
+
+    if (totalTests >= 5) {
+
+        addAchievement({
+
+            icon: "📚",
+
+            title: "محب المعرفة",
+
+            description:
+                "أكملت 5 اختبارات داخل المنصة.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // 10 اختبارات
+    // ======================================
+
+    if (totalTests >= 10) {
+
+        addAchievement({
+
+            icon: "🚀",
+
+            title: "طالب نشيط",
+
+            description:
+                "أكملت 10 اختبارات.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // 20 اختبار
+    // ======================================
+
+    if (totalTests >= 20) {
+
+        addAchievement({
+
+            icon: "👑",
+
+            title: "أسطورة الاختبارات",
+
+            description:
+                "أكملت 20 اختبارًا داخل المنصة.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // نجاح أول اختبار
+    // ======================================
+
+    if (passedTests >= 1) {
+
+        addAchievement({
+
+            icon: "✅",
+
+            title: "أول نجاح",
+
+            description:
+                "اجتزت أول اختبار لك بنجاح.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // اختبار ممتاز
+    // ======================================
+
+    if (excellentTests >= 1) {
+
+        addAchievement({
+
+            icon: "🌟",
+
+            title: "ممتاز",
+
+            description:
+                "حصلت على 85% أو أكثر في أحد الاختبارات.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // 5 اختبارات ممتازة
+    // ======================================
+
+    if (excellentTests >= 5) {
+
+        addAchievement({
+
+            icon: "🏅",
+
+            title: "متفوق",
+
+            description:
+                "حصلت على 85% أو أكثر في 5 اختبارات.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // الدرجة الكاملة
+    // ======================================
+
+    if (perfectTests >= 1) {
+
+        addAchievement({
+
+            icon: "💯",
+
+            title: "الدرجة الكاملة",
+
+            description:
+                "حصلت على 100% في أحد الاختبارات.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // متوسط 70
+    // ======================================
+
+    if (average >= 70) {
+
+        addAchievement({
+
+            icon: "📈",
+
+            title: "في الطريق الصحيح",
+
+            description:
+                "وصل متوسط درجاتك إلى 70% أو أكثر.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // متوسط 85
+    // ======================================
+
+    if (average >= 85) {
+
+        addAchievement({
+
+            icon: "🏆",
+
+            title: "المتفوق",
+
+            description:
+                "وصل متوسط درجاتك إلى 85% أو أكثر.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // أكثر من Chapter
+    // ======================================
+
+    if (chapters.size >= 3) {
+
+        addAchievement({
+
+            icon: "📖",
+
+            title: "مستكشف المنهج",
+
+            description:
+                "اختبرت نفسك في 3 Chapters مختلفة.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // إنهاء 5 Chapters
+    // ======================================
+
+    if (chapters.size >= 5) {
+
+        addAchievement({
+
+            icon: "🧠",
+
+            title: "عاشق التمريض",
+
+            description:
+                "اختبرت نفسك في 5 Chapters مختلفة.",
+
+            type: "unlocked"
+
+        });
+
+    }
+
+
+    // ======================================
+    // الإنجازات المقفولة
+    // ======================================
+
+    addLockedAchievements(
+        totalTests,
+        average,
+        perfectTests,
+        chapters.size
+    );
+
+}
+
+
+// ==========================================
+// إضافة إنجاز
+// ==========================================
+
+function addAchievement(data) {
+
+    achievements.push(data);
+
+}
+
+
+// ==========================================
+// الإنجازات المقفولة
+// ==========================================
+
+function addLockedAchievements(
+    totalTests,
+    average,
+    perfectTests,
+    chapters
+) {
+
+
+    if (totalTests < 3) {
+
+        achievements.push({
+
+            icon: "🔥",
+
+            title: "بداية قوية",
+
+            description:
+                "أكمل 3 اختبارات لفتح هذا الإنجاز.",
+
+            type: "locked"
+
+        });
+
+    }
+
+
+    if (totalTests < 5) {
+
+        achievements.push({
+
+            icon: "📚",
+
+            title: "محب المعرفة",
+
+            description:
+                "أكمل 5 اختبارات لفتح هذا الإنجاز.",
+
+            type: "locked"
+
+        });
+
+    }
+
+
+    if (totalTests < 10) {
+
+        achievements.push({
+
+            icon: "🚀",
+
+            title: "طالب نشيط",
+
+            description:
+                "أكمل 10 اختبارات لفتح هذا الإنجاز.",
+
+            type: "locked"
+
+        });
+
+    }
+
+
+    if (perfectTests < 1) {
+
+        achievements.push({
+
+            icon: "💯",
+
+            title: "الدرجة الكاملة",
+
+            description:
+                "احصل على 100% في أحد الاختبارات.",
+
+            type: "locked"
+
+        });
+
+    }
+
+
+    if (average < 85) {
+
+        achievements.push({
+
+            icon: "🏆",
+
+            title: "المتفوق",
+
+            description:
+                "ارفع متوسط درجاتك إلى 85% أو أكثر.",
+
+            type: "locked"
+
+        });
+
+    }
+
+
+    if (chapters < 5) {
+
+        achievements.push({
+
+            icon: "🧠",
+
+            title: "عاشق التمريض",
+
+            description:
+                "اختبر نفسك في 5 Chapters مختلفة.",
+
+            type: "locked"
+
+        });
+
+    }
+
+}
+
+
+// ==========================================
+// عرض الصفحة
+// ==========================================
+
+function renderPage() {
+
+    const percentages =
+        allResults.map(
+            function (result) {
+
+                return getPercentage(
+                    result
+                );
+
+            }
+        );
+
+
+    const totalTests =
+        allResults.length;
+
+
+    const average =
+        totalTests > 0
+
+            ? Math.round(
+                percentages.reduce(
+                    function (sum, value) {
+
+                        return sum + value;
+
+                    },
+                    0
+                ) / totalTests
             )
 
             : 0;
 
 
-    // ======================================
-    // الترتيب
-    // ======================================
+    const chapters =
+        new Set();
 
-    const ranking =
-        getStudentRanking();
 
-
-    // ======================================
-    // إنجازات الطالب
-    // ======================================
-
-    const achievements = [];
-
-
-    // 1
-    achievements.push({
-
-        id:
-            "first_test",
-
-        icon:
-            "🎯",
-
-        title:
-            "أول خطوة",
-
-        description:
-            "عملت أول اختبار على المنصة",
-
-        unlocked:
-            totalTests >= 1
-
-    });
-
-
-    // 2
-    achievements.push({
-
-        id:
-            "five_tests",
-
-        icon:
-            "📝",
-
-        title:
-            "محب الاختبارات",
-
-        description:
-            "أكملت 5 اختبارات",
-
-        unlocked:
-            totalTests >= 5
-
-    });
-
-
-    // 3
-    achievements.push({
-
-        id:
-            "ten_tests",
-
-        icon:
-            "🔥",
-
-        title:
-            "مدمن الاختبارات",
-
-        description:
-            "أكملت 10 اختبارات",
-
-        unlocked:
-            totalTests >= 10
-
-    });
-
-
-    // 4
-    achievements.push({
-
-        id:
-            "perfect",
-
-        icon:
-            "💯",
-
-        title:
-            "الدرجة الكاملة",
-
-        description:
-            "حصلت على 100% في اختبار",
-
-        unlocked:
-            perfectTests >= 1
-
-    });
-
-
-    // 5
-    achievements.push({
-
-        id:
-            "excellent",
-
-        icon:
-            "🧠",
-
-        title:
-            "الطالب الممتاز",
-
-        description:
-            "متوسطك 85% أو أكثر",
-
-        unlocked:
-            average >= 85
-
-    });
-
-
-    // 6
-    achievements.push({
-
-        id:
-            "strong_start",
-
-        icon:
-            "🚀",
-
-        title:
-            "بداية قوية",
-
-        description:
-            "حصلت على 80% أو أكثر في أول اختبار",
-
-        unlocked:
-            totalTests >= 1 &&
-            getAchievementPercentage(
-                results[0]
-            ) >= 80
-
-    });
-
-
-    // 7
-    achievements.push({
-
-        id:
-            "explorer",
-
-        icon:
-            "📚",
-
-        title:
-            "مستكشف المحتوى",
-
-        description:
-            "أنهيت 3 Chapters مختلفة",
-
-        unlocked:
-            chapterCount >= 3
-
-    });
-
-
-    // 8
-    achievements.push({
-
-        id:
-            "encyclopedia",
-
-        icon:
-            "📖",
-
-        title:
-            "موسوعة التمريض",
-
-        description:
-            "أنهيت 5 Chapters مختلفة",
-
-        unlocked:
-            chapterCount >= 5
-
-    });
-
-
-    // 9
-    achievements.push({
-
-        id:
-            "top10",
-
-        icon:
-            "🏆",
-
-        title:
-            "Top 10",
-
-        description:
-            "دخلت ضمن أول 10 طلاب",
-
-        unlocked:
-            ranking > 0 &&
-            ranking <= 10
-
-    });
-
-
-    // 10
-    achievements.push({
-
-        id:
-            "third",
-
-        icon:
-            "🥉",
-
-        title:
-            "المركز الثالث",
-
-        description:
-            "وصلت للمركز الثالث",
-
-        unlocked:
-            ranking === 3
-
-    });
-
-
-    // 11
-    achievements.push({
-
-        id:
-            "second",
-
-        icon:
-            "🥈",
-
-        title:
-            "المركز الثاني",
-
-        description:
-            "وصلت للمركز الثاني",
-
-        unlocked:
-            ranking === 2
-
-    });
-
-
-    // 12
-    achievements.push({
-
-        id:
-            "first",
-
-        icon:
-            "🥇",
-
-        title:
-            "ملك الـLeaderboard",
-
-        description:
-            "وصلت للمركز الأول",
-
-        unlocked:
-            ranking === 1
-
-    });
-
-
-    // 13
-    achievements.push({
-
-        id:
-            "consistent",
-
-        icon:
-            "💪",
-
-        title:
-            "المثابر",
-
-        description:
-            "عملت 3 اختبارات في نفس اليوم",
-
-        unlocked:
-            hasThreeTestsSameDay()
-
-    });
-
-
-    // 14
-    achievements.push({
-
-        id:
-            "no_fail",
-
-        icon:
-            "⚡",
-
-        title:
-            "بلا هزيمة",
-
-        description:
-            "نجحت في 5 اختبارات على الأقل",
-
-        unlocked:
-            passedTests >= 5
-
-    });
-
-
-    // ======================================
-    // عرض
-    // ======================================
-
-    renderAchievementStats(
-        totalTests,
-        chapterCount,
-        average,
-        achievements
-    );
-
-
-    renderAchievementList(
-        achievements
-    );
-
-}
-
-
-// ==========================================
-// ترتيب الطالب
-// ==========================================
-
-function getStudentRanking() {
-
-    if (
-        !achievementLeaderboard.length
-    ) {
-
-        return 0;
-
-    }
-
-
-    const rows =
-        achievementLeaderboard
-            .map(
-                function (student) {
-
-                    return {
-
-                        id:
-                            student.id,
-
-                        code:
-                            student.studentCode ||
-                            student.code ||
-                            student.id,
-
-                        score:
-                            Number(
-                                student.average ??
-                                student.score ??
-                                0
-                            )
-
-                    };
-
-                }
-            );
-
-
-    rows.sort(
-        function (a, b) {
-
-            return b.score - a.score;
-
-        }
-    );
-
-
-    const index =
-        rows.findIndex(
-            function (student) {
-
-                return (
-
-                    student.code ===
-                    achievementStudentCode
-
-                    ||
-
-                    student.id ===
-                    achievementStudentCode
-
-                );
-
-            }
-        );
-
-
-    return index >= 0
-        ? index + 1
-        : 0;
-
-}
-
-
-// ==========================================
-// 3 اختبارات في نفس اليوم
-// ==========================================
-
-function hasThreeTestsSameDay() {
-
-    const dates = {};
-
-
-    achievementResults.forEach(
+    allResults.forEach(
         function (result) {
 
-            const date =
-                getAchievementDate(
-                    result.createdAt
+            if (result.chapter) {
+
+                chapters.add(
+                    String(
+                        result.chapter
+                    ).trim()
                 );
 
-
-            if (!date) {
-
-                return;
-
             }
-
-
-            const key =
-                date.getFullYear()
-                +
-                "-"
-                +
-                date.getMonth()
-                +
-                "-"
-                +
-                date.getDate();
-
-
-            dates[key] =
-                (dates[key] || 0) + 1;
 
         }
     );
 
 
-    return Object.values(dates)
-        .some(
-            function (count) {
+    // ======================================
+    // بيانات الطالب
+    // ======================================
 
-                return count >= 3;
-
-            }
-        );
-
-}
-
-
-// ==========================================
-// عرض الإحصائيات
-// ==========================================
-
-function renderAchievementStats(
-    totalTests,
-    chapterCount,
-    average,
-    achievements
-) {
-
-    const unlocked =
-        achievements.filter(
-            function (item) {
-
-                return item.unlocked;
-
-            }
-        ).length;
-
-
-    setAchievementText(
-        "achievementCount",
-        unlocked
+    setText(
+        "studentName",
+        currentStudent.name ||
+        "طالبنا العزيز"
     );
 
 
-    setAchievementText(
-        "achievementTests",
+    setText(
+        "studentGrade",
+        currentStudent.grade ||
+        "-"
+    );
+
+
+    setText(
+        "studentCode",
+        studentCode
+    );
+
+
+    setText(
+        "welcomeAchievement",
+        "👋 أهلاً بك " +
+        (
+            currentStudent.name ||
+            "طالبنا العزيز"
+        ) +
+        " — استمر في التقدم!"
+    );
+
+
+    // ======================================
+    // الإحصائيات
+    // ======================================
+
+    setText(
+        "testsCount",
         totalTests
     );
 
 
-    setAchievementText(
-        "achievementChapters",
-        chapterCount
-    );
-
-
-    setAchievementText(
-        "achievementAverage",
+    setText(
+        "averageScore",
         average + "%"
     );
 
 
-    const name =
-        achievementStudent &&
-        achievementStudent.name
+    setText(
+        "badgesCount",
+        achievements.filter(
+            function (achievement) {
 
-            ? achievementStudent.name
+                return (
+                    achievement.type ===
+                    "unlocked"
+                );
 
-            : "طالبنا العزيز";
+            }
+        ).length
+    );
 
 
-    setAchievementText(
-        "achievementsStudentName",
-        "👋 " + name
+    setText(
+        "chaptersCount",
+        chapters.size
+    );
+
+
+    // ======================================
+    // مستوى التقدم
+    // ======================================
+
+    const progress =
+        Math.min(
+            100,
+            Math.round(
+                (
+                    totalTests / 10
+                ) * 100
+            )
+        );
+
+
+    setText(
+        "progressPercentage",
+        progress + "%"
+    );
+
+
+    const progressFill =
+        document.getElementById(
+            "progressFill"
+        );
+
+
+    if (progressFill) {
+
+        progressFill.style.width =
+            progress + "%";
+
+    }
+
+
+    // ======================================
+    // عرض الإنجازات
+    // ======================================
+
+    renderAchievements();
+
+
+    // ======================================
+    // رسالة تحفيزية
+    // ======================================
+
+    renderMotivation(
+        totalTests,
+        average
     );
 
 }
 
 
 // ==========================================
-// عرض الإنجازات
+// عرض الشارات
 // ==========================================
 
-function renderAchievementList(
-    achievements
-) {
+function renderAchievements() {
 
     const container =
         document.getElementById(
-            "achievementsList"
+            "badgesContainer"
         );
 
 
     if (!container) {
+
+        return;
+
+    }
+
+
+    if (!achievements.length) {
+
+        container.innerHTML = `
+
+            <div class="achievement-empty">
+
+                🏆
+                <br>
+
+                ابدأ أول اختبار لفتح أول إنجاز لك!
+
+            </div>
+
+        `;
 
         return;
 
@@ -915,32 +925,35 @@ function renderAchievementList(
     achievements.forEach(
         function (achievement) {
 
+            const locked =
+                achievement.type ===
+                "locked";
+
+
             html += `
 
                 <div class="
-                    achievement-item
-                    ${
-                        achievement.unlocked
-                            ? "unlocked"
-                            : "locked"
-                    }
+                    achievement-badge
+                    ${locked ? "locked" : "unlocked"}
                 ">
 
-                    <div class="achievement-icon">
+                    <div class="badge-icon">
 
                         ${
-                            achievement.icon
+                            locked
+                                ? "🔒"
+                                : achievement.icon
                         }
 
                     </div>
 
 
-                    <div class="achievement-info">
+                    <div class="badge-content">
 
                         <h3>
 
                             ${
-                                escapeAchievementHtml(
+                                escapeHtml(
                                     achievement.title
                                 )
                             }
@@ -951,7 +964,7 @@ function renderAchievementList(
                         <p>
 
                             ${
-                                escapeAchievementHtml(
+                                escapeHtml(
                                     achievement.description
                                 )
                             }
@@ -959,18 +972,15 @@ function renderAchievementList(
                         </p>
 
 
-                        <div class="achievement-status">
+                        <span class="badge-status">
 
                             ${
-                                achievement.unlocked
-
-                                    ? "🏆 تم فتح الإنجاز"
-
-                                    : "🔒 لم يتم فتحه بعد"
-
+                                locked
+                                    ? "🔒 مقفول"
+                                    : "✅ تم فتحه"
                             }
 
-                        </div>
+                        </span>
 
                     </div>
 
@@ -989,32 +999,127 @@ function renderAchievementList(
 
 
 // ==========================================
+// رسالة تحفيزية
+// ==========================================
+
+function renderMotivation(
+    totalTests,
+    average
+) {
+
+    const container =
+        document.getElementById(
+            "motivationCard"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    let title = "";
+
+    let message = "";
+
+
+    if (totalTests === 0) {
+
+        title =
+            "🚀 حان وقت البداية!";
+
+        message =
+            "ابدأ أول اختبار وافتح أول إنجاز لك.";
+
+    }
+
+    else if (average >= 90) {
+
+        title =
+            "👑 أداء استثنائي!";
+
+        message =
+            "مستواك ممتاز جدًا، استمر بنفس القوة.";
+
+    }
+
+    else if (average >= 85) {
+
+        title =
+            "🏆 أنت متفوق!";
+
+        message =
+            "أداؤك رائع، حاول الحفاظ على مستواك.";
+
+    }
+
+    else if (average >= 70) {
+
+        title =
+            "🔥 أنت في الطريق الصحيح!";
+
+        message =
+            "استمر في حل الاختبارات وستصل لمستوى أعلى.";
+
+    }
+
+    else if (average >= 50) {
+
+        title =
+            "💪 استمر ولا تستسلم!";
+
+        message =
+            "كل اختبار جديد فرصة لتحسين مستواك.";
+
+    }
+
+    else {
+
+        title =
+            "📚 وقت المراجعة!";
+
+        message =
+            "راجع الـ Chapters وحاول مرة أخرى.";
+
+    }
+
+
+    container.innerHTML = `
+
+        <div>
+
+            <h2>
+                ${title}
+            </h2>
+
+            <p>
+                ${message}
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
 // حساب النسبة
 // ==========================================
 
-function getAchievementPercentage(
-    data
-) {
+function getPercentage(data) {
 
     if (
         data.percentage !== undefined &&
         data.percentage !== null
     ) {
 
-        let value =
+        const value =
             Number(
                 data.percentage
             );
-
-
-        if (
-            value > 0 &&
-            value <= 1
-        ) {
-
-            value *= 100;
-
-        }
 
 
         return isNaN(value)
@@ -1045,8 +1150,7 @@ function getAchievementPercentage(
             (
                 score /
                 total
-            ) *
-            100
+            ) * 100
         );
 
     }
@@ -1061,7 +1165,7 @@ function getAchievementPercentage(
 // التاريخ
 // ==========================================
 
-function getAchievementDate(value) {
+function getDate(value) {
 
     if (!value) {
 
@@ -1084,11 +1188,18 @@ function getAchievementDate(value) {
         new Date(value);
 
 
-    return isNaN(
-        date.getTime()
-    )
-        ? null
-        : date;
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return date;
 
 }
 
@@ -1097,13 +1208,15 @@ function getAchievementDate(value) {
 // تغيير النص
 // ==========================================
 
-function setAchievementText(
+function setText(
     id,
     value
 ) {
 
     const element =
-        document.getElementById(id);
+        document.getElementById(
+            id
+        );
 
 
     if (element) {
@@ -1117,12 +1230,10 @@ function setAchievementText(
 
 
 // ==========================================
-// حماية النص
+// حماية النصوص
 // ==========================================
 
-function escapeAchievementHtml(
-    value
-) {
+function escapeHtml(value) {
 
     return String(
         value ?? ""
@@ -1157,36 +1268,33 @@ function escapeAchievementHtml(
 
 
 // ==========================================
-// إغلاق عند الضغط خارج النافذة
+// عرض الخطأ
 // ==========================================
 
-document.addEventListener(
-    "click",
-    function (event) {
+function showError() {
 
-        const modal =
-            document.getElementById(
-                "achievementsModal"
-            );
+    const container =
+        document.getElementById(
+            "badgesContainer"
+        );
 
 
-        const box =
-            document.querySelector(
-                ".achievements-box"
-            );
+    if (container) {
 
+        container.innerHTML = `
 
-        if (
-            modal &&
-            !modal.classList.contains(
-                "hidden"
-            ) &&
-            event.target === modal
-        ) {
+            <div class="achievement-error">
 
-            closeAchievements();
+                ❌ حدث خطأ أثناء تحميل إنجازاتك
 
-        }
+                <br><br>
+
+                حاول تحديث الصفحة مرة أخرى.
+
+            </div>
+
+        `;
 
     }
-);
+
+}

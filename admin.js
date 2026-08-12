@@ -1521,4 +1521,242 @@
 
     }
 
+    /* ==========================================
+عرض تفاصيل الطالب
+========================================== */
+
+window.viewStudent = function (code) {
+
+const student = allStudents.find(
+    function (item) {
+        return item.id === code;
+    }
+);
+
+if (!student) {
+
+    alert("❌ الطالب غير موجود");
+
+    return;
+}
+
+const modal =
+    document.getElementById("studentModal");
+
+const details =
+    document.getElementById("studentDetails");
+
+const expiry =
+    getDate(student.expiresAt);
+
+let status = "⛔ متوقف";
+
+if (student.active === true) {
+
+    if (
+        expiry &&
+        new Date() >= expiry
+    ) {
+
+        status = "⛔ منتهي";
+
+    } else {
+
+        status = "✅ نشط";
+
+    }
+
+}
+
+details.innerHTML = `
+
+    <div class="student-info-grid">
+
+        <div class="student-info">
+
+            <small>🔑 كود الطالب</small>
+
+            <strong>
+                ${escapeHtml(student.id)}
+            </strong>
+
+        </div>
+
+
+        <div class="student-info">
+
+            <small>👨‍🎓 الاسم</small>
+
+            <strong>
+                ${escapeHtml(
+                    student.name || "-"
+                )}
+            </strong>
+
+        </div>
+
+
+        <div class="student-info">
+
+            <small>🎓 الصف</small>
+
+            <strong>
+                ${escapeHtml(
+                    student.grade || "-"
+                )}
+            </strong>
+
+        </div>
+
+
+        <div class="student-info">
+
+            <small>📧 البريد الإلكتروني</small>
+
+            <strong>
+                ${escapeHtml(
+                    student.email || "-"
+                )}
+            </strong>
+
+        </div>
+
+
+        <div class="student-info">
+
+            <small>📊 حالة الاشتراك</small>
+
+            <strong>
+                ${status}
+            </strong>
+
+        </div>
+
+
+        <div class="student-info">
+
+            <small>📅 تاريخ الانتهاء</small>
+
+            <strong>
+                ${formatDate(
+                    student.expiresAt
+                )}
+            </strong>
+
+        </div>
+
+
+        <div class="student-info">
+
+            <small>📱 الجهاز</small>
+
+            <strong>
+                ${
+                    student.deviceId
+                        ? "📱 جهاز مرتبط"
+                        : "❌ لا يوجد جهاز"
+                }
+            </strong>
+
+        </div>
+
+
+        <div class="student-info">
+
+            <small>📅 تاريخ التسجيل</small>
+
+            <strong>
+                ${formatDate(
+                    student.createdAt
+                )}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <h3 class="student-detail-title">
+        ⚙️ إجراءات الطالب
+    </h3>
+
+
+    <div style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+    ">
+
+        <button
+            class="admin-btn primary-btn"
+            onclick="closeStudentModal(); editStudent('${escapeAttribute(student.id)}')">
+
+            ✏️ تعديل
+
+        </button>
+
+
+        <button
+            class="admin-btn success-btn"
+            onclick="closeStudentModal(); extendStudent('${escapeAttribute(student.id)}')">
+
+            ⏳ تمديد
+
+        </button>
+
+
+        <button
+            class="admin-btn danger-btn"
+            onclick="closeStudentModal(); deleteCode('${escapeAttribute(student.id)}')">
+
+            🗑️ حذف
+
+        </button>
+
+    </div>
+
+`;
+
+modal.classList.remove("hidden");
+
+};
+
+/* ==========================================
+إغلاق التفاصيل
+========================================== */
+
+window.closeStudentModal = function () {
+
+const modal =
+    document.getElementById("studentModal");
+
+if (modal) {
+
+    modal.classList.add("hidden");
+
+}
+
+};
+
+/* إغلاق عند الضغط خارج النافذة */
+
+document.addEventListener(
+"click",
+function (event) {
+
+    const modal =
+        document.getElementById("studentModal");
+
+    if (
+        modal &&
+        event.target === modal
+    ) {
+
+        closeStudentModal();
+
+    }
+
+}
+
+);
 })();

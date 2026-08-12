@@ -46,16 +46,19 @@ if (!studentCode) {
 function loadStudentDashboard() {
 
     loadStudentData()
+
         .then(function () {
 
             return loadStudentResults();
 
         })
+
         .then(function () {
 
             return loadAvailableContent();
 
         })
+
         .catch(function (error) {
 
             console.error(
@@ -119,7 +122,9 @@ function renderWelcome() {
 
 
     if (!element) {
+
         return;
+
     }
 
 
@@ -146,14 +151,15 @@ function renderStudentInfo() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
     container.innerHTML = `
 
         <div class="student-info-grid">
-
 
             <div class="student-info-item">
 
@@ -162,10 +168,12 @@ function renderStudentInfo() {
                 </small>
 
                 <strong>
+
                     ${escapeHtml(
                         currentStudent.name ||
                         "غير محدد"
                     )}
+
                 </strong>
 
             </div>
@@ -178,10 +186,12 @@ function renderStudentInfo() {
                 </small>
 
                 <strong>
+
                     ${escapeHtml(
                         currentStudent.grade ||
                         "غير محدد"
                     )}
+
                 </strong>
 
             </div>
@@ -194,9 +204,11 @@ function renderStudentInfo() {
                 </small>
 
                 <strong>
+
                     ${escapeHtml(
                         studentCode
                     )}
+
                 </strong>
 
             </div>
@@ -209,14 +221,15 @@ function renderStudentInfo() {
                 </small>
 
                 <strong>
+
                     ${escapeHtml(
                         currentStudent.email ||
                         "غير محدد"
                     )}
+
                 </strong>
 
             </div>
-
 
         </div>
 
@@ -238,7 +251,9 @@ function renderSubscription() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -253,9 +268,12 @@ function renderSubscription() {
     let className =
         "subscription-box";
 
-
     let remainingText = "";
 
+
+    // ==================================
+    // الاشتراك متوقف
+    // ==================================
 
     if (
         currentStudent.active !== true
@@ -269,14 +287,22 @@ function renderSubscription() {
 
     }
 
-    else if (
-        !expiry
-    ) {
+
+    // ==================================
+    // لا يوجد تاريخ انتهاء
+    // ==================================
+
+    else if (!expiry) {
 
         status =
             "⚠️ لا يوجد تاريخ انتهاء";
 
     }
+
+
+    // ==================================
+    // الاشتراك منتهي
+    // ==================================
 
     else if (
         new Date() >= expiry
@@ -292,6 +318,11 @@ function renderSubscription() {
             "انتهت مدة الاشتراك";
 
     }
+
+
+    // ==================================
+    // الاشتراك نشط
+    // ==================================
 
     else {
 
@@ -343,9 +374,7 @@ function renderSubscription() {
 
                     ${
                         expiry
-                            ? formatDate(
-                                expiry
-                            )
+                            ? formatDate(expiry)
                             : "-"
                     }
 
@@ -356,9 +385,7 @@ function renderSubscription() {
 
             <p>
 
-                ⏳
-
-                ${remainingText}
+                ⏳ ${remainingText}
 
             </p>
 
@@ -435,6 +462,10 @@ function loadStudentResults() {
             );
 
 
+            // ==================================
+            // عرض النتائج
+            // ==================================
+
             renderResults();
 
             renderLatestResults();
@@ -461,7 +492,9 @@ function renderResults() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -492,29 +525,17 @@ function renderResults() {
 
                     <tr>
 
-                        <th>
-                            #
-                        </th>
+                        <th>#</th>
 
-                        <th>
-                            المادة
-                        </th>
+                        <th>المادة</th>
 
-                        <th>
-                            Chapter
-                        </th>
+                        <th>Chapter</th>
 
-                        <th>
-                            الدرجة
-                        </th>
+                        <th>الدرجة</th>
 
-                        <th>
-                            النسبة
-                        </th>
+                        <th>النسبة</th>
 
-                        <th>
-                            التاريخ
-                        </th>
+                        <th>التاريخ</th>
 
                     </tr>
 
@@ -646,7 +667,9 @@ function renderLatestResults() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -681,21 +704,13 @@ function renderLatestResults() {
 
                     <tr>
 
-                        <th>
-                            المادة
-                        </th>
+                        <th>المادة</th>
 
-                        <th>
-                            Chapter
-                        </th>
+                        <th>Chapter</th>
 
-                        <th>
-                            النتيجة
-                        </th>
+                        <th>النتيجة</th>
 
-                        <th>
-                            التاريخ
-                        </th>
+                        <th>التاريخ</th>
 
                     </tr>
 
@@ -860,7 +875,9 @@ function renderProgress() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -1030,6 +1047,7 @@ function renderProgress() {
 
 }
 
+
 // ==========================================
 // تحميل المواد المتاحة حسب الصف
 // ==========================================
@@ -1052,30 +1070,57 @@ function loadAvailableContent() {
 
             {
                 id: "community-health",
-                name: "Community Health Nursing",
+
+                name:
+                    "Community Health Nursing",
+
                 icon: "🏥",
-                url: "community-health.html"
+
+                url:
+                    "community-health.html"
+
             },
+
 
             {
                 id: "surgery",
-                name: "General Surgery",
+
+                name:
+                    "General Surgery",
+
                 icon: "🩺",
-                url: "surgery.html"
+
+                url:
+                    "surgery.html"
+
             },
+
 
             {
                 id: "medical-surgical",
-                name: "Medical-Surgical Nursing",
+
+                name:
+                    "Medical-Surgical Nursing",
+
                 icon: "⚕️",
-                url: "medical-surgical.html"
+
+                url:
+                    "medical-surgical.html"
+
             },
+
 
             {
                 id: "internal-medicine",
-                name: "Internal Medicine",
+
+                name:
+                    "Internal Medicine",
+
                 icon: "💊",
-                url: "internal-medicine.html"
+
+                url:
+                    "internal-medicine.html"
+
             }
 
         ];
@@ -1092,38 +1137,67 @@ function loadAvailableContent() {
         "الصف الأول الثانوي التمريض"
     ) {
 
-                allContent = [
+        allContent = [
 
             {
                 id: "anatomy",
-                name: "Anatomy",
+
+                name:
+                    "Anatomy",
+
                 icon: "🫀",
-                url: "anatomy.html"
+
+                url:
+                    "anatomy.html"
+
             },
+
 
             {
                 id: "fundamental",
-                name: "Fundamentals of Nursing",
+
+                name:
+                    "Fundamentals of Nursing",
+
                 icon: "👩‍⚕️",
-                url: "fundamental.html"
+
+                url:
+                    "fundamental.html"
+
             }
 
         ];
 
     }
 
-    // ==========================================
+
+    // ==================================
+    // عرض المواد
+    // ==================================
+
+    renderSubjects();
+
+}
+
+
+// ==========================================
 // عرض المواد
 // ==========================================
 
 function renderSubjects() {
 
     const container =
-        document.getElementById("subjects");
+        document.getElementById(
+            "subjects"
+        );
+
 
     if (!container) {
+
         return;
+
     }
+
 
     // ==================================
     // لا توجد مواد
@@ -1136,6 +1210,7 @@ function renderSubjects() {
             0
         );
 
+
         container.innerHTML = `
 
             <div class="empty-state">
@@ -1147,7 +1222,9 @@ function renderSubjects() {
         `;
 
         return;
+
     }
+
 
     // ==================================
     // عدد المواد
@@ -1158,6 +1235,7 @@ function renderSubjects() {
         allContent.length
     );
 
+
     // ==================================
     // إنشاء الكروت
     // ==================================
@@ -1167,6 +1245,7 @@ function renderSubjects() {
         <div class="subjects-grid">
 
     `;
+
 
     allContent.forEach(
         function (content) {
@@ -1186,6 +1265,7 @@ function renderSubjects() {
 
                     </div>
 
+
                     <h3>
 
                         ${escapeHtml(
@@ -1195,11 +1275,13 @@ function renderSubjects() {
 
                     </h3>
 
+
                     <p class="subject-count">
 
                         📖 محتوى المادة متاح
 
                     </p>
+
 
                     <a
                         href="${escapeHtml(
@@ -1228,13 +1310,16 @@ function renderSubjects() {
         }
     );
 
+
     html += `
 
         </div>
 
     `;
 
+
     container.innerHTML = html;
+
 }
 
 
@@ -1304,6 +1389,8 @@ function getDate(value) {
     }
 
 
+    // Firebase Timestamp
+
     if (
         typeof value.toDate ===
         "function"
@@ -1313,6 +1400,23 @@ function getDate(value) {
 
     }
 
+
+    // JavaScript Date
+
+    if (
+        value instanceof Date
+    ) {
+
+        return isNaN(
+            value.getTime()
+        )
+            ? null
+            : value;
+
+    }
+
+
+    // String / Number
 
     const date =
         new Date(value);
@@ -1424,30 +1528,30 @@ function escapeHtml(value) {
         value ?? ""
     )
 
-    .replace(
-        /&/g,
-        "&amp;"
-    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
-    .replace(
-        /</g,
-        "&lt;"
-    )
+        .replace(
+            /</g,
+            "&lt;"
+        )
 
-    .replace(
-        />/g,
-        "&gt;"
-    )
+        .replace(
+            />/g,
+            "&gt;"
+        )
 
-    .replace(
-        /"/g,
-        "&quot;"
-    )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
 
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 

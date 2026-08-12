@@ -12,125 +12,771 @@ content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="style.css">
 
+<style>
+
+/* ==========================================
+   Student Dashboard
+========================================== */
+
+.dashboard-container {
+
+    width: 94%;
+    max-width: 1200px;
+
+    margin: 25px auto;
+}
+
+
+/* ==========================================
+   Welcome
+========================================== */
+
+.welcome-card {
+
+    background:
+        linear-gradient(
+            135deg,
+            #0d47a1,
+            #1976d2
+        );
+
+    color: white;
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.12);
+}
+
+.welcome-card h2 {
+
+    margin: 0 0 8px;
+
+}
+
+.welcome-card p {
+
+    margin: 0;
+
+    opacity: .9;
+}
+
+
+/* ==========================================
+   Statistics
+========================================== */
+
+.dashboard-stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+
+.dashboard-stat {
+
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 3px 12px rgba(0,0,0,.08);
+
+    text-align: center;
+}
+
+
+.dashboard-stat h3 {
+
+    margin: 0 0 10px;
+
+    color: #555;
+
+    font-size: 15px;
+}
+
+
+.dashboard-stat-number {
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+    color: #0d47a1;
+}
+
+
+/* ==========================================
+   Cards
+========================================== */
+
+.dashboard-card {
+
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 3px 12px rgba(0,0,0,.08);
+}
+
+
+.dashboard-card h2 {
+
+    margin-top: 0;
+
+    color: #0d47a1;
+}
+
+
+/* ==========================================
+   Student Information
+========================================== */
+
+.student-info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 12px;
+}
+
+
+.student-info-item {
+
+    background: #f5f7fa;
+
+    padding: 15px;
+
+    border-radius: 12px;
+}
+
+
+.student-info-item small {
+
+    display: block;
+
+    color: #777;
+
+    margin-bottom: 6px;
+}
+
+
+.student-info-item strong {
+
+    color: #222;
+
+    word-break: break-word;
+}
+
+
+/* ==========================================
+   Subscription
+========================================== */
+
+.subscription-box {
+
+    padding: 18px;
+
+    border-radius: 14px;
+
+    background: #f5f7fa;
+
+    border-right: 5px solid #1976d2;
+}
+
+
+.subscription-active {
+
+    border-right-color: #2e7d32;
+
+    background: #edf8ef;
+}
+
+
+.subscription-expired {
+
+    border-right-color: #d32f2f;
+
+    background: #fff1f1;
+}
+
+
+.subscription-stopped {
+
+    border-right-color: #777;
+
+    background: #f2f2f2;
+}
+
+
+.subscription-status {
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+}
+
+
+/* ==========================================
+   Subjects
+========================================== */
+
+.subjects-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 15px;
+}
+
+
+.subject-card {
+
+    background: #f5f7fa;
+
+    padding: 18px;
+
+    border-radius: 14px;
+
+    border: 1px solid #eee;
+}
+
+
+.subject-card h3 {
+
+    margin-top: 0;
+
+    color: #0d47a1;
+}
+
+
+.subject-count {
+
+    color: #666;
+
+    font-size: 14px;
+}
+
+
+/* ==========================================
+   Results
+========================================== */
+
+.results-container {
+
+    overflow-x: auto;
+}
+
+
+.results-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 650px;
+}
+
+
+.results-table th,
+.results-table td {
+
+    padding: 12px;
+
+    border-bottom: 1px solid #eee;
+
+    text-align: center;
+
+    white-space: nowrap;
+}
+
+
+.results-table th {
+
+    background: #f1f5fa;
+
+    color: #333;
+}
+
+
+.pass {
+
+    color: #2e7d32;
+
+    font-weight: bold;
+}
+
+
+.fail {
+
+    color: #d32f2f;
+
+    font-weight: bold;
+}
+
+
+/* ==========================================
+   Progress
+========================================== */
+
+.progress-box {
+
+    margin-bottom: 18px;
+}
+
+
+.progress-title {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 7px;
+
+    font-weight: bold;
+}
+
+
+.progress-bar {
+
+    height: 13px;
+
+    background: #e5e7eb;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+
+.progress-fill {
+
+    height: 100%;
+
+    background: #1976d2;
+
+    border-radius: 20px;
+
+    transition: width .4s ease;
+}
+
+
+/* ==========================================
+   Empty
+========================================== */
+
+.empty-state {
+
+    text-align: center;
+
+    padding: 25px;
+
+    color: #777;
+}
+
+
+/* ==========================================
+   Mobile
+========================================== */
+
+@media (max-width: 600px) {
+
+    .dashboard-container {
+
+        width: 94%;
+
+        margin: 20px auto;
+    }
+
+
+    .welcome-card {
+
+        padding: 20px;
+    }
+
+
+    .welcome-card h2 {
+
+        font-size: 21px;
+    }
+
+
+    .dashboard-stats {
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 10px;
+    }
+
+
+    .dashboard-stat {
+
+        padding: 15px 10px;
+    }
+
+
+    .dashboard-stat-number {
+
+        font-size: 23px;
+    }
+
+
+    .dashboard-card {
+
+        padding: 15px;
+    }
+
+
+    .student-info-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 380px) {
+
+    .dashboard-stats {
+
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
 </head>
 
 
 <body>
 
 
-<!-- =========================
-     NAVBAR
-========================= -->
+<!-- ==========================================
+     Navbar
+========================================== -->
 
 <nav>
 
-<div class="logo">
-🩺 بوابة التمريض
-</div>
+    <div class="logo">
+
+        🩺 بوابة التمريض
+
+    </div>
 
 </nav>
 
 
-<!-- =========================
-     HEADER
-========================= -->
+<!-- ==========================================
+     Header
+========================================== -->
 
 <header>
 
-<h1>
-📊 لوحة الطالب
-</h1>
+    <h1>
+        📊 لوحة الطالب
+    </h1>
 
-<p>
-تابع مستواك ونتائج اختباراتك
-</p>
+    <p>
+        تابع مستواك ونتائج اختباراتك ومحتواك الدراسي
+    </p>
 
 </header>
 
 
-<!-- =========================
-     STUDENT DASHBOARD
-========================= -->
+<!-- ==========================================
+     Dashboard
+========================================== -->
 
-<section class="years">
-
-
-<!-- بيانات الطالب -->
-
-<div class="card">
-
-<h2>
-👨‍🎓 بيانات الطالب
-</h2>
-
-<div id="studentInfo">
-
-<p>
-⏳ جاري تحميل البيانات...
-</p>
-
-</div>
-
-</div>
+<main class="dashboard-container">
 
 
-<!-- نتائج الاختبارات -->
+    <!-- ==========================================
+         Welcome
+    ========================================== -->
 
-<div class="card">
+    <div class="welcome-card">
 
-<h2>
-📚 نتائج الاختبارات
-</h2>
+        <h2 id="welcomeName">
 
-<div id="results">
+            👋 أهلاً بك في بوابة التمريض
 
-<p>
-⏳ جاري تحميل النتائج...
-</p>
+        </h2>
 
-</div>
+        <p>
 
-</div>
+            من هنا تقدر تتابع اشتراكك وموادك ونتائج اختباراتك.
 
+        </p>
 
-<!-- المتوسط النهائي -->
-
-<div class="card">
-
-<h2>
-⭐ المتوسط النهائي
-</h2>
-
-<div id="average">
-
-<p>
-⏳ حساب المتوسط...
-</p>
-
-</div>
-
-</div>
+    </div>
 
 
-</section>
+    <!-- ==========================================
+         Statistics
+    ========================================== -->
+
+    <div class="dashboard-stats">
 
 
-<!-- =========================
-     FOOTER
-========================= -->
+        <div class="dashboard-stat">
+
+            <h3>
+                📝 الاختبارات
+            </h3>
+
+            <div
+                id="totalTests"
+                class="dashboard-stat-number">
+
+                0
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat">
+
+            <h3>
+                ⭐ المتوسط
+            </h3>
+
+            <div
+                id="averageScore"
+                class="dashboard-stat-number">
+
+                0%
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat">
+
+            <h3>
+                ✅ ناجحة
+            </h3>
+
+            <div
+                id="passedTests"
+                class="dashboard-stat-number">
+
+                0
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat">
+
+            <h3>
+                📚 المواد
+            </h3>
+
+            <div
+                id="totalSubjects"
+                class="dashboard-stat-number">
+
+                0
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ==========================================
+         Student Information
+    ========================================== -->
+
+    <div class="dashboard-card">
+
+        <h2>
+            👨‍🎓 بيانات الطالب
+        </h2>
+
+
+        <div id="studentInfo">
+
+            <div class="empty-state">
+
+                ⏳ جاري تحميل بيانات الطالب...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         Subscription
+    ========================================== -->
+
+    <div class="dashboard-card">
+
+        <h2>
+            🔐 حالة الاشتراك
+        </h2>
+
+
+        <div id="subscriptionInfo">
+
+            <div class="empty-state">
+
+                ⏳ جاري التحقق من الاشتراك...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         Available Subjects
+    ========================================== -->
+
+    <div class="dashboard-card">
+
+        <h2>
+            📚 المواد المتاحة لك
+        </h2>
+
+
+        <div id="subjects">
+
+            <div class="empty-state">
+
+                ⏳ جاري تحميل المواد...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         Progress
+    ========================================== -->
+
+    <div class="dashboard-card">
+
+        <h2>
+            📈 التقدم في الاختبارات
+        </h2>
+
+
+        <div id="progress">
+
+            <div class="empty-state">
+
+                ⏳ جاري حساب التقدم...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         Latest Results
+    ========================================== -->
+
+    <div class="dashboard-card">
+
+        <h2>
+            📝 آخر النتائج
+        </h2>
+
+
+        <div id="latestResults">
+
+            <div class="empty-state">
+
+                ⏳ جاري تحميل النتائج...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         All Results
+    ========================================== -->
+
+    <div class="dashboard-card">
+
+        <h2>
+            📋 جميع نتائج الاختبارات
+        </h2>
+
+
+        <div id="results">
+
+            <div class="empty-state">
+
+                ⏳ جاري تحميل النتائج...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</main>
+
+
+<!-- ==========================================
+     Footer
+========================================== -->
 
 <footer>
 
-<p>
-© 2026 بوابة التمريض
-</p>
+    <p>
+        © 2026 بوابة التمريض
+    </p>
 
 </footer>
 
 
-<!-- =========================
-     FIREBASE
-========================= -->
+<!-- ==========================================
+     Firebase
+========================================== -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
@@ -139,9 +785,9 @@ content="width=device-width, initial-scale=1.0">
 <script src="firebase.js"></script>
 
 
-<!-- =========================
-     STUDENT DASHBOARD JS
-========================= -->
+<!-- ==========================================
+     Student Dashboard JS
+========================================== -->
 
 <script src="student-dashboard.js"></script>
 

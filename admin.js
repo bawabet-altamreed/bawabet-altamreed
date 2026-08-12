@@ -1064,13 +1064,21 @@
 
                         <td>
 
-                            <button
-                                class="admin-btn primary-btn"
-                                onclick="editStudent('${escapeAttribute(doc.id)}')">
+    <button
+        class="admin-btn primary-btn"
+        onclick="viewStudent('${escapeAttribute(student.id)}')">
 
-                                ✏️
+        👁️
 
-                            </button>
+    </button>
+
+    <button
+        class="admin-btn primary-btn"
+        onclick="editStudent('${escapeAttribute(student.id)}')">
+
+        ✏️
+
+    </button>
 
                             <button
                                 class="admin-btn success-btn"

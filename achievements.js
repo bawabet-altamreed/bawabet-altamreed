@@ -8,7 +8,7 @@
 // الحصول على كود الطالب
 // ==========================================
 
-const studentCode =
+const achievementStudentCode =
     localStorage.getItem("studentCode");
 
 
@@ -27,7 +27,7 @@ let achievements = [];
 // التحقق من تسجيل الدخول
 // ==========================================
 
-if (!studentCode) {
+if (!achievementStudentCode) {
 
     window.location.replace("login.html");
 
@@ -46,24 +46,121 @@ async function loadAchievements() {
 
     try {
 
+        console.log(
+            "🏆 بدء تحميل الإنجازات"
+        );
+
+
+        console.log(
+            "🔑 Student Code:",
+            achievementStudentCode
+        );
+
+
+        console.log(
+            "🔥 Firebase DB:",
+            db
+        );
+
+
+        // ======================================
+        // التأكد من وجود كود الطالب
+        // ======================================
+
+        if (!achievementStudentCode) {
+
+            throw new Error(
+                "لم يتم العثور على studentCode في localStorage"
+            );
+
+        }
+
+
+        // ======================================
+        // التأكد من Firebase
+        // ======================================
+
+        if (
+            typeof db === "undefined" ||
+            !db
+        ) {
+
+            throw new Error(
+                "Firebase Firestore (db) غير جاهز"
+            );
+
+        }
+
+
+        // ======================================
+        // تحميل بيانات الطالب
+        // ======================================
+
         await loadStudentData();
+
+
+        console.log(
+            "✅ تم تحميل بيانات الطالب:",
+            currentStudent
+        );
+
+
+        // ======================================
+        // تحميل النتائج
+        // ======================================
 
         await loadStudentResults();
 
+
+        console.log(
+            "✅ تم تحميل النتائج:",
+            allResults.length
+        );
+
+
+        // ======================================
+        // حساب الإنجازات
+        // ======================================
+
         calculateAchievements();
 
+
+        console.log(
+            "🏆 الإنجازات:",
+            achievements
+        );
+
+
+        // ======================================
+        // عرض الصفحة
+        // ======================================
+
         renderPage();
+
+
+        console.log(
+            "✅ تم تحميل صفحة الإنجازات بالكامل"
+        );
 
     }
 
     catch (error) {
 
         console.error(
-            "Achievements Error:",
+            "❌ Achievements Error:",
             error
         );
 
-        showError();
+
+        console.error(
+            "❌ Error Message:",
+            error.message
+        );
+
+
+        showError(
+            error.message
+        );
 
     }
 
@@ -79,14 +176,16 @@ async function loadStudentData() {
     const studentDoc =
         await db
             .collection("students")
-            .doc(studentCode)
+            .doc(
+                achievementStudentCode
+            )
             .get();
 
 
     if (!studentDoc.exists) {
 
         throw new Error(
-            "بيانات الطالب غير موجودة"
+            "بيانات الطالب غير موجودة في students"
         );
 
     }
@@ -110,7 +209,7 @@ async function loadStudentResults() {
             .where(
                 "studentCode",
                 "==",
-                studentCode
+                achievementStudentCode
             )
             .get();
 
@@ -133,16 +232,25 @@ async function loadStudentResults() {
     );
 
 
+    // ======================================
+    // ترتيب النتائج من الأحدث للأقدم
+    // ======================================
+
     allResults.sort(
         function (a, b) {
 
             const dateA =
-                getDate(a.createdAt)
-                || new Date(0);
+                getDate(
+                    a.createdAt
+                ) ||
+                new Date(0);
+
 
             const dateB =
-                getDate(b.createdAt)
-                || new Date(0);
+                getDate(
+                    b.createdAt
+                ) ||
+                new Date(0);
 
 
             return (
@@ -181,22 +289,37 @@ function calculateAchievements() {
         );
 
 
+    // ======================================
+    // المتوسط
+    // ======================================
+
     const average =
         totalTests > 0
 
             ? Math.round(
-                percentages.reduce(
-                    function (sum, value) {
 
-                        return sum + value;
+                percentages.reduce(
+                    function (
+                        sum,
+                        value
+                    ) {
+
+                        return (
+                            sum + value
+                        );
 
                     },
                     0
                 ) / totalTests
+
             )
 
             : 0;
 
+
+    // ======================================
+    // أعلى درجة
+    // ======================================
 
     const highest =
         totalTests > 0
@@ -208,6 +331,10 @@ function calculateAchievements() {
             : 0;
 
 
+    // ======================================
+    // عدد الاختبارات الممتازة
+    // ======================================
+
     const excellentTests =
         percentages.filter(
             function (value) {
@@ -217,6 +344,10 @@ function calculateAchievements() {
             }
         ).length;
 
+
+    // ======================================
+    // عدد الدرجات الكاملة
+    // ======================================
 
     const perfectTests =
         percentages.filter(
@@ -228,6 +359,10 @@ function calculateAchievements() {
         ).length;
 
 
+    // ======================================
+    // عدد الاختبارات الناجحة
+    // ======================================
+
     const passedTests =
         percentages.filter(
             function (value) {
@@ -237,6 +372,10 @@ function calculateAchievements() {
             }
         ).length;
 
+
+    // ======================================
+    // Chapters المختلفة
+    // ======================================
 
     const chapters =
         new Set();
@@ -262,10 +401,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // أول اختبار
+    // 🎯 أول اختبار
     // ======================================
 
-    if (totalTests >= 1) {
+    if (
+        totalTests >= 1
+    ) {
 
         addAchievement({
 
@@ -284,10 +425,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // 3 اختبارات
+    // 🔥 3 اختبارات
     // ======================================
 
-    if (totalTests >= 3) {
+    if (
+        totalTests >= 3
+    ) {
 
         addAchievement({
 
@@ -306,10 +449,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // 5 اختبارات
+    // 📚 5 اختبارات
     // ======================================
 
-    if (totalTests >= 5) {
+    if (
+        totalTests >= 5
+    ) {
 
         addAchievement({
 
@@ -328,10 +473,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // 10 اختبارات
+    // 🚀 10 اختبارات
     // ======================================
 
-    if (totalTests >= 10) {
+    if (
+        totalTests >= 10
+    ) {
 
         addAchievement({
 
@@ -350,10 +497,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // 20 اختبار
+    // 👑 20 اختبار
     // ======================================
 
-    if (totalTests >= 20) {
+    if (
+        totalTests >= 20
+    ) {
 
         addAchievement({
 
@@ -372,10 +521,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // نجاح أول اختبار
+    // ✅ أول نجاح
     // ======================================
 
-    if (passedTests >= 1) {
+    if (
+        passedTests >= 1
+    ) {
 
         addAchievement({
 
@@ -394,10 +545,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // اختبار ممتاز
+    // 🌟 اختبار ممتاز
     // ======================================
 
-    if (excellentTests >= 1) {
+    if (
+        excellentTests >= 1
+    ) {
 
         addAchievement({
 
@@ -416,10 +569,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // 5 اختبارات ممتازة
+    // 🏅 5 اختبارات ممتازة
     // ======================================
 
-    if (excellentTests >= 5) {
+    if (
+        excellentTests >= 5
+    ) {
 
         addAchievement({
 
@@ -438,10 +593,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // الدرجة الكاملة
+    // 💯 الدرجة الكاملة
     // ======================================
 
-    if (perfectTests >= 1) {
+    if (
+        perfectTests >= 1
+    ) {
 
         addAchievement({
 
@@ -460,10 +617,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // متوسط 70
+    // 📈 متوسط 70
     // ======================================
 
-    if (average >= 70) {
+    if (
+        average >= 70
+    ) {
 
         addAchievement({
 
@@ -482,10 +641,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // متوسط 85
+    // 🏆 متوسط 85
     // ======================================
 
-    if (average >= 85) {
+    if (
+        average >= 85
+    ) {
 
         addAchievement({
 
@@ -504,10 +665,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // أكثر من Chapter
+    // 📖 3 Chapters
     // ======================================
 
-    if (chapters.size >= 3) {
+    if (
+        chapters.size >= 3
+    ) {
 
         addAchievement({
 
@@ -526,10 +689,12 @@ function calculateAchievements() {
 
 
     // ======================================
-    // إنهاء 5 Chapters
+    // 🧠 5 Chapters
     // ======================================
 
-    if (chapters.size >= 5) {
+    if (
+        chapters.size >= 5
+    ) {
 
         addAchievement({
 
@@ -548,14 +713,19 @@ function calculateAchievements() {
 
 
     // ======================================
-    // الإنجازات المقفولة
+    // 🔒 الإنجازات المقفولة
     // ======================================
 
     addLockedAchievements(
+
         totalTests,
+
         average,
+
         perfectTests,
+
         chapters.size
+
     );
 
 }
@@ -565,9 +735,13 @@ function calculateAchievements() {
 // إضافة إنجاز
 // ==========================================
 
-function addAchievement(data) {
+function addAchievement(
+    data
+) {
 
-    achievements.push(data);
+    achievements.push(
+        data
+    );
 
 }
 
@@ -584,7 +758,13 @@ function addLockedAchievements(
 ) {
 
 
-    if (totalTests < 3) {
+    // ======================================
+    // 🔥 3 اختبارات
+    // ======================================
+
+    if (
+        totalTests < 3
+    ) {
 
         achievements.push({
 
@@ -602,7 +782,13 @@ function addLockedAchievements(
     }
 
 
-    if (totalTests < 5) {
+    // ======================================
+    // 📚 5 اختبارات
+    // ======================================
+
+    if (
+        totalTests < 5
+    ) {
 
         achievements.push({
 
@@ -620,7 +806,13 @@ function addLockedAchievements(
     }
 
 
-    if (totalTests < 10) {
+    // ======================================
+    // 🚀 10 اختبارات
+    // ======================================
+
+    if (
+        totalTests < 10
+    ) {
 
         achievements.push({
 
@@ -638,7 +830,13 @@ function addLockedAchievements(
     }
 
 
-    if (perfectTests < 1) {
+    // ======================================
+    // 💯 الدرجة الكاملة
+    // ======================================
+
+    if (
+        perfectTests < 1
+    ) {
 
         achievements.push({
 
@@ -656,7 +854,13 @@ function addLockedAchievements(
     }
 
 
-    if (average < 85) {
+    // ======================================
+    // 🏆 المتفوق
+    // ======================================
+
+    if (
+        average < 85
+    ) {
 
         achievements.push({
 
@@ -674,7 +878,13 @@ function addLockedAchievements(
     }
 
 
-    if (chapters < 5) {
+    // ======================================
+    // 🧠 عاشق التمريض
+    // ======================================
+
+    if (
+        chapters < 5
+    ) {
 
         achievements.push({
 
@@ -700,6 +910,10 @@ function addLockedAchievements(
 
 function renderPage() {
 
+    // ======================================
+    // النسب
+    // ======================================
+
     const percentages =
         allResults.map(
             function (result) {
@@ -712,26 +926,45 @@ function renderPage() {
         );
 
 
+    // ======================================
+    // عدد الاختبارات
+    // ======================================
+
     const totalTests =
         allResults.length;
 
+
+    // ======================================
+    // المتوسط
+    // ======================================
 
     const average =
         totalTests > 0
 
             ? Math.round(
-                percentages.reduce(
-                    function (sum, value) {
 
-                        return sum + value;
+                percentages.reduce(
+                    function (
+                        sum,
+                        value
+                    ) {
+
+                        return (
+                            sum + value
+                        );
 
                     },
                     0
                 ) / totalTests
+
             )
 
             : 0;
 
+
+    // ======================================
+    // Chapters
+    // ======================================
 
     const chapters =
         new Set();
@@ -740,7 +973,9 @@ function renderPage() {
     allResults.forEach(
         function (result) {
 
-            if (result.chapter) {
+            if (
+                result.chapter
+            ) {
 
                 chapters.add(
                     String(
@@ -755,7 +990,7 @@ function renderPage() {
 
 
     // ======================================
-    // بيانات الطالب
+    // 👨‍🎓 بيانات الطالب
     // ======================================
 
     setText(
@@ -774,23 +1009,26 @@ function renderPage() {
 
     setText(
         "studentCode",
-        studentCode
+        achievementStudentCode
     );
 
 
     setText(
         "welcomeAchievement",
+
         "👋 أهلاً بك " +
+
         (
             currentStudent.name ||
             "طالبنا العزيز"
         ) +
+
         " — استمر في التقدم!"
     );
 
 
     // ======================================
-    // الإحصائيات
+    // 📊 الإحصائيات
     // ======================================
 
     setText(
@@ -807,6 +1045,7 @@ function renderPage() {
 
     setText(
         "badgesCount",
+
         achievements.filter(
             function (achievement) {
 
@@ -817,6 +1056,7 @@ function renderPage() {
 
             }
         ).length
+
     );
 
 
@@ -827,17 +1067,23 @@ function renderPage() {
 
 
     // ======================================
-    // مستوى التقدم
+    // 📈 مستوى التقدم
     // ======================================
 
     const progress =
         Math.min(
+
             100,
+
             Math.round(
+
                 (
-                    totalTests / 10
+                    totalTests /
+                    10
                 ) * 100
+
             )
+
         );
 
 
@@ -853,7 +1099,9 @@ function renderPage() {
         );
 
 
-    if (progressFill) {
+    if (
+        progressFill
+    ) {
 
         progressFill.style.width =
             progress + "%";
@@ -862,14 +1110,14 @@ function renderPage() {
 
 
     // ======================================
-    // عرض الإنجازات
+    // 🏆 عرض الإنجازات
     // ======================================
 
     renderAchievements();
 
 
     // ======================================
-    // رسالة تحفيزية
+    // 💬 رسالة تحفيزية
     // ======================================
 
     renderMotivation(
@@ -899,13 +1147,16 @@ function renderAchievements() {
     }
 
 
-    if (!achievements.length) {
+    if (
+        !achievements.length
+    ) {
 
         container.innerHTML = `
 
             <div class="achievement-empty">
 
                 🏆
+
                 <br>
 
                 ابدأ أول اختبار لفتح أول إنجاز لك!
@@ -1025,7 +1276,13 @@ function renderMotivation(
     let message = "";
 
 
-    if (totalTests === 0) {
+    // ======================================
+    // لا توجد اختبارات
+    // ======================================
+
+    if (
+        totalTests === 0
+    ) {
 
         title =
             "🚀 حان وقت البداية!";
@@ -1035,7 +1292,14 @@ function renderMotivation(
 
     }
 
-    else if (average >= 90) {
+
+    // ======================================
+    // 90+
+    // ======================================
+
+    else if (
+        average >= 90
+    ) {
 
         title =
             "👑 أداء استثنائي!";
@@ -1045,7 +1309,14 @@ function renderMotivation(
 
     }
 
-    else if (average >= 85) {
+
+    // ======================================
+    // 85+
+    // ======================================
+
+    else if (
+        average >= 85
+    ) {
 
         title =
             "🏆 أنت متفوق!";
@@ -1055,7 +1326,14 @@ function renderMotivation(
 
     }
 
-    else if (average >= 70) {
+
+    // ======================================
+    // 70+
+    // ======================================
+
+    else if (
+        average >= 70
+    ) {
 
         title =
             "🔥 أنت في الطريق الصحيح!";
@@ -1065,7 +1343,14 @@ function renderMotivation(
 
     }
 
-    else if (average >= 50) {
+
+    // ======================================
+    // 50+
+    // ======================================
+
+    else if (
+        average >= 50
+    ) {
 
         title =
             "💪 استمر ولا تستسلم!";
@@ -1074,6 +1359,11 @@ function renderMotivation(
             "كل اختبار جديد فرصة لتحسين مستواك.";
 
     }
+
+
+    // ======================================
+    // أقل من 50
+    // ======================================
 
     else {
 
@@ -1091,11 +1381,16 @@ function renderMotivation(
         <div>
 
             <h2>
+
                 ${title}
+
             </h2>
 
+
             <p>
+
                 ${message}
+
             </p>
 
         </div>
@@ -1109,7 +1404,13 @@ function renderMotivation(
 // حساب النسبة
 // ==========================================
 
-function getPercentage(data) {
+function getPercentage(
+    data
+) {
+
+    // ======================================
+    // إذا كانت النسبة محفوظة
+    // ======================================
 
     if (
         data.percentage !== undefined &&
@@ -1123,11 +1424,19 @@ function getPercentage(data) {
 
 
         return isNaN(value)
+
             ? 0
-            : Math.round(value);
+
+            : Math.round(
+                value
+            );
 
     }
 
+
+    // ======================================
+    // حساب النسبة من الدرجة
+    // ======================================
 
     const score =
         Number(
@@ -1147,10 +1456,12 @@ function getPercentage(data) {
     ) {
 
         return Math.round(
+
             (
                 score /
                 total
             ) * 100
+
         );
 
     }
@@ -1165,7 +1476,9 @@ function getPercentage(data) {
 // التاريخ
 // ==========================================
 
-function getDate(value) {
+function getDate(
+    value
+) {
 
     if (!value) {
 
@@ -1173,6 +1486,10 @@ function getDate(value) {
 
     }
 
+
+    // ======================================
+    // Firestore Timestamp
+    // ======================================
 
     if (
         typeof value.toDate ===
@@ -1183,6 +1500,10 @@ function getDate(value) {
 
     }
 
+
+    // ======================================
+    // JavaScript Date
+    // ======================================
 
     const date =
         new Date(value);
@@ -1219,7 +1540,9 @@ function setText(
         );
 
 
-    if (element) {
+    if (
+        element
+    ) {
 
         element.textContent =
             value;
@@ -1233,7 +1556,9 @@ function setText(
 // حماية النصوص
 // ==========================================
 
-function escapeHtml(value) {
+function escapeHtml(
+    value
+) {
 
     return String(
         value ?? ""
@@ -1271,7 +1596,9 @@ function escapeHtml(value) {
 // عرض الخطأ
 // ==========================================
 
-function showError() {
+function showError(
+    errorMessage
+) {
 
     const container =
         document.getElementById(
@@ -1279,7 +1606,9 @@ function showError() {
         );
 
 
-    if (container) {
+    if (
+        container
+    ) {
 
         container.innerHTML = `
 
@@ -1290,6 +1619,26 @@ function showError() {
                 <br><br>
 
                 حاول تحديث الصفحة مرة أخرى.
+
+                <br><br>
+
+                <small
+                    style="
+                        direction:ltr;
+                        display:block;
+                        opacity:.7;
+                        word-break:break-word;
+                    "
+                >
+
+                    ${
+                        escapeHtml(
+                            errorMessage ||
+                            "Unknown Error"
+                        )
+                    }
+
+                </small>
 
             </div>
 

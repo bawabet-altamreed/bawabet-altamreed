@@ -1199,6 +1199,135 @@ th {
 
     </section>
 
+<!-- ==========================================
+     Notifications Management
+========================================== -->
+
+<section id="notifications" class="section">
+
+    <!-- إنشاء إشعار -->
+
+    <div class="admin-card">
+
+        <h2>
+            🔔 إنشاء إشعار جديد
+        </h2>
+
+        <div class="form-grid">
+
+            <select id="notificationTargetType">
+
+                <option value="all">
+                    📢 كل الطلاب
+                </option>
+
+                <option value="grade">
+                    🎓 صف معين
+                </option>
+
+                <option value="student">
+                    👤 طالب محدد
+                </option>
+
+            </select>
+
+
+            <input
+                id="notificationTargetId"
+                type="text"
+                placeholder="اكتب الصف أو كود الطالب"
+                style="display:none;"
+            >
+
+
+            <input
+                id="notificationTitle"
+                type="text"
+                placeholder="عنوان الإشعار"
+            >
+
+        </div>
+
+
+        <br>
+
+
+        <textarea
+            id="notificationMessage"
+            placeholder="اكتب رسالة الإشعار هنا..."
+            style="
+                width:100%;
+                min-height:120px;
+                box-sizing:border-box;
+                padding:12px;
+                border:1px solid #ddd;
+                border-radius:10px;
+                resize:vertical;
+                font-family:inherit;
+            "
+        ></textarea>
+
+
+        <br><br>
+
+
+        <button
+            class="admin-btn primary-btn"
+            onclick="createNotification()">
+
+            🔔 إرسال الإشعار
+
+        </button>
+
+    </div>
+
+
+    <!-- الإشعارات الحالية -->
+
+    <div class="admin-card table-container">
+
+        <h2>
+            📋 الإشعارات السابقة
+        </h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>العنوان</th>
+
+                    <th>الرسالة</th>
+
+                    <th>الهدف</th>
+
+                    <th>التاريخ</th>
+
+                    <th>إجراء</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="notificationsTable">
+
+                <tr>
+
+                    <td colspan="5">
+                        جاري التحميل...
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+   
 
     <!-- ==========================================
          Logout
@@ -1215,7 +1344,7 @@ th {
 
 </div>
 
-
+   
 <!-- ==========================================
      Student Details Modal
 ========================================== -->

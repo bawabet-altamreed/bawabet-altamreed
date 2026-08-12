@@ -1092,7 +1092,7 @@ function loadAvailableContent() {
         "الصف الأول الثانوي التمريض"
     ) {
 
-        allContent = [
+                allContent = [
 
             {
                 id: "anatomy",
@@ -1112,13 +1112,13 @@ function loadAvailableContent() {
 
     }
 
+    // ==================================
+    // عرض المواد
+    // ==================================
 
-    // ==========================================
-// عرض المواد
-// ==========================================
+    renderSubjects();
 
-function renderSubjects() {
-
+}
     const container =
         document.getElementById(
             "subjects"

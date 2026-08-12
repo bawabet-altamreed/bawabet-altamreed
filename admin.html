@@ -1102,28 +1102,254 @@ th {
 
 
     <!-- ==========================================
-         Content
-    ========================================== -->
+     Content Management
+========================================== -->
 
-    <section
-        id="content"
-        class="section">
+<section id="content" class="section">
+
+    <!-- إضافة محتوى -->
+
+    <div class="admin-card">
+
+        <h2>
+            🎥 إضافة محتوى جديد
+        </h2>
+
+        <div class="form-grid">
+
+            <!-- الصف -->
+
+            <select id="contentGrade">
+
+                <option value="">
+                    اختر الصف
+                </option>
+
+                <option value="الصف الأول الثانوي التمريض">
+                    الصف الأول
+                </option>
+
+                <option value="الصف الثاني الثانوي التمريض">
+                    الصف الثاني
+                </option>
+
+            </select>
 
 
-        <div class="admin-card">
+            <!-- المادة -->
 
-            <h2>
-                🎥 إدارة المحتوى
-            </h2>
+            <select id="contentSubject">
 
-            <p>
-                قسم إدارة الفيديوهات والمحتوى سيتم تطويره في الخطوة التالية.
-            </p>
+                <option value="">
+                    اختر المادة
+                </option>
+
+                <option value="General Surgery">
+                    🩺 General Surgery
+                </option>
+
+                <option value="Internal Medicine">
+                    🫀 Internal Medicine
+                </option>
+
+                <option value="Community Health Nursing">
+                    🏥 Community Health Nursing
+                </option>
+
+                <option value="Anatomy">
+                    🦴 Anatomy
+                </option>
+
+                <option value="Fundamental of Nursing">
+                    👩‍⚕️ Fundamental of Nursing
+                </option>
+
+            </select>
+
+
+            <!-- Chapter -->
+
+            <input
+                id="contentChapter"
+                type="text"
+                placeholder="Chapter 1">
+
+
+            <!-- عنوان المحتوى -->
+
+            <input
+                id="contentTitle"
+                type="text"
+                placeholder="عنوان المحتوى">
+
+
+            <!-- النوع -->
+
+            <select id="contentType">
+
+                <option value="">
+                    اختر نوع المحتوى
+                </option>
+
+                <option value="pdf">
+                    📄 PDF
+                </option>
+
+                <option value="video">
+                    🎬 فيديو YouTube
+                </option>
+
+                <option value="quiz">
+                    📝 اختبار
+                </option>
+
+                <option value="chapter">
+                    📚 Chapter
+                </option>
+
+            </select>
+
+
+            <!-- الرابط -->
+
+            <input
+                id="contentUrl"
+                type="url"
+                placeholder="رابط PDF أو YouTube أو صفحة الاختبار">
 
         </div>
 
-    </section>
 
+        <br>
+
+
+        <button
+            class="admin-btn primary-btn"
+            onclick="createContent()">
+
+            ➕ إضافة المحتوى
+
+        </button>
+
+    </div>
+
+
+    <!-- فلترة المحتوى -->
+
+    <div class="admin-card">
+
+        <h2>
+            🔎 البحث والفلترة
+        </h2>
+
+        <div class="form-grid">
+
+            <select id="filterSubject">
+
+                <option value="">
+                    كل المواد
+                </option>
+
+                <option value="General Surgery">
+                    🩺 General Surgery
+                </option>
+
+                <option value="Internal Medicine">
+                    🫀 Internal Medicine
+                </option>
+
+                <option value="Community Health Nursing">
+                    🏥 Community Health Nursing
+                </option>
+
+                <option value="Anatomy">
+                    🦴 Anatomy
+                </option>
+
+                <option value="Fundamental of Nursing">
+                    👩‍⚕️ Fundamental of Nursing
+                </option>
+
+            </select>
+
+
+            <select id="filterGrade">
+
+                <option value="">
+                    كل الصفوف
+                </option>
+
+                <option value="الصف الأول الثانوي التمريض">
+                    الصف الأول
+                </option>
+
+                <option value="الصف الثاني الثانوي التمريض">
+                    الصف الثاني
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- المحتوى الحالي -->
+
+    <div class="admin-card table-container">
+
+        <h2>
+            📚 المحتوى الحالي
+        </h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        الصف
+                    </th>
+
+                    <th>
+                        المادة
+                    </th>
+
+                    <th>
+                        Chapter
+                    </th>
+
+                    <th>
+                        العنوان
+                    </th>
+
+                    <th>
+                        النوع
+                    </th>
+
+                    <th>
+                        الحالة
+                    </th>
+
+                    <th>
+                        الإجراءات
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="contentTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
 
     <!-- ==========================================
          Logout

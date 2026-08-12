@@ -205,7 +205,38 @@ class="button-link">
 
 </div>
 
+<!-- ==========================================
+     Achievements
+========================================== -->
 
+<div class="feature-card achievements-card">
+
+    <div class="feature-icon">
+        🏆
+    </div>
+
+    <div class="feature-content">
+
+        <h2>
+            إنجازاتي
+        </h2>
+
+        <p>
+            شوف إنجازاتك والـBadges اللي حصلت عليها 🔥
+        </p>
+
+        <button
+            class="admin-btn primary-btn"
+            onclick="openAchievements()">
+
+            🏆 عرض إنجازاتي
+
+        </button>
+
+    </div>
+
+</div>
+     
 <!-- ADMISSION -->
 
 <div class="card">
@@ -453,6 +484,7 @@ href="books.html">
 
 <script src="script.js"></script>
 
+<script src="achievements.js"></script>
 
 <!-- =========================
      MENU + LOGOUT
@@ -525,7 +557,133 @@ window.location.href = "login.html";
 
 </script>
 
+<!-- ==========================================
+     Achievements Modal
+========================================== -->
 
+<div
+    id="achievementsModal"
+    class="achievements-modal hidden">
+
+    <div class="achievements-box">
+
+        <div class="achievements-header">
+
+            <div>
+
+                <h2>
+                    🏆 إنجازاتي
+                </h2>
+
+                <p id="achievementsStudentName">
+                    جاري التحميل...
+                </p>
+
+            </div>
+
+            <button
+                class="achievements-close"
+                onclick="closeAchievements()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <!-- ==================================
+             Statistics
+        ================================== -->
+
+        <div class="achievements-stats">
+
+            <div class="achievement-stat">
+
+                <span>
+                    🏆
+                </span>
+
+                <strong id="achievementCount">
+                    0
+                </strong>
+
+                <small>
+                    الإنجازات
+                </small>
+
+            </div>
+
+
+            <div class="achievement-stat">
+
+                <span>
+                    📝
+                </span>
+
+                <strong id="achievementTests">
+                    0
+                </strong>
+
+                <small>
+                    الاختبارات
+                </small>
+
+            </div>
+
+
+            <div class="achievement-stat">
+
+                <span>
+                    📚
+                </span>
+
+                <strong id="achievementChapters">
+                    0
+                </strong>
+
+                <small>
+                    Chapters
+                </small>
+
+            </div>
+
+
+            <div class="achievement-stat">
+
+                <span>
+                    📈
+                </span>
+
+                <strong id="achievementAverage">
+                    0%
+                </strong>
+
+                <small>
+                    المتوسط
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+             Achievements List
+        ================================== -->
+
+        <div
+            id="achievementsList"
+            class="achievements-list">
+
+            جاري تحميل الإنجازات...
+
+        </div>
+
+    </div>
+
+</div>
+     
 </body>
 
 </html>

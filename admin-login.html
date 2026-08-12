@@ -176,8 +176,12 @@ body {
 
 <script>
 
+// ==========================================
+// UID حساب الأدمن الجديد
+// ==========================================
+
 const ADMIN_UID =
-    "4TbambkNbZUvsoc95q0cdy15fGn1";
+    "H4wMJm2ComSSy19ttzb1KxZz7Yu1";
 
 
 const emailInput =
@@ -262,6 +266,7 @@ function adminLogin() {
     // ==================================
 
     firebase.auth()
+
         .signInWithEmailAndPassword(
             email,
             password
@@ -298,7 +303,7 @@ function adminLogin() {
                     .then(function() {
 
                         throw new Error(
-                            "هذا الحساب ليس حساب مدير النظام"
+                            "❌ هذا الحساب ليس حساب مدير النظام"
                         );
 
                     });

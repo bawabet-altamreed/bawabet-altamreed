@@ -14,15 +14,29 @@ content="width=device-width, initial-scale=1.0">
 
 <style>
 
+/* ==========================================
+   Body
+========================================== */
+
 body {
     background: #f4f7fb;
 }
+
+
+/* ==========================================
+   Admin Container
+========================================== */
 
 .admin-container {
     width: 95%;
     max-width: 1200px;
     margin: 30px auto;
 }
+
+
+/* ==========================================
+   Header
+========================================== */
 
 .admin-header {
     background: linear-gradient(135deg, #0d47a1, #1976d2);
@@ -62,6 +76,7 @@ body {
     font-size: 15px;
     font-weight: bold;
     box-shadow: 0 3px 10px rgba(0,0,0,.08);
+    transition: .2s;
 }
 
 .admin-nav button:hover {
@@ -136,10 +151,14 @@ body {
 
 .form-grid input,
 .form-grid select {
+
     width: 100%;
     box-sizing: border-box;
+
     padding: 12px;
+
     border: 1px solid #ddd;
+
     border-radius: 10px;
 }
 
@@ -149,11 +168,22 @@ body {
 ========================================== */
 
 .admin-btn {
+
     border: none;
+
     padding: 12px 18px;
+
     border-radius: 10px;
+
     cursor: pointer;
+
     font-weight: bold;
+
+    transition: .2s;
+}
+
+.admin-btn:hover {
+    transform: translateY(-1px);
 }
 
 .primary-btn {
@@ -173,15 +203,17 @@ body {
 
 
 /* ==========================================
-   أزرار الإجراءات الصغيرة فقط
+   أزرار الإجراءات الصغيرة
    👁️ ✏️ ⏳ ⛔ 📱 🗑️
 ========================================== */
 
 table .admin-btn {
+
     width: 34px;
     height: 34px;
 
     padding: 0;
+
     margin: 2px;
 
     min-height: 34px;
@@ -191,7 +223,9 @@ table .admin-btn {
     font-size: 14px;
 
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
 }
 
@@ -205,16 +239,23 @@ table .admin-btn {
 }
 
 table {
+
     width: 100%;
+
     border-collapse: collapse;
+
     margin-top: 15px;
 }
 
 th,
 td {
+
     padding: 12px;
+
     border-bottom: 1px solid #eee;
+
     text-align: center;
+
     white-space: nowrap;
 }
 
@@ -232,7 +273,9 @@ th {
 }
 
 .loading {
+
     text-align: center;
+
     padding: 30px;
 }
 
@@ -246,13 +289,17 @@ th {
 ========================================== */
 
 .student-modal {
+
     position: fixed;
+
     inset: 0;
 
     background: rgba(0,0,0,.55);
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     padding: 15px;
@@ -260,12 +307,15 @@ th {
     z-index: 9999;
 }
 
-.student-modal.hidden {
-    display: none !important;
-}
+
+/* ==========================================
+   Modal Box
+========================================== */
 
 .student-modal-box {
+
     width: 100%;
+
     max-width: 650px;
 
     max-height: 90vh;
@@ -276,39 +326,59 @@ th {
 
     border-radius: 18px;
 
-    box-shadow: 0 15px 50px rgba(0,0,0,.25);
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.25);
 }
 
+
+/* ==========================================
+   Modal Header
+========================================== */
+
 .student-modal-header {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
     padding: 18px 20px;
 
-    background: linear-gradient(
-        135deg,
-        #0d47a1,
-        #1976d2
-    );
+    background:
+        linear-gradient(
+            135deg,
+            #0d47a1,
+            #1976d2
+        );
 
     color: white;
 }
 
 .student-modal-header h2 {
+
     margin: 0;
+
     font-size: 20px;
 }
 
+
+/* ==========================================
+   Close Button
+========================================== */
+
 .modal-close {
+
     border: none;
 
     width: 36px;
+
     height: 36px;
 
     border-radius: 50%;
 
-    background: rgba(255,255,255,.18);
+    background:
+        rgba(255,255,255,.18);
 
     color: white;
 
@@ -317,11 +387,22 @@ th {
     cursor: pointer;
 }
 
+
+/* ==========================================
+   Modal Content
+========================================== */
+
 #studentDetails {
     padding: 20px;
 }
 
+
+/* ==========================================
+   Student Information
+========================================== */
+
 .student-info-grid {
+
     display: grid;
 
     grid-template-columns:
@@ -331,6 +412,7 @@ th {
 }
 
 .student-info {
+
     background: #f5f7fa;
 
     padding: 14px;
@@ -339,6 +421,7 @@ th {
 }
 
 .student-info small {
+
     display: block;
 
     color: #777;
@@ -347,12 +430,19 @@ th {
 }
 
 .student-info strong {
+
     color: #222;
 
     word-break: break-word;
 }
 
+
+/* ==========================================
+   Modal Actions Title
+========================================== */
+
 .student-detail-title {
+
     margin: 20px 0 12px;
 
     font-size: 18px;
@@ -368,61 +458,95 @@ th {
 @media (max-width: 600px) {
 
     .admin-container {
+
         width: 94%;
+
         margin: 20px auto;
     }
 
+
     .admin-header {
+
         padding: 20px;
     }
 
+
     .admin-header h1 {
+
         font-size: 22px;
     }
 
+
     .admin-header p {
+
         font-size: 14px;
     }
 
+
     .admin-nav {
-        grid-template-columns: repeat(2, 1fr);
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
         gap: 10px;
     }
 
+
     .admin-nav button {
+
         min-height: 55px;
+
         padding: 12px 7px;
+
         font-size: 14px;
     }
 
+
     .admin-card {
+
         padding: 15px;
     }
 
+
     .stats {
-        grid-template-columns: 1fr 1fr;
+
+        grid-template-columns:
+            1fr 1fr;
+
         gap: 10px;
     }
 
+
     .stat-card {
+
         padding: 15px 10px;
     }
 
+
     .stat-card h3 {
+
         font-size: 14px;
     }
 
+
     .stat-number {
+
         font-size: 25px;
     }
 
+
+    /* أزرار الإجراءات */
+
     table .admin-btn {
+
         width: 32px;
+
         height: 32px;
 
         min-height: 32px;
 
         padding: 0;
+
         margin: 1px;
 
         font-size: 13px;
@@ -430,12 +554,26 @@ th {
         border-radius: 7px;
     }
 
+
+    /* معلومات الطالب */
+
     .student-info-grid {
+
         grid-template-columns: 1fr;
     }
 
+
     .student-modal {
+
         padding: 10px;
+    }
+
+
+    .student-modal-box {
+
+        max-height: 92vh;
+
+        border-radius: 15px;
     }
 
 }
@@ -448,10 +586,13 @@ th {
 @media (max-width: 380px) {
 
     .admin-nav {
+
         grid-template-columns: 1fr;
     }
 
+
     .stats {
+
         grid-template-columns: 1fr;
     }
 
@@ -461,20 +602,34 @@ th {
 
 </head>
 
+
 <body>
 
 
-<div id="loading" class="loading">
+<!-- ==========================================
+     Loading
+========================================== -->
 
-    <h2>🔐 جاري التحقق من صلاحيات الإدارة...</h2>
+<div id="loading"
+     class="loading">
+
+    <h2>
+        🔐 جاري التحقق من صلاحيات الإدارة...
+    </h2>
 
 </div>
 
 
+<!-- ==========================================
+     Access Denied
+========================================== -->
+
 <div id="accessDenied"
      class="loading hidden">
 
-    <h2>❌ غير مصرح لك بالدخول</h2>
+    <h2>
+        ❌ غير مصرح لك بالدخول
+    </h2>
 
     <p>
         هذه الصفحة مخصصة لإدارة بوابة التمريض فقط.
@@ -491,394 +646,496 @@ th {
 </div>
 
 
+<!-- ==========================================
+     Admin Panel
+========================================== -->
+
 <div id="adminPanel"
      class="admin-container hidden">
 
 
-<!-- =========================
-     Header
-========================= -->
+    <!-- ==========================================
+         Header
+    ========================================== -->
 
-<div class="admin-header">
+    <div class="admin-header">
 
-    <h1>👑 لوحة إدارة بوابة التمريض</h1>
+        <h1>
+            👑 لوحة إدارة بوابة التمريض
+        </h1>
 
-    <p>
-        مرحبًا بك في لوحة التحكم الخاصة بالإدارة
-    </p>
-
-</div>
-
-
-<!-- =========================
-     Navigation
-========================= -->
-
-<div class="admin-nav">
-
-    <button onclick="showSection('dashboard')">
-        📊 الرئيسية
-    </button>
-
-    <button onclick="showSection('students')">
-        👨‍🎓 الطلاب
-    </button>
-
-    <button onclick="showSection('codes')">
-        🔑 أكواد الاشتراك
-    </button>
-
-    <button onclick="showSection('results')">
-        📝 النتائج
-    </button>
-
-    <button onclick="showSection('leaderboard')">
-        🏆 Leaderboard
-    </button>
-
-    <button onclick="showSection('content')">
-        🎥 المحتوى
-    </button>
-
-    <button onclick="logoutAdmin()">
-        🚪 خروج
-    </button>
-
-</div>
-
-
-<!-- =========================
-     Dashboard
-========================= -->
-
-<section
-    id="dashboard"
-    class="section active">
-
-    <div class="stats">
-
-        <div class="stat-card">
-
-            <h3>👨‍🎓 إجمالي الطلاب</h3>
-
-            <div
-                id="totalStudents"
-                class="stat-number">
-
-                0
-
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <h3>✅ الطلاب النشطين</h3>
-
-            <div
-                id="activeStudents"
-                class="stat-number">
-
-                0
-
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <h3>⛔ المنتهية</h3>
-
-            <div
-                id="expiredStudents"
-                class="stat-number">
-
-                0
-
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <h3>📝 إجمالي النتائج</h3>
-
-            <div
-                id="totalResults"
-                class="stat-number">
-
-                0
-
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <h3>📈 متوسط الدرجات</h3>
-
-            <div
-                id="averageScore"
-                class="stat-number">
-
-                0%
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================
-     Students
-========================= -->
-
-<section
-    id="students"
-    class="section">
-
-    <div class="admin-card">
-
-        <h2>👨‍🎓 إدارة الطلاب</h2>
-
-        <input
-            id="studentSearch"
-            type="text"
-            placeholder="🔎 البحث بالكود أو الاسم أو الإيميل">
+        <p>
+            مرحبًا بك في لوحة التحكم الخاصة بالإدارة
+        </p>
 
     </div>
 
 
-    <div class="admin-card table-container">
+    <!-- ==========================================
+         Navigation
+    ========================================== -->
 
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>الكود</th>
-                    <th>الاسم</th>
-                    <th>الصف</th>
-                    <th>الحالة</th>
-                    <th>الانتهاء</th>
-                    <th>الجهاز</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="studentsTable">
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</section>
-
-
-<!-- =========================
-     Codes
-========================= -->
-
-<section
-    id="codes"
-    class="section">
-
-    <div class="admin-card">
-
-        <h2>🔑 إضافة كود اشتراك</h2>
-
-        <div class="form-grid">
-
-            <input
-                id="newCode"
-                type="text"
-                placeholder="كود الاشتراك">
-
-            <input
-                id="newPassword"
-                type="text"
-                placeholder="كلمة المرور">
-
-            <input
-                id="newName"
-                type="text"
-                placeholder="اسم الطالب">
-
-            <select id="newGrade">
-
-                <option value="">
-                    اختر الصف
-                </option>
-
-                <option value="الصف الأول الثانوي التمريض">
-                    الصف الأول
-                </option>
-
-                <option value="الصف الثاني الثانوي التمريض">
-                    الصف الثاني
-                </option>
-
-            </select>
-
-            <select id="subscriptionDays">
-
-                <option value="15">
-                    15 يوم
-                </option>
-
-                <option value="30" selected>
-                    شهر
-                </option>
-
-                <option value="90">
-                    3 شهور
-                </option>
-
-                <option value="180">
-                    6 شهور
-                </option>
-
-                <option value="365">
-                    سنة
-                </option>
-
-            </select>
-
-        </div>
-
-        <br>
+    <div class="admin-nav">
 
         <button
-            class="admin-btn primary-btn"
-            onclick="createStudentCode()">
+            onclick="showSection('dashboard')">
 
-            ➕ إضافة الكود
+            📊 الرئيسية
+
+        </button>
+
+
+        <button
+            onclick="showSection('students')">
+
+            👨‍🎓 الطلاب
+
+        </button>
+
+
+        <button
+            onclick="showSection('codes')">
+
+            🔑 أكواد الاشتراك
+
+        </button>
+
+
+        <button
+            onclick="showSection('results')">
+
+            📝 النتائج
+
+        </button>
+
+
+        <button
+            onclick="showSection('leaderboard')">
+
+            🏆 Leaderboard
+
+        </button>
+
+
+        <button
+            onclick="showSection('content')">
+
+            🎥 المحتوى
+
+        </button>
+
+
+        <button
+            onclick="logoutAdmin()">
+
+            🚪 خروج
 
         </button>
 
     </div>
 
 
-    <div class="admin-card table-container">
+    <!-- ==========================================
+         Dashboard
+    ========================================== -->
 
-        <h2>📋 الأكواد الحالية</h2>
+    <section
+        id="dashboard"
+        class="section active">
 
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>الكود</th>
-                    <th>الاسم</th>
-                    <th>الصف</th>
-                    <th>الحالة</th>
-                    <th>الانتهاء</th>
-                    <th>إجراء</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="codesTable">
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</section>
+        <div class="stats">
 
 
-<!-- =========================
-     Results
-========================= -->
+            <div class="stat-card">
 
-<section
-    id="results"
-    class="section">
+                <h3>
+                    👨‍🎓 إجمالي الطلاب
+                </h3>
 
-    <div class="admin-card">
+                <div
+                    id="totalStudents"
+                    class="stat-number">
 
-        <h2>📝 نتائج الاختبارات</h2>
+                    0
 
-        <div
-            id="resultsTable"
-            class="table-container">
+                </div>
 
-            جاري التحميل...
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    ✅ الطلاب النشطين
+                </h3>
+
+                <div
+                    id="activeStudents"
+                    class="stat-number">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    ⛔ المنتهية
+                </h3>
+
+                <div
+                    id="expiredStudents"
+                    class="stat-number">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    📝 إجمالي النتائج
+                </h3>
+
+                <div
+                    id="totalResults"
+                    class="stat-number">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    📈 متوسط الدرجات
+                </h3>
+
+                <div
+                    id="averageScore"
+                    class="stat-number">
+
+                    0%
+
+                </div>
+
+            </div>
+
 
         </div>
 
-    </div>
-
-</section>
+    </section>
 
 
-<!-- =========================
-     Leaderboard
-========================= -->
+    <!-- ==========================================
+         Students
+    ========================================== -->
 
-<section
-    id="leaderboard"
-    class="section">
+    <section
+        id="students"
+        class="section">
 
-    <div class="admin-card">
 
-        <h2>🏆 لوحة الترتيب</h2>
+        <div class="admin-card">
 
-        <div
-            id="leaderboardTable">
+            <h2>
+                👨‍🎓 إدارة الطلاب
+            </h2>
 
-            جاري التحميل...
+            <input
+                id="studentSearch"
+                type="text"
+                placeholder="🔎 البحث بالكود أو الاسم أو الإيميل">
 
         </div>
 
-    </div>
 
-</section>
+        <div
+            class="admin-card table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>الكود</th>
+
+                        <th>الاسم</th>
+
+                        <th>الصف</th>
+
+                        <th>الحالة</th>
+
+                        <th>الانتهاء</th>
+
+                        <th>الجهاز</th>
+
+                    </tr>
+
+                </thead>
 
 
-<!-- =========================
-     Content
-========================= -->
+                <tbody id="studentsTable">
 
-<section
-    id="content"
-    class="section">
+                </tbody>
 
-    <div class="admin-card">
+            </table>
 
-        <h2>🎥 إدارة المحتوى</h2>
+        </div>
 
-        <p>
-            قسم إدارة الفيديوهات والمحتوى سيتم تطويره في الخطوة التالية.
-        </p>
-
-    </div>
-
-</section>
+    </section>
 
 
-<button
-    class="admin-btn danger-btn logout-btn"
-    onclick="logoutAdmin()">
+    <!-- ==========================================
+         Codes
+    ========================================== -->
 
-    🚪 تسجيل خروج الأدمن
+    <section
+        id="codes"
+        class="section">
 
-</button>
+
+        <div class="admin-card">
+
+            <h2>
+                🔑 إضافة كود اشتراك
+            </h2>
+
+
+            <div class="form-grid">
+
+
+                <input
+                    id="newCode"
+                    type="text"
+                    placeholder="كود الاشتراك">
+
+
+                <input
+                    id="newPassword"
+                    type="text"
+                    placeholder="كلمة المرور">
+
+
+                <input
+                    id="newName"
+                    type="text"
+                    placeholder="اسم الطالب">
+
+
+                <select id="newGrade">
+
+                    <option value="">
+                        اختر الصف
+                    </option>
+
+                    <option
+                        value="الصف الأول الثانوي التمريض">
+
+                        الصف الأول
+
+                    </option>
+
+                    <option
+                        value="الصف الثاني الثانوي التمريض">
+
+                        الصف الثاني
+
+                    </option>
+
+                </select>
+
+
+                <select id="subscriptionDays">
+
+                    <option value="15">
+                        15 يوم
+                    </option>
+
+                    <option
+                        value="30"
+                        selected>
+
+                        شهر
+
+                    </option>
+
+                    <option value="90">
+                        3 شهور
+                    </option>
+
+                    <option value="180">
+                        6 شهور
+                    </option>
+
+                    <option value="365">
+                        سنة
+                    </option>
+
+                </select>
+
+
+            </div>
+
+
+            <br>
+
+
+            <button
+                class="admin-btn primary-btn"
+                onclick="createStudentCode()">
+
+                ➕ إضافة الكود
+
+            </button>
+
+        </div>
+
+
+        <div
+            class="admin-card table-container">
+
+
+            <h2>
+                📋 الأكواد الحالية
+            </h2>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>الكود</th>
+
+                        <th>الاسم</th>
+
+                        <th>الصف</th>
+
+                        <th>الحالة</th>
+
+                        <th>الانتهاء</th>
+
+                        <th>إجراء</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="codesTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         Results
+    ========================================== -->
+
+    <section
+        id="results"
+        class="section">
+
+
+        <div class="admin-card">
+
+            <h2>
+                📝 نتائج الاختبارات
+            </h2>
+
+
+            <div
+                id="resultsTable"
+                class="table-container">
+
+                جاري التحميل...
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         Leaderboard
+    ========================================== -->
+
+    <section
+        id="leaderboard"
+        class="section">
+
+
+        <div class="admin-card">
+
+            <h2>
+                🏆 لوحة الترتيب
+            </h2>
+
+
+            <div id="leaderboardTable">
+
+                جاري التحميل...
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         Content
+    ========================================== -->
+
+    <section
+        id="content"
+        class="section">
+
+
+        <div class="admin-card">
+
+            <h2>
+                🎥 إدارة المحتوى
+            </h2>
+
+            <p>
+                قسم إدارة الفيديوهات والمحتوى سيتم تطويره في الخطوة التالية.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         Logout
+    ========================================== -->
+
+    <button
+        class="admin-btn danger-btn logout-btn"
+        onclick="logoutAdmin()">
+
+        🚪 تسجيل خروج الأدمن
+
+    </button>
 
 
 </div>
@@ -888,14 +1145,20 @@ th {
      Student Details Modal
 ========================================== -->
 
-<div id="studentModal"
-     class="student-modal hidden">
+<div
+    id="studentModal"
+    class="student-modal hidden">
+
 
     <div class="student-modal-box">
 
+
         <div class="student-modal-header">
 
-            <h2>👨‍🎓 تفاصيل الطالب</h2>
+            <h2>
+                👨‍🎓 تفاصيل الطالب
+            </h2>
+
 
             <button
                 class="modal-close"
@@ -907,20 +1170,22 @@ th {
 
         </div>
 
+
         <div id="studentDetails">
 
             جاري تحميل بيانات الطالب...
 
         </div>
 
+
     </div>
 
 </div>
 
 
-<!-- ==========================
+<!-- ==========================================
      Firebase
-========================== -->
+========================================== -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
@@ -932,33 +1197,7 @@ th {
 
 <script src="admin.js"></script>
 
-    <div id="studentModal" class="student-modal hidden">
 
-    <div class="student-modal-content">
-
-        <div class="student-modal-header">
-
-            <h2>👨‍🎓 تفاصيل الطالب</h2>
-
-            <button
-                class="modal-close"
-                onclick="closeStudentModal()">
-
-                ✖
-
-            </button>
-
-        </div>
-
-        <div id="studentDetails">
-            جاري التحميل...
-        </div>
-
-    </div>
-
-    </div>
-    
 </body>
 
 </html>
-

@@ -1,13 +1,10 @@
 // ==========================================
 // بوابة التمريض
 // Admin Panel
+// إدارة الطلاب والأكواد
 // ==========================================
 
 (function () {
-
-    // ==========================================
-    // UID الأدمن الحالي
-    // ==========================================
 
     const ADMIN_UID =
         "H4wMJm2ComSSy19ttzb1KxZz7Yu1";
@@ -24,27 +21,13 @@
 
 
     // ==========================================
-    // التحقق من حساب Firebase
+    // حماية لوحة الإدارة
     // ==========================================
 
     firebase.auth().onAuthStateChanged(
         function (user) {
 
-            console.log(
-                "🔐 Firebase User:",
-                user
-            );
-
-
-            // ==================================
-            // لا يوجد مستخدم
-            // ==================================
-
             if (!user) {
-
-                console.log(
-                    "❌ لا يوجد مستخدم مسجل في Firebase"
-                );
 
                 showDenied();
 
@@ -53,43 +36,16 @@
             }
 
 
-            // ==================================
-            // عرض UID الحقيقي في Console
-            // ==================================
-
             console.log(
-                "🔑 Firebase UID:",
+                "Firebase UID:",
                 user.uid
             );
 
-            console.log(
-                "👑 Admin UID المطلوب:",
-                ADMIN_UID
-            );
-
-
-            // ==================================
-            // التحقق من UID الأدمن
-            // ==================================
 
             if (
                 user.uid !== ADMIN_UID
             ) {
 
-                console.error(
-                    "❌ UID غير مطابق"
-                );
-
-                console.error(
-                    "Firebase UID:",
-                    user.uid
-                );
-
-                console.error(
-                    "Expected Admin UID:",
-                    ADMIN_UID
-                );
-
                 showDenied();
 
                 return;
@@ -97,31 +53,9 @@
             }
 
 
-            // ==================================
-            // الأدمن صحيح
-            // ==================================
+            loading.classList.add("hidden");
 
-            console.log(
-                "✅ تم التحقق من صلاحيات الأدمن"
-            );
-
-
-            loading.classList.add(
-                "hidden"
-            );
-
-            accessDenied.classList.add(
-                "hidden"
-            );
-
-            adminPanel.classList.remove(
-                "hidden"
-            );
-
-
-            // ==================================
-            // تحميل لوحة التحكم
-            // ==================================
+            adminPanel.classList.remove("hidden");
 
             loadDashboard();
 
@@ -135,23 +69,17 @@
 
     function showDenied() {
 
-        loading.classList.add(
-            "hidden"
-        );
+        loading.classList.add("hidden");
 
-        adminPanel.classList.add(
-            "hidden"
-        );
+        adminPanel.classList.add("hidden");
 
-        accessDenied.classList.remove(
-            "hidden"
-        );
+        accessDenied.classList.remove("hidden");
 
     }
 
 
     // ==========================================
-    // التنقل بين الأقسام
+    // التنقل
     // ==========================================
 
     window.showSection =
@@ -161,61 +89,36 @@
                 .querySelectorAll(".section")
                 .forEach(function (section) {
 
-                    section.classList.remove(
-                        "active"
-                    );
+                    section.classList.remove("active");
 
                 });
 
 
             const section =
-                document.getElementById(
-                    sectionId
-                );
+                document.getElementById(sectionId);
 
 
             if (section) {
 
-                section.classList.add(
-                    "active"
-                );
+                section.classList.add("active");
 
             }
 
 
-            if (
-                sectionId === "students"
-            ) {
-
+            if (sectionId === "students") {
                 loadStudents();
-
             }
 
-
-            if (
-                sectionId === "codes"
-            ) {
-
+            if (sectionId === "codes") {
                 loadCodes();
-
             }
 
-
-            if (
-                sectionId === "results"
-            ) {
-
+            if (sectionId === "results") {
                 loadResults();
-
             }
 
-
-            if (
-                sectionId === "leaderboard"
-            ) {
-
+            if (sectionId === "leaderboard") {
                 loadLeaderboard();
-
             }
 
         };
@@ -237,96 +140,55 @@
                 let expired = 0;
 
 
-                snapshot.forEach(
-                    function (doc) {
+                snapshot.forEach(function (doc) {
 
-                        total++;
+                    total++;
+
+                    const student = doc.data();
 
 
-                        const student =
-                            doc.data();
+                    if (student.active === true) {
+                        active++;
+                    }
+
+
+                    if (student.expiresAt) {
+
+                        const expiry =
+                            getDate(student.expiresAt);
 
 
                         if (
-                            student.active === true
+                            expiry &&
+                            new Date() >= expiry
                         ) {
 
-                            active++;
-
-                        }
-
-
-                        if (
-                            student.expiresAt
-                        ) {
-
-                            let expiry;
-
-
-                            if (
-                                typeof student
-                                    .expiresAt
-                                    .toDate ===
-                                "function"
-                            ) {
-
-                                expiry =
-                                    student
-                                        .expiresAt
-                                        .toDate();
-
-                            } else {
-
-                                expiry =
-                                    new Date(
-                                        student
-                                            .expiresAt
-                                    );
-
-                            }
-
-
-                            if (
-                                !isNaN(
-                                    expiry.getTime()
-                                ) &&
-                                new Date() >= expiry
-                            ) {
-
-                                expired++;
-
-                            }
+                            expired++;
 
                         }
 
                     }
+
+                });
+
+
+                setText(
+                    "totalStudents",
+                    total
                 );
 
+                setText(
+                    "activeStudents",
+                    active
+                );
 
-                document.getElementById(
-                    "totalStudents"
-                ).textContent = total;
-
-
-                document.getElementById(
-                    "activeStudents"
-                ).textContent = active;
-
-
-                document.getElementById(
-                    "expiredStudents"
-                ).textContent = expired;
+                setText(
+                    "expiredStudents",
+                    expired
+                );
 
             })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Dashboard Students Error:",
-                    error
-                );
-
-            });
+            .catch(console.error);
 
 
         db.collection("results")
@@ -338,70 +200,52 @@
                 let sum = 0;
 
 
-                snapshot.forEach(
-                    function (doc) {
+                snapshot.forEach(function (doc) {
 
-                        total++;
+                    total++;
 
-
-                        const data =
-                            doc.data();
+                    const data = doc.data();
 
 
-                        const score =
-                            Number(
-                                data.percentage ??
-                                data.score ??
-                                0
-                            );
+                    const score =
+                        Number(
+                            data.percentage ??
+                            data.score ??
+                            0
+                        );
 
 
-                        if (
-                            !isNaN(score)
-                        ) {
-
-                            sum += score;
-
-                        }
-
+                    if (!isNaN(score)) {
+                        sum += score;
                     }
-                );
+
+                });
 
 
                 const average =
                     total > 0
-                        ? Math.round(
-                            sum / total
-                        )
+                        ? Math.round(sum / total)
                         : 0;
 
 
-                document.getElementById(
-                    "totalResults"
-                ).textContent = total;
-
-
-                document.getElementById(
-                    "averageScore"
-                ).textContent =
-                    average + "%";
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Dashboard Results Error:",
-                    error
+                setText(
+                    "totalResults",
+                    total
                 );
 
-            });
+                setText(
+                    "averageScore",
+                    average + "%"
+                );
+
+            })
+            .catch(console.error);
 
     }
 
 
     // ==========================================
-    // تحميل الطلاب
+    // الطلاب
     // ==========================================
 
     let allStudents = [];
@@ -417,24 +261,20 @@
                 allStudents = [];
 
 
-                snapshot.forEach(
-                    function (doc) {
+                snapshot.forEach(function (doc) {
 
-                        allStudents.push({
+                    allStudents.push({
 
-                            id: doc.id,
+                        id: doc.id,
 
-                            ...doc.data()
+                        ...doc.data()
 
-                        });
+                    });
 
-                    }
-                );
+                });
 
 
-                renderStudents(
-                    allStudents
-                );
+                renderStudents(allStudents);
 
             })
 
@@ -443,6 +283,10 @@
                 console.error(
                     "Students Error:",
                     error
+                );
+
+                alert(
+                    "❌ تعذر تحميل الطلاب"
                 );
 
             });
@@ -454,9 +298,7 @@
     // عرض الطلاب
     // ==========================================
 
-    function renderStudents(
-        students
-    ) {
+    function renderStudents(students) {
 
         const table =
             document.getElementById(
@@ -467,73 +309,130 @@
         table.innerHTML = "";
 
 
-        students.forEach(
-            function (student) {
+        if (!students.length) {
 
-                const row =
-                    document.createElement(
-                        "tr"
-                    );
-
-
-                row.innerHTML = `
-
-                    <td>${escapeHtml(student.id)}</td>
-
-                    <td>
-                        ${escapeHtml(
-                            student.name || "-"
-                        )}
+            table.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        لا يوجد طلاب
                     </td>
+                </tr>
+            `;
 
-                    <td>
-                        ${escapeHtml(
-                            student.grade || "-"
-                        )}
-                    </td>
+            return;
 
-                    <td>
+        }
+
+
+        students.forEach(function (student) {
+
+            const row =
+                document.createElement("tr");
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${escapeHtml(student.id)}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        student.name || "-"
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        student.grade || "-"
+                    )}
+                </td>
+
+                <td>
+                    ${
+                        student.active === true
+                        ? "✅ نشط"
+                        : "⛔ متوقف"
+                    }
+                </td>
+
+                <td>
+                    ${formatDate(
+                        student.expiresAt
+                    )}
+                </td>
+
+                <td>
+
+                    <button
+                        class="admin-btn primary-btn"
+                        onclick="editStudent('${escapeAttribute(student.id)}')">
+
+                        ✏️
+
+                    </button>
+
+                    <button
+                        class="admin-btn success-btn"
+                        onclick="extendStudent('${escapeAttribute(student.id)}')">
+
+                        ⏳
+
+                    </button>
+
+                    <button
+                        class="admin-btn"
+                        onclick="toggleStudent('${escapeAttribute(student.id)}')">
+
                         ${
                             student.active === true
-                            ? "✅ نشط"
-                            : "⛔ غير نشط"
+                            ? "⛔"
+                            : "✅"
                         }
-                    </td>
 
-                    <td>
-                        ${formatDate(
-                            student.expiresAt
-                        )}
-                    </td>
+                    </button>
 
-                    <td>
-                        ${
-                            student.deviceId
-                            ? "📱 مرتبط"
-                            : "—"
-                        }
-                    </td>
+                    <button
+                        class="admin-btn"
+                        onclick="resetDevice('${escapeAttribute(student.id)}')">
 
-                `;
+                        📱
+
+                    </button>
+
+                    <button
+                        class="admin-btn danger-btn"
+                        onclick="deleteCode('${escapeAttribute(student.id)}')">
+
+                        🗑️
+
+                    </button>
+
+                </td>
+
+            `;
 
 
-                table.appendChild(row);
+            table.appendChild(row);
 
-            }
-        );
+        });
 
     }
 
 
     // ==========================================
-    // بحث الطلاب
+    // البحث
     // ==========================================
 
-    document
-        .getElementById(
+    const searchInput =
+        document.getElementById(
             "studentSearch"
-        )
-        .addEventListener(
+        );
+
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
             "input",
             function () {
 
@@ -549,11 +448,9 @@
 
                             return (
 
-                                String(
-                                    student.id
-                                )
-                                .toLowerCase()
-                                .includes(value)
+                                String(student.id)
+                                    .toLowerCase()
+                                    .includes(value)
 
                                 ||
 
@@ -577,63 +474,399 @@
                     );
 
 
-                renderStudents(
-                    filtered
-                );
+                renderStudents(filtered);
 
             }
         );
 
+    }
+
 
     // ==========================================
-    // إضافة كود جديد
+    // تعديل الطالب
+    // ==========================================
+
+    window.editStudent =
+        function (code) {
+
+            const student =
+                allStudents.find(
+                    function (item) {
+                        return item.id === code;
+                    }
+                );
+
+
+            if (!student) {
+
+                alert(
+                    "❌ الطالب غير موجود"
+                );
+
+                return;
+
+            }
+
+
+            const name =
+                prompt(
+                    "اسم الطالب:",
+                    student.name || ""
+                );
+
+
+            if (name === null) {
+                return;
+            }
+
+
+            const grade =
+                prompt(
+                    "الصف:",
+                    student.grade || ""
+                );
+
+
+            if (grade === null) {
+                return;
+            }
+
+
+            const password =
+                prompt(
+                    "كلمة المرور:",
+                    student.password || ""
+                );
+
+
+            if (password === null) {
+                return;
+            }
+
+
+            db.collection("students")
+                .doc(code)
+                .update({
+
+                    name: name.trim(),
+
+                    grade: grade.trim(),
+
+                    password: password.trim()
+
+                })
+
+                .then(function () {
+
+                    alert(
+                        "✅ تم تعديل بيانات الطالب"
+                    );
+
+                    loadStudents();
+
+                    loadCodes();
+
+                })
+
+                .catch(function (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "❌ فشل تعديل البيانات\n\n" +
+                        error.message
+                    );
+
+                });
+
+        };
+
+
+    // ==========================================
+    // تمديد الاشتراك
+    // ==========================================
+
+    window.extendStudent =
+        function (code) {
+
+            const days =
+                prompt(
+                    "عدد الأيام التي تريد إضافتها:",
+                    "30"
+                );
+
+
+            if (days === null) {
+                return;
+            }
+
+
+            const numberOfDays =
+                Number(days);
+
+
+            if (
+                !numberOfDays ||
+                numberOfDays < 1
+            ) {
+
+                alert(
+                    "❌ أدخل عدد أيام صحيح"
+                );
+
+                return;
+
+            }
+
+
+            db.collection("students")
+                .doc(code)
+                .get()
+
+                .then(function (doc) {
+
+                    if (!doc.exists) {
+
+                        throw new Error(
+                            "الطالب غير موجود"
+                        );
+
+                    }
+
+
+                    const student =
+                        doc.data();
+
+
+                    let currentExpiry =
+                        getDate(
+                            student.expiresAt
+                        );
+
+
+                    if (
+                        !currentExpiry ||
+                        currentExpiry < new Date()
+                    ) {
+
+                        currentExpiry =
+                            new Date();
+
+                    }
+
+
+                    currentExpiry.setDate(
+                        currentExpiry.getDate() +
+                        numberOfDays
+                    );
+
+
+                    return db.collection("students")
+                        .doc(code)
+                        .update({
+
+                            expiresAt:
+                                firebase.firestore
+                                    .Timestamp
+                                    .fromDate(
+                                        currentExpiry
+                                    ),
+
+                            active: true
+
+                        });
+
+                })
+
+                .then(function () {
+
+                    alert(
+                        "✅ تم تمديد الاشتراك بنجاح"
+                    );
+
+                    loadStudents();
+
+                    loadCodes();
+
+                    loadDashboard();
+
+                })
+
+                .catch(function (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "❌ فشل تمديد الاشتراك\n\n" +
+                        error.message
+                    );
+
+                });
+
+        };
+
+
+    // ==========================================
+    // تفعيل / إيقاف الطالب
+    // ==========================================
+
+    window.toggleStudent =
+        function (code) {
+
+            db.collection("students")
+                .doc(code)
+                .get()
+
+                .then(function (doc) {
+
+                    if (!doc.exists) {
+
+                        throw new Error(
+                            "الطالب غير موجود"
+                        );
+
+                    }
+
+
+                    const student =
+                        doc.data();
+
+
+                    const newStatus =
+                        student.active !== true;
+
+
+                    return db.collection("students")
+                        .doc(code)
+                        .update({
+
+                            active: newStatus
+
+                        });
+
+                })
+
+                .then(function () {
+
+                    alert(
+                        "✅ تم تغيير حالة الطالب"
+                    );
+
+                    loadStudents();
+
+                    loadCodes();
+
+                    loadDashboard();
+
+                })
+
+                .catch(function (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "❌ فشل تغيير حالة الطالب\n\n" +
+                        error.message
+                    );
+
+                });
+
+        };
+
+
+    // ==========================================
+    // فك الجهاز
+    // ==========================================
+
+    window.resetDevice =
+        function (code) {
+
+            if (
+                !confirm(
+                    "📱 هل تريد فك الجهاز المرتبط بهذا الطالب؟"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            db.collection("students")
+                .doc(code)
+                .update({
+
+                    deviceId: ""
+
+                })
+
+                .then(function () {
+
+                    alert(
+                        "✅ تم فك الجهاز بنجاح"
+                    );
+
+                    loadStudents();
+
+                })
+
+                .catch(function (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "❌ فشل فك الجهاز\n\n" +
+                        error.message
+                    );
+
+                });
+
+        };
+
+
+    // ==========================================
+    // إضافة كود
     // ==========================================
 
     window.createStudentCode =
         function () {
 
             const code =
-                document
-                    .getElementById(
-                        "newCode"
-                    )
-                    .value
-                    .trim();
+                document.getElementById(
+                    "newCode"
+                )
+                .value
+                .trim();
 
 
             const password =
-                document
-                    .getElementById(
-                        "newPassword"
-                    )
-                    .value
-                    .trim();
+                document.getElementById(
+                    "newPassword"
+                )
+                .value
+                .trim();
 
 
             const name =
-                document
-                    .getElementById(
-                        "newName"
-                    )
-                    .value
-                    .trim();
+                document.getElementById(
+                    "newName"
+                )
+                .value
+                .trim();
 
 
             const grade =
-                document
-                    .getElementById(
-                        "newGrade"
-                    )
-                    .value;
+                document.getElementById(
+                    "newGrade"
+                )
+                .value;
 
 
             const days =
                 Number(
-                    document
-                        .getElementById(
-                            "subscriptionDays"
-                        )
-                        .value
+                    document.getElementById(
+                        "subscriptionDays"
+                    ).value
                 );
 
 
@@ -653,41 +886,69 @@
             }
 
 
-            const expiresAt =
-                new Date();
+            if (!days || days < 1) {
 
+                alert(
+                    "❌ مدة الاشتراك غير صحيحة"
+                );
 
-            expiresAt.setDate(
-                expiresAt.getDate() +
-                days
-            );
+                return;
+
+            }
 
 
             db.collection("students")
                 .doc(code)
-                .set({
+                .get()
 
-                    name: name,
+                .then(function (existing) {
 
-                    password: password,
+                    if (existing.exists) {
 
-                    grade: grade,
+                        throw new Error(
+                            "هذا الكود موجود بالفعل"
+                        );
 
-                    active: true,
+                    }
 
-                    expiresAt:
-                        firebase.firestore
-                            .Timestamp
-                            .fromDate(
-                                expiresAt
-                            ),
 
-                    deviceId: "",
+                    const expiresAt =
+                        new Date();
 
-                    createdAt:
-                        firebase.firestore
-                            .FieldValue
-                            .serverTimestamp()
+
+                    expiresAt.setDate(
+                        expiresAt.getDate() +
+                        days
+                    );
+
+
+                    return db.collection("students")
+                        .doc(code)
+                        .set({
+
+                            name: name,
+
+                            password: password,
+
+                            grade: grade,
+
+                            active: true,
+
+                            expiresAt:
+                                firebase.firestore
+                                    .Timestamp
+                                    .fromDate(
+                                        expiresAt
+                                    ),
+
+                            deviceId: "",
+
+                            createdAt:
+                                firebase.firestore
+                                    .FieldValue
+                                    .serverTimestamp()
+
+                        });
 
                 })
 
@@ -698,28 +959,24 @@
                     );
 
 
-                    document
-                        .getElementById(
-                            "newCode"
-                        )
-                        .value = "";
+                    document.getElementById(
+                        "newCode"
+                    ).value = "";
 
 
-                    document
-                        .getElementById(
-                            "newPassword"
-                        )
-                        .value = "";
+                    document.getElementById(
+                        "newPassword"
+                    ).value = "";
 
 
-                    document
-                        .getElementById(
-                            "newName"
-                        )
-                        .value = "";
+                    document.getElementById(
+                        "newName"
+                    ).value = "";
 
 
                     loadCodes();
+
+                    loadStudents();
 
                     loadDashboard();
 
@@ -744,7 +1001,7 @@
 
 
     // ==========================================
-    // تحميل الأكواد
+    // الأكواد
     // ==========================================
 
     function loadCodes() {
@@ -763,74 +1020,82 @@
                 table.innerHTML = "";
 
 
-                snapshot.forEach(
-                    function (doc) {
+                snapshot.forEach(function (doc) {
 
-                        const student =
-                            doc.data();
-
-
-                        const row =
-                            document.createElement(
-                                "tr"
-                            );
+                    const student =
+                        doc.data();
 
 
-                        row.innerHTML = `
-
-                            <td>
-                                ${escapeHtml(
-                                    doc.id
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    student.name || "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    student.grade || "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${
-                                    student.active === true
-                                    ? "✅"
-                                    : "⛔"
-                                }
-                            </td>
-
-                            <td>
-                                ${formatDate(
-                                    student.expiresAt
-                                )}
-                            </td>
-
-                            <td>
-
-                                <button
-                                    class="admin-btn danger-btn"
-                                    onclick="deleteCode('${escapeAttribute(doc.id)}')">
-
-                                    🗑️
-
-                                </button>
-
-                            </td>
-
-                        `;
+                    const row =
+                        document.createElement("tr");
 
 
-                        table.appendChild(
-                            row
-                        );
+                    row.innerHTML = `
 
-                    }
-                );
+                        <td>
+                            ${escapeHtml(doc.id)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                student.name || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                student.grade || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${
+                                student.active === true
+                                ? "✅ نشط"
+                                : "⛔ متوقف"
+                            }
+                        </td>
+
+                        <td>
+                            ${formatDate(
+                                student.expiresAt
+                            )}
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="admin-btn primary-btn"
+                                onclick="editStudent('${escapeAttribute(doc.id)}')">
+
+                                ✏️
+
+                            </button>
+
+                            <button
+                                class="admin-btn success-btn"
+                                onclick="extendStudent('${escapeAttribute(doc.id)}')">
+
+                                ⏳
+
+                            </button>
+
+                            <button
+                                class="admin-btn danger-btn"
+                                onclick="deleteCode('${escapeAttribute(doc.id)}')">
+
+                                🗑️
+
+                            </button>
+
+                        </td>
+
+                    `;
+
+
+                    table.appendChild(row);
+
+                });
 
             })
 
@@ -855,7 +1120,7 @@
 
             if (
                 !confirm(
-                    "⚠️ هل أنت متأكد من حذف الكود؟\n\n" +
+                    "⚠️ هل أنت متأكد من حذف الطالب والكود؟\n\n" +
                     code
                 )
             ) {
@@ -872,11 +1137,12 @@
                 .then(function () {
 
                     alert(
-                        "✅ تم حذف الكود"
+                        "✅ تم حذف الطالب والكود"
                     );
 
-
                     loadCodes();
+
+                    loadStudents();
 
                     loadDashboard();
 
@@ -884,14 +1150,10 @@
 
                 .catch(function (error) {
 
-                    console.error(
-                        "Delete Code Error:",
-                        error
-                    );
-
+                    console.error(error);
 
                     alert(
-                        "❌ فشل حذف الكود\n\n" +
+                        "❌ فشل الحذف\n\n" +
                         error.message
                     );
 
@@ -924,12 +1186,12 @@
 
                     <tr>
 
-                    <th>الطالب</th>
-                    <th>المادة</th>
-                    <th>Chapter</th>
-                    <th>الدرجة</th>
-                    <th>النسبة</th>
-                    <th>التاريخ</th>
+                        <th>الطالب</th>
+                        <th>المادة</th>
+                        <th>Chapter</th>
+                        <th>الدرجة</th>
+                        <th>النسبة</th>
+                        <th>التاريخ</th>
 
                     </tr>
 
@@ -940,70 +1202,64 @@
                 `;
 
 
-                snapshot.forEach(
-                    function (doc) {
+                snapshot.forEach(function (doc) {
 
-                        const data =
-                            doc.data();
+                    const data =
+                        doc.data();
 
 
-                        html += `
+                    html += `
 
-                            <tr>
+                        <tr>
 
-                                <td>
-                                    ${escapeHtml(
-                                        data.studentName ||
-                                        data.name ||
-                                        data.studentCode ||
-                                        "-"
-                                    )}
-                                </td>
+                            <td>
+                                ${escapeHtml(
+                                    data.studentName ||
+                                    data.name ||
+                                    data.studentCode ||
+                                    "-"
+                                )}
+                            </td>
 
-                                <td>
-                                    ${escapeHtml(
-                                        data.subject ||
-                                        "-"
-                                    )}
-                                </td>
+                            <td>
+                                ${escapeHtml(
+                                    data.subject || "-"
+                                )}
+                            </td>
 
-                                <td>
-                                    ${escapeHtml(
-                                        data.chapter ||
-                                        "-"
-                                    )}
-                                </td>
+                            <td>
+                                ${escapeHtml(
+                                    data.chapter || "-"
+                                )}
+                            </td>
 
-                                <td>
-                                    ${escapeHtml(
-                                        String(
-                                            data.score ??
-                                            "-"
-                                        )
-                                    )}
-                                </td>
+                            <td>
+                                ${escapeHtml(
+                                    String(
+                                        data.score ?? "-"
+                                    )
+                                )}
+                            </td>
 
-                                <td>
-                                    ${escapeHtml(
-                                        String(
-                                            data.percentage ??
-                                            "-"
-                                        )
-                                    )}%
-                                </td>
+                            <td>
+                                ${escapeHtml(
+                                    String(
+                                        data.percentage ?? "-"
+                                    )
+                                )}%
+                            </td>
 
-                                <td>
-                                    ${formatDate(
-                                        data.createdAt
-                                    )}
-                                </td>
+                            <td>
+                                ${formatDate(
+                                    data.createdAt
+                                )}
+                            </td>
 
-                            </tr>
+                        </tr>
 
-                        `;
+                    `;
 
-                    }
-                );
+                });
 
 
                 html += `
@@ -1058,10 +1314,10 @@
 
                     <tr>
 
-                    <th>الترتيب</th>
-                    <th>الطالب</th>
-                    <th>الصف</th>
-                    <th>المتوسط</th>
+                        <th>الترتيب</th>
+                        <th>الطالب</th>
+                        <th>الصف</th>
+                        <th>المتوسط</th>
 
                     </tr>
 
@@ -1075,52 +1331,49 @@
                 let position = 1;
 
 
-                snapshot.forEach(
-                    function (doc) {
+                snapshot.forEach(function (doc) {
 
-                        const data =
-                            doc.data();
+                    const data =
+                        doc.data();
 
 
-                        html += `
+                    html += `
 
-                            <tr>
+                        <tr>
 
-                                <td>
-                                    ${position++}
-                                </td>
+                            <td>
+                                ${position++}
+                            </td>
 
-                                <td>
-                                    ${escapeHtml(
-                                        data.name ||
-                                        data.studentName ||
+                            <td>
+                                ${escapeHtml(
+                                    data.name ||
+                                    data.studentName ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    data.grade || "-"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    String(
+                                        data.average ??
+                                        data.score ??
                                         "-"
-                                    )}
-                                </td>
+                                    )
+                                )}
+                            </td>
 
-                                <td>
-                                    ${escapeHtml(
-                                        data.grade ||
-                                        "-"
-                                    )}
-                                </td>
+                        </tr>
 
-                                <td>
-                                    ${escapeHtml(
-                                        String(
-                                            data.average ??
-                                            data.score ??
-                                            "-"
-                                        )
-                                    )}
-                                </td>
+                    `;
 
-                            </tr>
-
-                        `;
-
-                    }
-                );
+                });
 
 
                 html += `
@@ -1151,7 +1404,7 @@
 
 
     // ==========================================
-    // تسجيل خروج الأدمن
+    // تسجيل الخروج
     // ==========================================
 
     window.logoutAdmin =
@@ -1170,19 +1423,27 @@
 
 
     // ==========================================
-    // التاريخ
+    // أدوات مساعدة
     // ==========================================
 
-    function formatDate(value) {
+    function setText(id, value) {
 
-        if (!value) {
+        const element =
+            document.getElementById(id);
 
-            return "-";
 
+        if (element) {
+            element.textContent = value;
         }
 
+    }
 
-        let date;
+
+    function getDate(value) {
+
+        if (!value) {
+            return null;
+        }
 
 
         if (
@@ -1190,15 +1451,13 @@
             "function"
         ) {
 
-            date =
-                value.toDate();
-
-        } else {
-
-            date =
-                new Date(value);
+            return value.toDate();
 
         }
+
+
+        const date =
+            new Date(value);
 
 
         if (
@@ -1207,47 +1466,49 @@
             )
         ) {
 
-            return "-";
+            return null;
 
         }
 
 
-        return date.toLocaleDateString(
-            "ar-EG"
-        );
+        return date;
 
     }
 
 
-    // ==========================================
-    // حماية HTML
-    // ==========================================
+    function formatDate(value) {
+
+        const date =
+            getDate(value);
+
+
+        if (!date) {
+            return "-";
+        }
+
+
+        return date.toLocaleDateString(
+            "ar-EG",
+            {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit"
+            }
+        );
+
+    }
+
 
     function escapeHtml(value) {
 
         return String(
             value ?? ""
         )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
     }
 
@@ -1255,14 +1516,8 @@
     function escapeAttribute(value) {
 
         return String(value ?? "")
-            .replace(
-                /\\/g,
-                "\\\\"
-            )
-            .replace(
-                /'/g,
-                "\\'"
-            );
+            .replace(/\\/g, "\\\\")
+            .replace(/'/g, "\\'");
 
     }
 

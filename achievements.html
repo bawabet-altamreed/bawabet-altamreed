@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>إنجازاتي | بوابة التمريض</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <!-- لو عندك CSS خاص بالإنجازات -->
+    <link
+        rel="stylesheet"
+        href="achievements.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- ========================================== -->
+<!-- NAVBAR -->
+<!-- ========================================== -->
+
+<nav>
+
+    <div class="logo">
+        🩺 بوابة التمريض
+    </div>
+
+    <ul>
+
+        <li>
+            <a href="index.html">
+                الرئيسية
+            </a>
+        </li>
+
+        <li>
+            <a href="student-dashboard.html">
+                لوحة الطالب
+            </a>
+        </li>
+
+        <li>
+            <a href="leaderboard.html">
+                🏆 لوحة المتصدرين
+            </a>
+        </li>
+
+    </ul>
+
+</nav>
+
+
+<!-- ========================================== -->
+<!-- MAIN -->
+<!-- ========================================== -->
+
+<main class="achievements-page">
+
+
+    <!-- ====================================== -->
+    <!-- HEADER -->
+    <!-- ====================================== -->
+
+    <section class="achievements-header">
+
+        <div class="achievement-trophy">
+            🏆
+        </div>
+
+        <h1>
+            إنجازاتي
+        </h1>
+
+        <p id="welcomeAchievement">
+            تابع تقدمك واجمع الإنجازات داخل بوابة التمريض
+        </p>
+
+    </section>
+
+
+    <!-- ====================================== -->
+    <!-- STUDENT INFO -->
+    <!-- ====================================== -->
+
+    <section class="achievement-student-card">
+
+        <div>
+
+            <span>
+                👨‍🎓 الطالب
+            </span>
+
+            <strong id="studentName">
+                جاري التحميل...
+            </strong>
+
+        </div>
+
+
+        <div>
+
+            <span>
+                🎓 الصف
+            </span>
+
+            <strong id="studentGrade">
+                -
+            </strong>
+
+        </div>
+
+
+        <div>
+
+            <span>
+                🔑 الكود
+            </span>
+
+            <strong id="studentCode">
+                -
+            </strong>
+
+        </div>
+
+    </section>
+
+
+    <!-- ====================================== -->
+    <!-- STATISTICS -->
+    <!-- ====================================== -->
+
+    <section class="achievement-stats">
+
+
+        <div class="achievement-stat">
+
+            <div class="stat-icon">
+                📝
+            </div>
+
+            <strong id="testsCount">
+                0
+            </strong>
+
+            <span>
+                اختبار
+            </span>
+
+        </div>
+
+
+        <div class="achievement-stat">
+
+            <div class="stat-icon">
+                📊
+            </div>
+
+            <strong id="averageScore">
+                0%
+            </strong>
+
+            <span>
+                متوسط الدرجات
+            </span>
+
+        </div>
+
+
+        <div class="achievement-stat">
+
+            <div class="stat-icon">
+                🏅
+            </div>
+
+            <strong id="badgesCount">
+                0
+            </strong>
+
+            <span>
+                إنجاز
+            </span>
+
+        </div>
+
+
+        <div class="achievement-stat">
+
+            <div class="stat-icon">
+                📚
+            </div>
+
+            <strong id="chaptersCount">
+                0
+            </strong>
+
+            <span>
+                Chapters
+            </span>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ====================================== -->
+    <!-- PROGRESS -->
+    <!-- ====================================== -->
+
+    <section class="achievement-progress-card">
+
+        <div class="section-title">
+
+            <h2>
+                📈 مستوى تقدمك
+            </h2>
+
+        </div>
+
+
+        <div class="achievement-progress">
+
+            <div class="achievement-progress-top">
+
+                <span>
+                    نسبة الإنجاز
+                </span>
+
+                <strong id="progressPercentage">
+                    0%
+                </strong>
+
+            </div>
+
+
+            <div class="achievement-progress-bar">
+
+                <div
+                    id="progressFill"
+                    class="achievement-progress-fill"
+                    style="width:0%">
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ====================================== -->
+    <!-- BADGES -->
+    <!-- ====================================== -->
+
+    <section class="badges-section">
+
+        <div class="section-title">
+
+            <h2>
+                🏆 إنجازاتي وشاراتي
+            </h2>
+
+            <p>
+                كلما تطورت في المنصة، افتح إنجازات جديدة
+            </p>
+
+        </div>
+
+
+        <div
+            id="badgesContainer"
+            class="badges-container"
+        >
+
+            <div class="achievement-loading">
+                ⏳ جاري تحميل إنجازاتك...
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ====================================== -->
+    <!-- MOTIVATION -->
+    <!-- ====================================== -->
+
+    <section
+        id="motivationCard"
+        class="achievement-motivation"
+    >
+
+    </section>
+
+
+</main>
+
+
+<!-- ========================================== -->
+<!-- FIREBASE -->
+<!-- ========================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+
+<!-- ========================================== -->
+<!-- Firebase Config -->
+<!-- ========================================== -->
+
+<script src="firebase-config.js"></script>
+
+
+<!-- ========================================== -->
+<!-- Achievements JS -->
+<!-- ========================================== -->
+
+<script src="achievements.js"></script>
+
+
+</body>
+
+</html>

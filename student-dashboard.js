@@ -1112,23 +1112,18 @@ function loadAvailableContent() {
 
     }
 
-    // ==================================
-    // عرض المواد
-    // ==================================
+    // ==========================================
+// عرض المواد
+// ==========================================
 
-    renderSubjects();
+function renderSubjects() {
 
-}
     const container =
-        document.getElementById(
-            "subjects"
-        );
-
+        document.getElementById("subjects");
 
     if (!container) {
         return;
     }
-
 
     // ==================================
     // لا توجد مواد
@@ -1141,7 +1136,6 @@ function loadAvailableContent() {
             0
         );
 
-
         container.innerHTML = `
 
             <div class="empty-state">
@@ -1153,9 +1147,7 @@ function loadAvailableContent() {
         `;
 
         return;
-
     }
-
 
     // ==================================
     // عدد المواد
@@ -1166,7 +1158,6 @@ function loadAvailableContent() {
         allContent.length
     );
 
-
     // ==================================
     // إنشاء الكروت
     // ==================================
@@ -1176,7 +1167,6 @@ function loadAvailableContent() {
         <div class="subjects-grid">
 
     `;
-
 
     allContent.forEach(
         function (content) {
@@ -1196,7 +1186,6 @@ function loadAvailableContent() {
 
                     </div>
 
-
                     <h3>
 
                         ${escapeHtml(
@@ -1206,13 +1195,11 @@ function loadAvailableContent() {
 
                     </h3>
 
-
                     <p class="subject-count">
 
                         📖 محتوى المادة متاح
 
                     </p>
-
 
                     <a
                         href="${escapeHtml(
@@ -1241,17 +1228,15 @@ function loadAvailableContent() {
         }
     );
 
-
     html += `
 
         </div>
 
     `;
 
-
     container.innerHTML = html;
-
 }
+
 
 // ==========================================
 // حساب النسبة

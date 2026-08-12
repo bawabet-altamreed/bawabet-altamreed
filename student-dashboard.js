@@ -1,9 +1,28 @@
 // ==========================================
 // بوابة التمريض
+// Student Dashboard
 // لوحة الطالب
 // ==========================================
 
-const studentCode = localStorage.getItem("studentCode");
+
+// ==========================================
+// الحصول على كود الطالب
+// ==========================================
+
+const studentCode =
+    localStorage.getItem("studentCode");
+
+
+// ==========================================
+// بيانات عامة
+// ==========================================
+
+let currentStudent = null;
+
+let allResults = [];
+
+let allContent = [];
+
 
 // ==========================================
 // التحقق من تسجيل الدخول
@@ -26,11 +45,42 @@ if (!studentCode) {
 
 function loadStudentDashboard() {
 
-    db.collection("students")
+    loadStudentData()
+        .then(function () {
+
+            return loadStudentResults();
+
+        })
+        .then(function () {
+
+            return loadAvailableContent();
+
+        })
+        .catch(function (error) {
+
+            console.error(
+                "Student Dashboard Error:",
+                error
+            );
+
+            showError();
+
+        });
+
+}
+
+
+// ==========================================
+// تحميل بيانات الطالب
+// ==========================================
+
+function loadStudentData() {
+
+    return db.collection("students")
         .doc(studentCode)
         .get()
 
-        .then(function(studentDoc) {
+        .then(function (studentDoc) {
 
             if (!studentDoc.exists) {
 
@@ -40,238 +90,1479 @@ function loadStudentDashboard() {
 
             }
 
-            const student = studentDoc.data();
+
+            currentStudent =
+                studentDoc.data();
+
+
+            renderStudentInfo();
+
+            renderSubscription();
+
+            renderWelcome();
+
+        });
+
+}
+
+
+// ==========================================
+// عرض الترحيب
+// ==========================================
+
+function renderWelcome() {
+
+    const element =
+        document.getElementById(
+            "welcomeName"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    element.textContent =
+        "👋 أهلاً بك " +
+        (
+            currentStudent.name ||
+            "طالبنا العزيز"
+        );
+
+}
+
+
+// ==========================================
+// بيانات الطالب
+// ==========================================
+
+function renderStudentInfo() {
+
+    const container =
+        document.getElementById(
+            "studentInfo"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="student-info-grid">
+
+
+            <div class="student-info-item">
+
+                <small>
+                    👨‍🎓 الاسم
+                </small>
+
+                <strong>
+                    ${escapeHtml(
+                        currentStudent.name ||
+                        "غير محدد"
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="student-info-item">
+
+                <small>
+                    🎓 الصف
+                </small>
+
+                <strong>
+                    ${escapeHtml(
+                        currentStudent.grade ||
+                        "غير محدد"
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="student-info-item">
+
+                <small>
+                    🔑 كود الاشتراك
+                </small>
+
+                <strong>
+                    ${escapeHtml(
+                        studentCode
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="student-info-item">
+
+                <small>
+                    📧 البريد الإلكتروني
+                </small>
+
+                <strong>
+                    ${escapeHtml(
+                        currentStudent.email ||
+                        "غير محدد"
+                    )}
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
+// حالة الاشتراك
+// ==========================================
+
+function renderSubscription() {
+
+    const container =
+        document.getElementById(
+            "subscriptionInfo"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const expiry =
+        getDate(
+            currentStudent.expiresAt
+        );
+
+
+    let status = "";
+
+    let className =
+        "subscription-box";
+
+
+    let remainingText = "";
+
+
+    if (
+        currentStudent.active !== true
+    ) {
+
+        status =
+            "⛔ الاشتراك متوقف";
+
+        className +=
+            " subscription-stopped";
+
+    }
+
+    else if (
+        !expiry
+    ) {
+
+        status =
+            "⚠️ لا يوجد تاريخ انتهاء";
+
+    }
+
+    else if (
+        new Date() >= expiry
+    ) {
+
+        status =
+            "⛔ الاشتراك منتهي";
+
+        className +=
+            " subscription-expired";
+
+        remainingText =
+            "انتهت مدة الاشتراك";
+
+    }
+
+    else {
+
+        status =
+            "✅ الاشتراك نشط";
+
+        className +=
+            " subscription-active";
+
+
+        const now =
+            new Date();
+
+
+        const difference =
+            expiry.getTime() -
+            now.getTime();
+
+
+        const days =
+            Math.ceil(
+                difference /
+                (1000 * 60 * 60 * 24)
+            );
+
+
+        remainingText =
+            `متبقي ${days} يوم`;
+
+    }
+
+
+    container.innerHTML = `
+
+        <div class="${className}">
+
+            <div class="subscription-status">
+
+                ${status}
+
+            </div>
+
+
+            <p>
+
+                📅 تاريخ الانتهاء:
+
+                <strong>
+
+                    ${
+                        expiry
+                            ? formatDate(
+                                expiry
+                            )
+                            : "-"
+                    }
+
+                </strong>
+
+            </p>
+
+
+            <p>
+
+                ⏳
+
+                ${remainingText}
+
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
+// تحميل جميع نتائج الطالب
+// ==========================================
+
+function loadStudentResults() {
+
+    return db.collection("results")
+
+        .where(
+            "studentCode",
+            "==",
+            studentCode
+        )
+
+        .get()
+
+        .then(function (snapshot) {
+
+            allResults = [];
+
+
+            snapshot.forEach(function (doc) {
+
+                const data =
+                    doc.data();
+
+
+                allResults.push({
+
+                    id: doc.id,
+
+                    ...data
+
+                });
+
+            });
 
 
             // ==================================
-            // بيانات الطالب
+            // ترتيب النتائج من الأحدث للأقدم
             // ==================================
 
-            document.getElementById(
-                "studentInfo"
-            ).innerHTML = `
+            allResults.sort(
+                function (a, b) {
 
-                <h3>
-                    👨‍🎓 الاسم:
-                    ${student.name || "غير محدد"}
-                </h3>
+                    const dateA =
+                        getDate(
+                            a.createdAt
+                        ) || new Date(0);
 
-                <p>
-                    📚 الصف:
-                    ${student.grade || "غير محدد"}
-                </p>
 
-                <p>
-                    🔑 كود الاشتراك:
-                    ${studentCode}
-                </p>
+                    const dateB =
+                        getDate(
+                            b.createdAt
+                        ) || new Date(0);
+
+
+                    return (
+                        dateB.getTime() -
+                        dateA.getTime()
+                    );
+
+                }
+            );
+
+
+            renderResults();
+
+            renderLatestResults();
+
+            calculateStatistics();
+
+            renderProgress();
+
+        });
+
+}
+
+
+// ==========================================
+// جميع النتائج
+// ==========================================
+
+function renderResults() {
+
+    const container =
+        document.getElementById(
+            "results"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!allResults.length) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                📝 لم يتم عمل أي اختبارات حتى الآن
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <div class="results-container">
+
+            <table class="results-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            المادة
+                        </th>
+
+                        <th>
+                            Chapter
+                        </th>
+
+                        <th>
+                            الدرجة
+                        </th>
+
+                        <th>
+                            النسبة
+                        </th>
+
+                        <th>
+                            التاريخ
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+
+    allResults.forEach(
+        function (data, index) {
+
+            const percentage =
+                getPercentage(data);
+
+
+            const score =
+                data.score ?? 0;
+
+
+            const total =
+                data.total ?? 0;
+
+
+            const passed =
+                percentage >= 50;
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        ${index + 1}
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHtml(
+                            data.subject ||
+                            "-"
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHtml(
+                            data.chapter ||
+                            "-"
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHtml(
+                            String(score)
+                        )}
+
+                        /
+
+                        ${escapeHtml(
+                            String(total)
+                        )}
+
+                    </td>
+
+
+                    <td class="${
+                        passed
+                            ? "pass"
+                            : "fail"
+                    }">
+
+                        ${percentage}%
+
+                    </td>
+
+
+                    <td>
+
+                        ${formatDateTime(
+                            data.createdAt
+                        )}
+
+                    </td>
+
+                </tr>
 
             `;
 
-
-            // ==================================
-            // نتائج الطالب
-            // ==================================
-
-            return db.collection("results")
-                .where(
-                    "studentCode",
-                    "==",
-                    studentCode
-                )
-                .get();
-
-        })
+        }
+    );
 
 
-        .then(function(snapshot) {
+    html += `
 
-            if (!snapshot) {
-                return;
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+
+    container.innerHTML = html;
+
+}
+
+
+// ==========================================
+// آخر النتائج
+// ==========================================
+
+function renderLatestResults() {
+
+    const container =
+        document.getElementById(
+            "latestResults"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!allResults.length) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                لا توجد نتائج حتى الآن
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const latest =
+        allResults.slice(0, 5);
+
+
+    let html = `
+
+        <div class="results-container">
+
+            <table class="results-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            المادة
+                        </th>
+
+                        <th>
+                            Chapter
+                        </th>
+
+                        <th>
+                            النتيجة
+                        </th>
+
+                        <th>
+                            التاريخ
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+
+    latest.forEach(
+        function (data) {
+
+            const percentage =
+                getPercentage(data);
+
+
+            const passed =
+                percentage >= 50;
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        ${escapeHtml(
+                            data.subject ||
+                            "-"
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHtml(
+                            data.chapter ||
+                            "-"
+                        )}
+
+                    </td>
+
+
+                    <td class="${
+                        passed
+                            ? "pass"
+                            : "fail"
+                    }">
+
+                        ${percentage}%
+
+                    </td>
+
+
+                    <td>
+
+                        ${formatDateTime(
+                            data.createdAt
+                        )}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+
+    container.innerHTML = html;
+
+}
+
+
+// ==========================================
+// الإحصائيات
+// ==========================================
+
+function calculateStatistics() {
+
+    const total =
+        allResults.length;
+
+
+    let sum = 0;
+
+    let passed = 0;
+
+
+    allResults.forEach(
+        function (result) {
+
+            const percentage =
+                getPercentage(result);
+
+
+            sum += percentage;
+
+
+            if (percentage >= 50) {
+
+                passed++;
+
+            }
+
+        }
+    );
+
+
+    const average =
+        total > 0
+            ? Math.round(
+                sum / total
+            )
+            : 0;
+
+
+    setText(
+        "totalTests",
+        total
+    );
+
+
+    setText(
+        "averageScore",
+        average + "%"
+    );
+
+
+    setText(
+        "passedTests",
+        passed
+    );
+
+}
+
+
+// ==========================================
+// التقدم في الاختبارات
+// ==========================================
+
+function renderProgress() {
+
+    const container =
+        document.getElementById(
+            "progress"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const total =
+        allResults.length;
+
+
+    if (!total) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                📈 لم تبدأ الاختبارات بعد
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let passed = 0;
+
+    let excellent = 0;
+
+    let weak = 0;
+
+
+    allResults.forEach(
+        function (result) {
+
+            const percentage =
+                getPercentage(result);
+
+
+            if (percentage >= 50) {
+
+                passed++;
+
             }
 
 
-            // ==================================
-            // لا توجد نتائج
-            // ==================================
+            if (percentage >= 85) {
 
-            if (snapshot.empty) {
-
-                document.getElementById(
-                    "results"
-                ).innerHTML =
-                    "❌ لم يتم عمل أي اختبارات حتى الآن";
-
-                document.getElementById(
-                    "average"
-                ).innerHTML = `
-
-                    <h1>⭐ 0%</h1>
-
-                    <p>
-                        عدد الاختبارات: 0
-                    </p>
-
-                `;
-
-                return;
+                excellent++;
 
             }
 
 
-            // ==================================
-            // أفضل نتيجة لكل Chapter
-            // ==================================
+            if (percentage < 50) {
 
-            const chapters = {};
+                weak++;
+
+            }
+
+        }
+    );
 
 
-            snapshot.forEach(function(doc) {
+    const successRate =
+        Math.round(
+            (passed / total) * 100
+        );
 
-                const data = doc.data();
 
-                const chapter =
-                    data.chapter || doc.id;
+    const excellentRate =
+        Math.round(
+            (excellent / total) * 100
+        );
 
+
+    const weakRate =
+        Math.round(
+            (weak / total) * 100
+        );
+
+
+    container.innerHTML = `
+
+        <div class="progress-box">
+
+            <div class="progress-title">
+
+                <span>
+                    نسبة اجتياز الاختبارات
+                </span>
+
+                <span>
+                    ${successRate}%
+                </span>
+
+            </div>
+
+
+            <div class="progress-bar">
+
+                <div
+                    class="progress-fill"
+                    style="width:${successRate}%">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="progress-box">
+
+            <div class="progress-title">
+
+                <span>
+                    الاختبارات الممتازة
+                </span>
+
+                <span>
+                    ${excellentRate}%
+                </span>
+
+            </div>
+
+
+            <div class="progress-bar">
+
+                <div
+                    class="progress-fill"
+                    style="width:${excellentRate}%">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="progress-box">
+
+            <div class="progress-title">
+
+                <span>
+                    الاختبارات التي تحتاج مراجعة
+                </span>
+
+                <span>
+                    ${weakRate}%
+                </span>
+
+            </div>
+
+
+            <div class="progress-bar">
+
+                <div
+                    class="progress-fill"
+                    style="width:${weakRate}%">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
+// تحميل المحتوى المتاح
+// ==========================================
+
+function loadAvailableContent() {
+
+    return db.collection("content")
+        .where(
+            "active",
+            "==",
+            true
+        )
+        .get()
+
+        .then(function (snapshot) {
+
+            allContent = [];
+
+
+            snapshot.forEach(function (doc) {
+
+                const content =
+                    doc.data();
+
+
+                // ==================================
+                // عرض محتوى الصف الخاص بالطالب فقط
+                // ==================================
 
                 if (
-                    !chapters[chapter] ||
-                    Number(data.percentage) >
-                    Number(
-                        chapters[chapter].percentage
-                    )
+                    content.grade ===
+                    currentStudent.grade
                 ) {
 
-                    chapters[chapter] = data;
+                    allContent.push({
+
+                        id: doc.id,
+
+                        ...content
+
+                    });
 
                 }
 
             });
 
 
-            // ==================================
-            // حساب المتوسط النهائي
-            // ==================================
-
-            let totalPercentage = 0;
-
-            let testCount = 0;
-
-            let html = "";
-
-
-            Object.keys(chapters).forEach(
-                function(chapter) {
-
-                    const data =
-                        chapters[chapter];
-
-
-                    const percentage =
-                        Number(data.percentage) || 0;
-
-
-                    totalPercentage +=
-                        percentage;
-
-
-                    testCount++;
-
-
-                    html += `
-
-                        <div class="card">
-
-                            <h3>
-                                📘 ${chapter}
-                            </h3>
-
-                            <p>
-                                المادة:
-                                ${data.subject || "-"}
-                            </p>
-
-                            <p>
-                                الدرجة:
-                                ${data.score || 0}/${data.total || 0}
-                            </p>
-
-                            <p>
-                                ⭐ النسبة:
-                                ${percentage}%
-                            </p>
-
-                        </div>
-
-                    `;
-
-                }
-            );
-
-
-            // ==================================
-            // عرض النتائج
-            // ==================================
-
-            document.getElementById(
-                "results"
-            ).innerHTML = html;
-
-
-            // ==================================
-            // المتوسط النهائي
-            // ==================================
-
-            const average =
-                (
-                    totalPercentage /
-                    testCount
-                ).toFixed(2);
-
-
-            document.getElementById(
-                "average"
-            ).innerHTML = `
-
-                <h1>
-                    ⭐ ${average}%
-                </h1>
-
-                <p>
-                    عدد الاختبارات:
-                    ${testCount}
-                </p>
-
-            `;
+            renderSubjects();
 
         })
 
-
-        .catch(function(error) {
+        .catch(function (error) {
 
             console.error(
-                "Student Dashboard Error:",
+                "Content Error:",
                 error
             );
 
 
             document.getElementById(
-                "studentInfo"
-            ).innerHTML =
-                "❌ حدث خطأ أثناء تحميل البيانات";
+                "subjects"
+            ).innerHTML = `
 
+                <div class="empty-state">
 
-            document.getElementById(
-                "results"
-            ).innerHTML =
-                "❌ تعذر تحميل النتائج";
+                    ❌ تعذر تحميل المواد
 
+                </div>
 
-            document.getElementById(
-                "average"
-            ).innerHTML =
-                "❌ تعذر حساب المتوسط";
+            `;
 
         });
+
+}
+
+
+// ==========================================
+// عرض المواد
+// ==========================================
+
+function renderSubjects() {
+
+    const container =
+        document.getElementById(
+            "subjects"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!allContent.length) {
+
+        setText(
+            "totalSubjects",
+            0
+        );
+
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                📚 لا يوجد محتوى متاح لك حاليًا
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const subjects = {};
+
+
+    allContent.forEach(
+        function (content) {
+
+            const subject =
+                content.subject ||
+                "مادة غير محددة";
+
+
+            if (!subjects[subject]) {
+
+                subjects[subject] = {
+
+                    count: 0,
+
+                    chapters: {}
+
+                };
+
+            }
+
+
+            subjects[subject].count++;
+
+
+            const chapter =
+                content.chapter ||
+                "-";
+
+
+            subjects[subject]
+                .chapters[chapter] = true;
+
+        }
+    );
+
+
+    const subjectNames =
+        Object.keys(subjects);
+
+
+    setText(
+        "totalSubjects",
+        subjectNames.length
+    );
+
+
+    let html = `
+
+        <div class="subjects-grid">
+
+    `;
+
+
+    subjectNames.forEach(
+        function (subject) {
+
+            const chapters =
+                Object.keys(
+                    subjects[subject]
+                        .chapters
+                );
+
+
+            html += `
+
+                <div class="subject-card">
+
+                    <h3>
+
+                        📚 ${escapeHtml(
+                            subject
+                        )}
+
+                    </h3>
+
+
+                    <p class="subject-count">
+
+                        📦 عدد المحتويات:
+                        ${subjects[subject].count}
+
+                    </p>
+
+
+                    <p class="subject-count">
+
+                        📖 Chapters:
+
+                        ${chapters.length}
+
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    container.innerHTML = html;
+
+}
+
+
+// ==========================================
+// حساب النسبة
+// ==========================================
+
+function getPercentage(data) {
+
+    if (
+        data.percentage !== undefined &&
+        data.percentage !== null
+    ) {
+
+        const value =
+            Number(
+                data.percentage
+            );
+
+
+        return isNaN(value)
+            ? 0
+            : Math.round(value);
+
+    }
+
+
+    const score =
+        Number(
+            data.score
+        );
+
+
+    const total =
+        Number(
+            data.total
+        );
+
+
+    if (
+        total > 0 &&
+        !isNaN(score)
+    ) {
+
+        return Math.round(
+            (score / total) * 100
+        );
+
+    }
+
+
+    return 0;
+
+}
+
+
+// ==========================================
+// التاريخ
+// ==========================================
+
+function getDate(value) {
+
+    if (!value) {
+
+        return null;
+
+    }
+
+
+    if (
+        typeof value.toDate ===
+        "function"
+    ) {
+
+        return value.toDate();
+
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return date;
+
+}
+
+
+// ==========================================
+// تنسيق التاريخ
+// ==========================================
+
+function formatDate(value) {
+
+    const date =
+        getDate(value);
+
+
+    if (!date) {
+
+        return "-";
+
+    }
+
+
+    return date.toLocaleDateString(
+        "ar-EG",
+        {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }
+    );
+
+}
+
+
+// ==========================================
+// تنسيق التاريخ والوقت
+// ==========================================
+
+function formatDateTime(value) {
+
+    const date =
+        getDate(value);
+
+
+    if (!date) {
+
+        return "-";
+
+    }
+
+
+    return date.toLocaleString(
+        "ar-EG",
+        {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+
+}
+
+
+// ==========================================
+// تغيير النص
+// ==========================================
+
+function setText(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+// ==========================================
+// حماية عرض النصوص
+// ==========================================
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+
+    .replace(
+        /</g,
+        "&lt;"
+    )
+
+    .replace(
+        />/g,
+        "&gt;"
+    )
+
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+// ==========================================
+// عرض الأخطاء
+// ==========================================
+
+function showError() {
+
+    const studentInfo =
+        document.getElementById(
+            "studentInfo"
+        );
+
+
+    const subscription =
+        document.getElementById(
+            "subscriptionInfo"
+        );
+
+
+    const subjects =
+        document.getElementById(
+            "subjects"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "progress"
+        );
+
+
+    const latest =
+        document.getElementById(
+            "latestResults"
+        );
+
+
+    const results =
+        document.getElementById(
+            "results"
+        );
+
+
+    if (studentInfo) {
+
+        studentInfo.innerHTML =
+            "❌ حدث خطأ أثناء تحميل بيانات الطالب";
+
+    }
+
+
+    if (subscription) {
+
+        subscription.innerHTML =
+            "❌ تعذر تحميل حالة الاشتراك";
+
+    }
+
+
+    if (subjects) {
+
+        subjects.innerHTML =
+            "❌ تعذر تحميل المواد";
+
+    }
+
+
+    if (progress) {
+
+        progress.innerHTML =
+            "❌ تعذر حساب التقدم";
+
+    }
+
+
+    if (latest) {
+
+        latest.innerHTML =
+            "❌ تعذر تحميل آخر النتائج";
+
+    }
+
+
+    if (results) {
+
+        results.innerHTML =
+            "❌ تعذر تحميل النتائج";
+
+    }
 
 }

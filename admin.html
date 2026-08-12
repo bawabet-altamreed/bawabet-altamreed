@@ -204,7 +204,6 @@ body {
 
 /* ==========================================
    أزرار الإجراءات الصغيرة
-   👁️ ✏️ ⏳ ⛔ 📱 🗑️
 ========================================== */
 
 table .admin-btn {
@@ -452,6 +451,127 @@ th {
 
 
 /* ==========================================
+   Materials Grid
+========================================== */
+
+.materials-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
+
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+
+/* ==========================================
+   Material Card
+========================================== */
+
+.material-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 16px;
+
+    text-decoration: none;
+
+    color: #222;
+
+    transition: .25s;
+}
+
+.material-card:hover {
+
+    transform: translateY(-4px);
+
+    border-color: #1976d2;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.10);
+}
+
+
+/* ==========================================
+   Material Icon
+========================================== */
+
+.material-icon {
+
+    width: 58px;
+
+    height: 58px;
+
+    min-width: 58px;
+
+    border-radius: 15px;
+
+    background: #e3f2fd;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 28px;
+}
+
+
+/* ==========================================
+   Material Info
+========================================== */
+
+.material-info {
+
+    flex: 1;
+}
+
+.material-info h3 {
+
+    margin: 0 0 6px;
+
+    color: #0d47a1;
+
+    font-size: 17px;
+}
+
+.material-info p {
+
+    margin: 0;
+
+    color: #777;
+
+    font-size: 13px;
+}
+
+
+/* ==========================================
+   Material Arrow
+========================================== */
+
+.material-arrow {
+
+    font-size: 24px;
+
+    color: #1976d2;
+}
+
+
+/* ==========================================
    Mobile
 ========================================== */
 
@@ -535,8 +655,6 @@ th {
     }
 
 
-    /* أزرار الإجراءات */
-
     table .admin-btn {
 
         width: 32px;
@@ -555,8 +673,6 @@ th {
     }
 
 
-    /* معلومات الطالب */
-
     .student-info-grid {
 
         grid-template-columns: 1fr;
@@ -574,6 +690,12 @@ th {
         max-height: 92vh;
 
         border-radius: 15px;
+    }
+
+
+    .materials-grid {
+
+        grid-template-columns: 1fr;
     }
 
 }
@@ -720,7 +842,7 @@ th {
         <button
             onclick="showSection('content')">
 
-            🎥 المحتوى
+            📚 المواد والمحتوى
 
         </button>
 
@@ -1102,254 +1224,262 @@ th {
 
 
     <!-- ==========================================
-     Content Management
-========================================== -->
+         Content / Materials
+    ========================================== -->
 
-<section id="content" class="section">
-
-    <!-- إضافة محتوى -->
-
-    <div class="admin-card">
-
-        <h2>
-            🎥 إضافة محتوى جديد
-        </h2>
-
-        <div class="form-grid">
-
-            <!-- الصف -->
-
-            <select id="contentGrade">
-
-                <option value="">
-                    اختر الصف
-                </option>
-
-                <option value="الصف الأول الثانوي التمريض">
-                    الصف الأول
-                </option>
-
-                <option value="الصف الثاني الثانوي التمريض">
-                    الصف الثاني
-                </option>
-
-            </select>
+    <section
+        id="content"
+        class="section">
 
 
-            <!-- المادة -->
+        <div class="admin-card">
 
-            <select id="contentSubject">
+            <h2>
+                📚 المواد والمحتوى
+            </h2>
 
-                <option value="">
-                    اختر المادة
-                </option>
-
-                <option value="General Surgery">
-                    🩺 General Surgery
-                </option>
-
-                <option value="Internal Medicine">
-                    🫀 Internal Medicine
-                </option>
-
-                <option value="Community Health Nursing">
-                    🏥 Community Health Nursing
-                </option>
-
-                <option value="Anatomy">
-                    🦴 Anatomy
-                </option>
-
-                <option value="Fundamental of Nursing">
-                    👩‍⚕️ Fundamental of Nursing
-                </option>
-
-            </select>
+            <p>
+                اختر المادة للدخول إلى صفحتها وإدارة محتواها.
+            </p>
 
 
-            <!-- Chapter -->
-
-            <input
-                id="contentChapter"
-                type="text"
-                placeholder="Chapter 1">
+            <div class="materials-grid">
 
 
-            <!-- عنوان المحتوى -->
+                <!-- ==================================
+                     General Surgery
+                ================================== -->
 
-            <input
-                id="contentTitle"
-                type="text"
-                placeholder="عنوان المحتوى">
-
-
-            <!-- النوع -->
-
-            <select id="contentType">
-
-                <option value="">
-                    اختر نوع المحتوى
-                </option>
-
-                <option value="pdf">
-                    📄 PDF
-                </option>
-
-                <option value="video">
-                    🎬 فيديو YouTube
-                </option>
-
-                <option value="quiz">
-                    📝 اختبار
-                </option>
-
-                <option value="chapter">
-                    📚 Chapter
-                </option>
-
-            </select>
+                <a
+                    href="surgery.html"
+                    class="material-card">
 
 
-            <!-- الرابط -->
+                    <div class="material-icon">
 
-            <input
-                id="contentUrl"
-                type="url"
-                placeholder="رابط PDF أو YouTube أو صفحة الاختبار">
+                        🩺
+
+                    </div>
+
+
+                    <div class="material-info">
+
+                        <h3>
+                            General Surgery
+                        </h3>
+
+                        <p>
+                            الجراحة العامة
+                        </p>
+
+                    </div>
+
+
+                    <span class="material-arrow">
+
+                        ←
+
+                    </span>
+
+                </a>
+
+
+                <!-- ==================================
+                     Medical-Surgical Nursing
+                ================================== -->
+
+                <a
+                    href="medical-surgical.html"
+                    class="material-card">
+
+
+                    <div class="material-icon">
+
+                        🏥
+
+                    </div>
+
+
+                    <div class="material-info">
+
+                        <h3>
+                            Medical-Surgical Nursing
+                        </h3>
+
+                        <p>
+                            تمريض الباطنة والجراحة
+                        </p>
+
+                    </div>
+
+
+                    <span class="material-arrow">
+
+                        ←
+
+                    </span>
+
+                </a>
+
+
+                <!-- ==================================
+                     Internal Medicine
+                ================================== -->
+
+                <a
+                    href="internal-medicine.html"
+                    class="material-card">
+
+
+                    <div class="material-icon">
+
+                        🫀
+
+                    </div>
+
+
+                    <div class="material-info">
+
+                        <h3>
+                            Internal Medicine
+                        </h3>
+
+                        <p>
+                            الباطنة
+                        </p>
+
+                    </div>
+
+
+                    <span class="material-arrow">
+
+                        ←
+
+                    </span>
+
+                </a>
+
+
+                <!-- ==================================
+                     Community Health Nursing
+                ================================== -->
+
+                <a
+                    href="community-health.html"
+                    class="material-card">
+
+
+                    <div class="material-icon">
+
+                        🏥
+
+                    </div>
+
+
+                    <div class="material-info">
+
+                        <h3>
+                            Community Health Nursing
+                        </h3>
+
+                        <p>
+                            تمريض صحة المجتمع
+                        </p>
+
+                    </div>
+
+
+                    <span class="material-arrow">
+
+                        ←
+
+                    </span>
+
+                </a>
+
+
+                <!-- ==================================
+                     Anatomy
+                ================================== -->
+
+                <a
+                    href="anatomy.html"
+                    class="material-card">
+
+
+                    <div class="material-icon">
+
+                        🦴
+
+                    </div>
+
+
+                    <div class="material-info">
+
+                        <h3>
+                            Anatomy
+                        </h3>
+
+                        <p>
+                            التشريح
+                        </p>
+
+                    </div>
+
+
+                    <span class="material-arrow">
+
+                        ←
+
+                    </span>
+
+                </a>
+
+
+                <!-- ==================================
+                     Fundamental of Nursing
+                ================================== -->
+
+                <a
+                    href="fundamental.html"
+                    class="material-card">
+
+
+                    <div class="material-icon">
+
+                        👩‍⚕️
+
+                    </div>
+
+
+                    <div class="material-info">
+
+                        <h3>
+                            Fundamental of Nursing
+                        </h3>
+
+                        <p>
+                            أساسيات التمريض
+                        </p>
+
+                    </div>
+
+
+                    <span class="material-arrow">
+
+                        ←
+
+                    </span>
+
+                </a>
+
+
+            </div>
 
         </div>
 
+    </section>
 
-        <br>
-
-
-        <button
-            class="admin-btn primary-btn"
-            onclick="createContent()">
-
-            ➕ إضافة المحتوى
-
-        </button>
-
-    </div>
-
-
-    <!-- فلترة المحتوى -->
-
-    <div class="admin-card">
-
-        <h2>
-            🔎 البحث والفلترة
-        </h2>
-
-        <div class="form-grid">
-
-            <select id="filterSubject">
-
-                <option value="">
-                    كل المواد
-                </option>
-
-                <option value="General Surgery">
-                    🩺 General Surgery
-                </option>
-
-                <option value="Internal Medicine">
-                    🫀 Internal Medicine
-                </option>
-
-                <option value="Community Health Nursing">
-                    🏥 Community Health Nursing
-                </option>
-
-                <option value="Anatomy">
-                    🦴 Anatomy
-                </option>
-
-                <option value="Fundamental of Nursing">
-                    👩‍⚕️ Fundamental of Nursing
-                </option>
-
-            </select>
-
-
-            <select id="filterGrade">
-
-                <option value="">
-                    كل الصفوف
-                </option>
-
-                <option value="الصف الأول الثانوي التمريض">
-                    الصف الأول
-                </option>
-
-                <option value="الصف الثاني الثانوي التمريض">
-                    الصف الثاني
-                </option>
-
-            </select>
-
-        </div>
-
-    </div>
-
-
-    <!-- المحتوى الحالي -->
-
-    <div class="admin-card table-container">
-
-        <h2>
-            📚 المحتوى الحالي
-        </h2>
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        الصف
-                    </th>
-
-                    <th>
-                        المادة
-                    </th>
-
-                    <th>
-                        Chapter
-                    </th>
-
-                    <th>
-                        العنوان
-                    </th>
-
-                    <th>
-                        النوع
-                    </th>
-
-                    <th>
-                        الحالة
-                    </th>
-
-                    <th>
-                        الإجراءات
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody id="contentTable">
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</section>
 
     <!-- ==========================================
          Logout

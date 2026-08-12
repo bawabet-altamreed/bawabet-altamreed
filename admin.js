@@ -5,8 +5,13 @@
 
 (function () {
 
+    // ==========================================
+    // UID حساب الأدمن الجديد
+    // ==========================================
+
     const ADMIN_UID =
-        "4TbambkNbZUvsoc95q0cdy15fGn1";
+        "H4wMJm2ComSSy19ttzb1KxZz7Yu1";
+
 
     const loading =
         document.getElementById("loading");
@@ -57,7 +62,7 @@
 
             // ==================================
             // السماح بالدخول
-            // ==================================
+            // ==========================================
 
             loading.classList.add(
                 "hidden"
@@ -266,6 +271,16 @@
                     "expiredStudents"
                 ).textContent = expired;
 
+            })
+
+
+            .catch(function (error) {
+
+                console.error(
+                    "Dashboard Students Error:",
+                    error
+                );
+
             });
 
 
@@ -277,6 +292,7 @@
                 let total = 0;
 
                 let sum = 0;
+
 
                 snapshot.forEach(
                     function (doc) {
@@ -325,6 +341,16 @@
                     "averageScore"
                 ).textContent =
                     average + "%";
+
+            })
+
+
+            .catch(function (error) {
+
+                console.error(
+                    "Dashboard Results Error:",
+                    error
+                );
 
             });
 
@@ -763,6 +789,15 @@
                     }
                 );
 
+            })
+
+            .catch(function (error) {
+
+                console.error(
+                    "Codes Error:",
+                    error
+                );
+
             });
 
     }
@@ -1058,6 +1093,15 @@
                     "leaderboardTable"
                 ).innerHTML = html;
 
+            })
+
+            .catch(function (error) {
+
+                console.error(
+                    "Leaderboard Error:",
+                    error
+                );
+
             });
 
     }
@@ -1075,7 +1119,7 @@
                 .then(function () {
 
                     window.location.href =
-                        "login.html";
+                        "admin-login.html";
 
                 });
 

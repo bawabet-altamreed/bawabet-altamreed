@@ -159,7 +159,11 @@
                 loadContent();
 
             }
+if (sectionId === "notifications") {
 
+    loadNotifications();
+
+}
         };
 
 
@@ -3030,6 +3034,491 @@
         }
     );
 
+    // ==========================================
+// Notifications
+// إدارة الإشعارات
+// ==========================================
+
+
+// ------------------------------------------
+// تغيير نوع المستهدف
+// ------------------------------------------
+
+const notificationTargetType =
+    document.getElementById(
+        "notificationTargetType"
+    );
+
+
+if (notificationTargetType) {
+
+    notificationTargetType.addEventListener(
+        "change",
+        function () {
+
+            const targetId =
+                document.getElementById(
+                    "notificationTargetId"
+                );
+
+
+            if (!targetId) {
+
+                return;
+
+            }
+
+
+            if (this.value === "all") {
+
+                targetId.style.display =
+                    "none";
+
+                targetId.value = "";
+
+            }
+
+            else if (this.value === "grade") {
+
+                targetId.style.display =
+                    "block";
+
+                targetId.placeholder =
+                    "مثال: الصف الأول الثانوي التمريض";
+
+            }
+
+            else if (this.value === "student") {
+
+                targetId.style.display =
+                    "block";
+
+                targetId.placeholder =
+                    "اكتب كود الطالب";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ------------------------------------------
+// إنشاء إشعار
+// ------------------------------------------
+
+window.createNotification =
+    function () {
+
+        const targetType =
+            document.getElementById(
+                "notificationTargetType"
+            ).value;
+
+
+        const targetId =
+            document.getElementById(
+                "notificationTargetId"
+            ).value
+            .trim();
+
+
+        const title =
+            document.getElementById(
+                "notificationTitle"
+            ).value
+            .trim();
+
+
+        const message =
+            document.getElementById(
+                "notificationMessage"
+            ).value
+            .trim();
+
+
+        // ----------------------------------
+        // التحقق
+        // ----------------------------------
+
+        if (!title || !message) {
+
+            alert(
+                "⚠️ من فضلك اكتب عنوان الإشعار والرسالة"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            targetType !== "all" &&
+            !targetId
+        ) {
+
+            alert(
+                "⚠️ من فضلك حدد الطالب أو الصف"
+            );
+
+            return;
+
+        }
+
+
+        // ----------------------------------
+        // منع الضغط المتكرر
+        // ----------------------------------
+
+        const confirmSend =
+            confirm(
+                "🔔 هل تريد إرسال هذا الإشعار؟\n\n" +
+                "العنوان: " +
+                title
+            );
+
+
+        if (!confirmSend) {
+
+            return;
+
+        }
+
+
+        // ----------------------------------
+        // إضافة الإشعار
+        // ----------------------------------
+
+        db.collection("notifications")
+            .add({
+
+                title:
+                    title,
+
+                message:
+                    message,
+
+                targetType:
+                    targetType,
+
+                targetId:
+                    targetType === "all"
+                        ? ""
+                        : targetId,
+
+                createdAt:
+                    firebase.firestore
+                        .FieldValue
+                        .serverTimestamp()
+
+            })
+
+            .then(function () {
+
+                alert(
+                    "✅ تم إرسال الإشعار بنجاح 🔔"
+                );
+
+
+                // تنظيف النموذج
+
+                document.getElementById(
+                    "notificationTitle"
+                ).value = "";
+
+
+                document.getElementById(
+                    "notificationMessage"
+                ).value = "";
+
+
+                document.getElementById(
+                    "notificationTargetId"
+                ).value = "";
+
+
+                document.getElementById(
+                    "notificationTargetType"
+                ).value = "all";
+
+
+                document.getElementById(
+                    "notificationTargetId"
+                ).style.display = "none";
+
+
+                // إعادة تحميل الإشعارات
+
+                loadNotifications();
+
+            })
+
+            .catch(function (error) {
+
+                console.error(
+                    "Create Notification Error:",
+                    error
+                );
+
+
+                alert(
+                    "❌ فشل إرسال الإشعار\n\n" +
+                    error.message
+                );
+
+            });
+
+    };
+
+
+// ------------------------------------------
+// تحميل الإشعارات
+// ------------------------------------------
+
+function loadNotifications() {
+
+    db.collection("notifications")
+        .orderBy(
+            "createdAt",
+            "desc"
+        )
+        .get()
+
+        .then(function (snapshot) {
+
+            const table =
+                document.getElementById(
+                    "notificationsTable"
+                );
+
+
+            if (!table) {
+
+                return;
+
+            }
+
+
+            table.innerHTML = "";
+
+
+            if (snapshot.empty) {
+
+                table.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="5">
+
+                            📭 لا توجد إشعارات
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            snapshot.forEach(
+                function (doc) {
+
+                    const data =
+                        doc.data();
+
+
+                    let targetText =
+                        "📢 كل الطلاب";
+
+
+                    if (
+                        data.targetType ===
+                        "grade"
+                    ) {
+
+                        targetText =
+                            "🎓 " +
+                            (
+                                data.targetId ||
+                                "-"
+                            );
+
+                    }
+
+
+                    else if (
+                        data.targetType ===
+                        "student"
+                    ) {
+
+                        targetText =
+                            "👤 " +
+                            (
+                                data.targetId ||
+                                "-"
+                            );
+
+                    }
+
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    row.innerHTML = `
+
+                        <td>
+                            ${escapeHtml(
+                                data.title || "-"
+                            )}
+                        </td>
+
+
+                        <td style="
+                            max-width:300px;
+                            white-space:normal;
+                        ">
+                            ${escapeHtml(
+                                data.message || "-"
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                targetText
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${formatDate(
+                                data.createdAt
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                class="admin-btn danger-btn"
+                                title="حذف"
+                                onclick="
+                                    deleteNotification(
+                                        '${escapeAttribute(doc.id)}'
+                                    )
+                                ">
+
+                                🗑️
+
+                            </button>
+
+                        </td>
+
+                    `;
+
+
+                    table.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+        })
+
+        .catch(function (error) {
+
+            console.error(
+                "Notifications Error:",
+                error
+            );
+
+
+            const table =
+                document.getElementById(
+                    "notificationsTable"
+                );
+
+
+            if (table) {
+
+                table.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="5">
+
+                            ❌ تعذر تحميل الإشعارات
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+        });
+
+}
+
+
+// ------------------------------------------
+// حذف إشعار
+// ------------------------------------------
+
+window.deleteNotification =
+    function (id) {
+
+        if (
+            !confirm(
+                "⚠️ هل أنت متأكد من حذف هذا الإشعار؟"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        db.collection("notifications")
+            .doc(id)
+            .delete()
+
+            .then(function () {
+
+                alert(
+                    "✅ تم حذف الإشعار"
+                );
+
+
+                loadNotifications();
+
+            })
+
+            .catch(function (error) {
+
+                console.error(
+                    "Delete Notification Error:",
+                    error
+                );
+
+
+                alert(
+                    "❌ فشل حذف الإشعار\n\n" +
+                    error.message
+                );
+
+            });
+
+    };
 
     // ==========================================
     // تسجيل الخروج

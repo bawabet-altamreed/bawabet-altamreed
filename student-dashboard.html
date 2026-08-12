@@ -468,6 +468,250 @@ content="width=device-width, initial-scale=1.0">
 
 }
 
+  /* ==========================================
+   Notifications
+========================================== */
+
+nav {
+
+    position: relative;
+
+}
+
+
+.notification-wrapper {
+
+    position: relative;
+
+    margin-right: auto;
+
+}
+
+
+.notification-button {
+
+    position: relative;
+
+    width: 45px;
+
+    height: 45px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: white;
+
+    cursor: pointer;
+
+    font-size: 21px;
+
+    box-shadow:
+        0 3px 10px rgba(0,0,0,.12);
+
+}
+
+
+.notification-button:hover {
+
+    transform: scale(1.05);
+
+}
+
+
+.notification-badge {
+
+    position: absolute;
+
+    top: -4px;
+
+    right: -4px;
+
+    min-width: 20px;
+
+    height: 20px;
+
+    padding: 0 5px;
+
+    background: #d32f2f;
+
+    color: white;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 2px solid white;
+
+}
+
+
+.notification-dropdown {
+
+    position: absolute;
+
+    top: 55px;
+
+    left: 0;
+
+    width: 350px;
+
+    max-width: calc(100vw - 30px);
+
+    background: white;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.18);
+
+    overflow: hidden;
+
+    z-index: 9999;
+
+}
+
+
+.notification-header {
+
+    padding: 14px;
+
+    border-bottom: 1px solid #eee;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+}
+
+
+.notification-header strong {
+
+    color: #0d47a1;
+
+}
+
+
+.notification-header button {
+
+    border: none;
+
+    background: transparent;
+
+    color: #1976d2;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+}
+
+
+.notification-item {
+
+    padding: 14px;
+
+    border-bottom: 1px solid #eee;
+
+    cursor: pointer;
+
+    transition: background .2s ease;
+
+}
+
+
+.notification-item:hover {
+
+    background: #f5f8fc;
+
+}
+
+
+.notification-item.unread {
+
+    background: #eef6ff;
+
+    border-right: 4px solid #1976d2;
+
+}
+
+
+.notification-title {
+
+    font-weight: bold;
+
+    color: #222;
+
+    margin-bottom: 5px;
+
+}
+
+
+.notification-message {
+
+    color: #666;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+}
+
+
+.notification-time {
+
+    color: #999;
+
+    font-size: 11px;
+
+    margin-top: 7px;
+
+}
+
+
+.notification-empty {
+
+    padding: 25px 15px;
+
+    text-align: center;
+
+    color: #777;
+
+}
+
+
+@media (max-width: 600px) {
+
+    .notification-dropdown {
+
+        position: fixed;
+
+        top: 75px;
+
+        right: 15px;
+
+        left: 15px;
+
+        width: auto;
+
+        max-width: none;
+
+    }
+
+} 
+
 </style>
 
 </head>
@@ -485,6 +729,70 @@ content="width=device-width, initial-scale=1.0">
     <div class="logo">
 
         🩺 بوابة التمريض
+
+    </div>
+
+
+    <!-- ==========================================
+         Notifications
+    ========================================== -->
+
+    <div class="notification-wrapper">
+
+        <button
+            id="notificationButton"
+            class="notification-button"
+            type="button"
+            aria-label="الإشعارات">
+
+            🔔
+
+            <span
+                id="notificationBadge"
+                class="notification-badge"
+                style="display:none;">
+
+                0
+
+            </span>
+
+        </button>
+
+
+        <div
+            id="notificationDropdown"
+            class="notification-dropdown"
+            style="display:none;">
+
+            <div class="notification-header">
+
+                <strong>
+                    🔔 الإشعارات
+                </strong>
+
+                <button
+                    id="markAllNotifications"
+                    type="button">
+
+                    تحديد الكل كمقروء
+
+                </button>
+
+            </div>
+
+
+            <div
+                id="notificationList">
+
+                <div class="notification-empty">
+
+                    ⏳ جاري تحميل الإشعارات...
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 

@@ -121,6 +121,9 @@
                 loadLeaderboard();
             }
 
+            if (sectionId === "content") {
+    loadContent();
+            }
         };
 
 
@@ -1410,7 +1413,695 @@
 
     }
 
+// ==========================================
+// إدارة المحتوى
+// ==========================================
 
+let allContent = [];
+
+
+// ==========================================
+// تحميل المحتوى
+// ==========================================
+
+function loadContent() {
+
+    db.collection("content")
+        .orderBy("createdAt", "desc")
+        .get()
+
+        .then(function (snapshot) {
+
+            allContent = [];
+
+            snapshot.forEach(function (doc) {
+
+                allContent.push({
+
+                    id: doc.id,
+
+                    ...doc.data()
+
+                });
+
+            });
+
+            renderContent(allContent);
+
+        })
+
+        .catch(function (error) {
+
+            console.error(
+                "Content Error:",
+                error
+            );
+
+            document.getElementById(
+                "contentTable"
+            ).innerHTML = `
+
+                <tr>
+
+                    <td colspan="7">
+
+                        ❌ تعذر تحميل المحتوى
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+}
+
+
+// ==========================================
+// عرض المحتوى
+// ==========================================
+
+function renderContent(contents) {
+
+    const table =
+        document.getElementById(
+            "contentTable"
+        );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    table.innerHTML = "";
+
+
+    if (!contents.length) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="7">
+
+                    📭 لا يوجد محتوى حاليًا
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    contents.forEach(function (content) {
+
+        const row =
+            document.createElement("tr");
+
+
+        let typeText = "-";
+
+
+        if (content.type === "pdf") {
+
+            typeText = "📄 PDF";
+
+        }
+
+        else if (content.type === "video") {
+
+            typeText = "🎬 فيديو";
+
+        }
+
+        else if (content.type === "quiz") {
+
+            typeText = "📝 اختبار";
+
+        }
+
+        else if (content.type === "chapter") {
+
+            typeText = "📚 Chapter";
+
+        }
+
+
+        const status =
+            content.active === false
+                ? "⛔ مخفي"
+                : "✅ ظاهر";
+
+
+        row.innerHTML = `
+
+            <td>
+
+                ${escapeHtml(
+                    content.grade || "-"
+                )}
+
+            </td>
+
+
+            <td>
+
+                ${escapeHtml(
+                    content.subject || "-"
+                )}
+
+            </td>
+
+
+            <td>
+
+                ${escapeHtml(
+                    content.chapter || "-"
+                )}
+
+            </td>
+
+
+            <td>
+
+                ${escapeHtml(
+                    content.title || "-"
+                )}
+
+            </td>
+
+
+            <td>
+
+                ${typeText}
+
+            </td>
+
+
+            <td>
+
+                ${status}
+
+            </td>
+
+
+            <td>
+
+                <button
+                    class="admin-btn primary-btn"
+                    onclick="editContent('${escapeAttribute(content.id)}')">
+
+                    ✏️
+
+                </button>
+
+
+                <button
+                    class="admin-btn"
+                    onclick="toggleContent('${escapeAttribute(content.id)}')">
+
+                    ${
+                        content.active === false
+                        ? "👁️"
+                        : "⛔"
+                    }
+
+                </button>
+
+
+                <button
+                    class="admin-btn danger-btn"
+                    onclick="deleteContent('${escapeAttribute(content.id)}')">
+
+                    🗑️
+
+                </button>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(row);
+
+    });
+
+}
+
+
+// ==========================================
+// إضافة محتوى
+// ==========================================
+
+window.createContent =
+    function () {
+
+        const grade =
+            document.getElementById(
+                "contentGrade"
+            ).value;
+
+
+        const subject =
+            document.getElementById(
+                "contentSubject"
+            ).value;
+
+
+        const chapter =
+            document.getElementById(
+                "contentChapter"
+            ).value
+            .trim();
+
+
+        const title =
+            document.getElementById(
+                "contentTitle"
+            ).value
+            .trim();
+
+
+        const type =
+            document.getElementById(
+                "contentType"
+            ).value;
+
+
+        const url =
+            document.getElementById(
+                "contentUrl"
+            ).value
+            .trim();
+
+
+        if (
+            !grade ||
+            !subject ||
+            !chapter ||
+            !title ||
+            !type
+        ) {
+
+            alert(
+                "⚠️ من فضلك أكمل جميع البيانات"
+            );
+
+            return;
+
+        }
+
+
+        db.collection("content")
+            .add({
+
+                grade: grade,
+
+                subject: subject,
+
+                chapter: chapter,
+
+                title: title,
+
+                type: type,
+
+                url: url,
+
+                active: true,
+
+                createdAt:
+                    firebase.firestore
+                        .FieldValue
+                        .serverTimestamp()
+
+            })
+
+            .then(function () {
+
+                alert(
+                    "✅ تم إضافة المحتوى بنجاح"
+                );
+
+
+                document.getElementById(
+                    "contentGrade"
+                ).value = "";
+
+
+                document.getElementById(
+                    "contentSubject"
+                ).value = "";
+
+
+                document.getElementById(
+                    "contentChapter"
+                ).value = "";
+
+
+                document.getElementById(
+                    "contentTitle"
+                ).value = "";
+
+
+                document.getElementById(
+                    "contentType"
+                ).value = "";
+
+
+                document.getElementById(
+                    "contentUrl"
+                ).value = "";
+
+
+                loadContent();
+
+            })
+
+            .catch(function (error) {
+
+                console.error(
+                    "Create Content Error:",
+                    error
+                );
+
+                alert(
+                    "❌ فشل إضافة المحتوى\n\n" +
+                    error.message
+                );
+
+            });
+
+    };
+
+
+// ==========================================
+// تعديل المحتوى
+// ==========================================
+
+window.editContent =
+    function (id) {
+
+        const content =
+            allContent.find(
+                function (item) {
+
+                    return item.id === id;
+
+                }
+            );
+
+
+        if (!content) {
+
+            alert(
+                "❌ المحتوى غير موجود"
+            );
+
+            return;
+
+        }
+
+
+        const title =
+            prompt(
+                "عنوان المحتوى:",
+                content.title || ""
+            );
+
+
+        if (title === null) {
+            return;
+        }
+
+
+        const chapter =
+            prompt(
+                "Chapter:",
+                content.chapter || ""
+            );
+
+
+        if (chapter === null) {
+            return;
+        }
+
+
+        const url =
+            prompt(
+                "الرابط:",
+                content.url || ""
+            );
+
+
+        if (url === null) {
+            return;
+        }
+
+
+        db.collection("content")
+            .doc(id)
+            .update({
+
+                title:
+                    title.trim(),
+
+                chapter:
+                    chapter.trim(),
+
+                url:
+                    url.trim()
+
+            })
+
+            .then(function () {
+
+                alert(
+                    "✅ تم تعديل المحتوى"
+                );
+
+                loadContent();
+
+            })
+
+            .catch(function (error) {
+
+                console.error(error);
+
+                alert(
+                    "❌ فشل تعديل المحتوى\n\n" +
+                    error.message
+                );
+
+            });
+
+    };
+
+
+// ==========================================
+// إظهار / إخفاء المحتوى
+// ==========================================
+
+window.toggleContent =
+    function (id) {
+
+        const content =
+            allContent.find(
+                function (item) {
+
+                    return item.id === id;
+
+                }
+            );
+
+
+        if (!content) {
+
+            return;
+
+        }
+
+
+        const newStatus =
+            content.active === false;
+
+
+        db.collection("content")
+            .doc(id)
+            .update({
+
+                active: newStatus
+
+            })
+
+            .then(function () {
+
+                alert(
+                    newStatus
+                        ? "✅ تم إظهار المحتوى"
+                        : "⛔ تم إخفاء المحتوى"
+                );
+
+
+                loadContent();
+
+            })
+
+            .catch(function (error) {
+
+                console.error(error);
+
+                alert(
+                    "❌ فشل تغيير حالة المحتوى"
+                );
+
+            });
+
+    };
+
+
+// ==========================================
+// حذف المحتوى
+// ==========================================
+
+window.deleteContent =
+    function (id) {
+
+        const content =
+            allContent.find(
+                function (item) {
+
+                    return item.id === id;
+
+                }
+            );
+
+
+        if (!content) {
+
+            return;
+
+        }
+
+
+        if (
+            !confirm(
+                "⚠️ هل أنت متأكد من حذف هذا المحتوى؟\n\n" +
+                (content.title || "")
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        db.collection("content")
+            .doc(id)
+            .delete()
+
+            .then(function () {
+
+                alert(
+                    "✅ تم حذف المحتوى"
+                );
+
+
+                loadContent();
+
+            })
+
+            .catch(function (error) {
+
+                console.error(error);
+
+                alert(
+                    "❌ فشل حذف المحتوى\n\n" +
+                    error.message
+                );
+
+            });
+
+    };
+
+
+// ==========================================
+// فلترة المحتوى
+// ==========================================
+
+function filterContent() {
+
+    const subject =
+        document.getElementById(
+            "filterSubject"
+        ).value;
+
+
+    const grade =
+        document.getElementById(
+            "filterGrade"
+        ).value;
+
+
+    const filtered =
+        allContent.filter(
+            function (content) {
+
+                const subjectMatch =
+                    !subject ||
+                    content.subject === subject;
+
+
+                const gradeMatch =
+                    !grade ||
+                    content.grade === grade;
+
+
+                return (
+                    subjectMatch &&
+                    gradeMatch
+                );
+
+            }
+        );
+
+
+    renderContent(filtered);
+
+}
+
+
+document.addEventListener(
+    "change",
+    function (event) {
+
+        if (
+            event.target.id ===
+            "filterSubject"
+        ) {
+
+            filterContent();
+
+        }
+
+
+        if (
+            event.target.id ===
+            "filterGrade"
+        ) {
+
+            filterContent();
+
+        }
+
+    }
+);
+    
     // ==========================================
     // تسجيل الخروج
     // ==========================================

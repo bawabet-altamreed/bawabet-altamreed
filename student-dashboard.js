@@ -21,6 +21,14 @@ let currentStudent = null;
 
 let allResults = [];
 
+// ==========================================
+// Notifications
+// نظام الإشعارات
+// ==========================================
+
+let allNotifications = [];
+
+let readNotifications = new Set();
 
 // ==========================================
 // التحقق من تسجيل الدخول
@@ -44,11 +52,19 @@ if (!studentCode) {
 function loadStudentDashboard() {
 
     loadStudentData()
+
         .then(function () {
 
             return loadStudentResults();
 
         })
+
+        .then(function () {
+
+            return loadStudentNotifications();
+
+        })
+
         .catch(function (error) {
 
             console.error(
@@ -1314,3 +1330,551 @@ function showError() {
     }
 
 }
+
+// ==========================================
+// تحميل إشعارات الطالب
+// ==========================================
+
+function loadStudentNotifications() {
+
+    return db.collection("notifications")
+
+        .orderBy(
+            "createdAt",
+            "desc"
+        )
+
+        .limit(50)
+
+        .get()
+
+        .then(function (snapshot) {
+
+            allNotifications = [];
+
+            readNotifications =
+                new Set(
+                    JSON.parse(
+                        localStorage.getItem(
+                            "readNotifications_" +
+                            studentCode
+                        ) || "[]"
+                    )
+                );
+
+
+            snapshot.forEach(
+                function (doc) {
+
+                    const notification =
+                        doc.data();
+
+
+                    if (
+                        !notificationIsForStudent(
+                            notification
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    allNotifications.push({
+
+                        id: doc.id,
+
+                        ...notification
+
+                    });
+
+                }
+            );
+
+
+            renderNotifications();
+
+            updateNotificationBadge();
+
+        })
+
+        .catch(function (error) {
+
+            console.error(
+                "Notifications Error:",
+                error
+            );
+
+
+            const list =
+                document.getElementById(
+                    "notificationList"
+                );
+
+
+            if (list) {
+
+                list.innerHTML = `
+
+                    <div class="notification-empty">
+
+                        ❌ تعذر تحميل الإشعارات
+
+                    </div>
+
+                `;
+
+            }
+
+        });
+
+}
+
+
+// ==========================================
+// هل الإشعار موجه للطالب؟
+// ==========================================
+
+function notificationIsForStudent(
+    notification
+) {
+
+    const targetType =
+        notification.targetType ||
+        "all";
+
+
+    // ======================================
+    // للجميع
+    // ======================================
+
+    if (
+        targetType === "all"
+    ) {
+
+        return true;
+
+    }
+
+
+    // ======================================
+    // لطالب محدد
+    // ======================================
+
+    if (
+        targetType === "student"
+    ) {
+
+        return (
+            notification.targetId ===
+            studentCode
+        );
+
+    }
+
+
+    // ======================================
+    // لصف محدد
+    // ======================================
+
+    if (
+        targetType === "grade"
+    ) {
+
+        return (
+            String(
+                notification.targetId
+            ) ===
+            String(
+                currentStudent.grade
+            )
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+// ==========================================
+// عرض الإشعارات
+// ==========================================
+
+function renderNotifications() {
+
+    const list =
+        document.getElementById(
+            "notificationList"
+        );
+
+
+    if (!list) {
+
+        return;
+
+    }
+
+
+    if (
+        !allNotifications.length
+    ) {
+
+        list.innerHTML = `
+
+            <div class="notification-empty">
+
+                🔕 لا توجد إشعارات حاليًا
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = "";
+
+
+    allNotifications.forEach(
+        function (notification) {
+
+            const isRead =
+                readNotifications.has(
+                    notification.id
+                );
+
+
+            html += `
+
+                <div
+
+                    class="
+                        notification-item
+                        ${
+                            isRead
+                                ? ""
+                                : "unread"
+                        }
+                    "
+
+                    data-id="${escapeHtml(
+                        notification.id
+                    )}"
+
+                >
+
+                    <div class="notification-title">
+
+                        ${
+                            escapeHtml(
+                                notification.title ||
+                                "إشعار جديد"
+                            )
+                        }
+
+                    </div>
+
+
+                    <div class="notification-message">
+
+                        ${
+                            escapeHtml(
+                                notification.message ||
+                                ""
+                            )
+                        }
+
+                    </div>
+
+
+                    <div class="notification-time">
+
+                        🕒
+
+                        ${
+                            formatDateTime(
+                                notification.createdAt
+                            )
+                        }
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    list.innerHTML = html;
+
+
+    // ======================================
+    // الضغط على إشعار
+    // ======================================
+
+    const items =
+        list.querySelectorAll(
+            ".notification-item"
+        );
+
+
+    items.forEach(
+        function (item) {
+
+            item.addEventListener(
+                "click",
+                function () {
+
+                    const id =
+                        item.dataset.id;
+
+
+                    markNotificationAsRead(
+                        id
+                    );
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// تحديد إشعار كمقروء
+// ==========================================
+
+function markNotificationAsRead(
+    notificationId
+) {
+
+    readNotifications.add(
+        notificationId
+    );
+
+
+    saveReadNotifications();
+
+
+    renderNotifications();
+
+    updateNotificationBadge();
+
+}
+
+
+// ==========================================
+// تحديد كل الإشعارات كمقروءة
+// ==========================================
+
+function markAllNotificationsAsRead() {
+
+    allNotifications.forEach(
+        function (notification) {
+
+            readNotifications.add(
+                notification.id
+            );
+
+        }
+    );
+
+
+    saveReadNotifications();
+
+    renderNotifications();
+
+    updateNotificationBadge();
+
+}
+
+
+// ==========================================
+// حفظ الإشعارات المقروءة
+// ==========================================
+
+function saveReadNotifications() {
+
+    localStorage.setItem(
+
+        "readNotifications_" +
+        studentCode,
+
+        JSON.stringify(
+            Array.from(
+                readNotifications
+            )
+        )
+
+    );
+
+}
+
+
+// ==========================================
+// تحديث Badge
+// ==========================================
+
+function updateNotificationBadge() {
+
+    const badge =
+        document.getElementById(
+            "notificationBadge"
+        );
+
+
+    if (!badge) {
+
+        return;
+
+    }
+
+
+    const unreadCount =
+        allNotifications.filter(
+            function (notification) {
+
+                return !readNotifications.has(
+                    notification.id
+                );
+
+            }
+        ).length;
+
+
+    if (
+        unreadCount <= 0
+    ) {
+
+        badge.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    badge.style.display =
+        "flex";
+
+
+    badge.textContent =
+        unreadCount > 99
+            ? "99+"
+            : unreadCount;
+
+}
+
+
+// ==========================================
+// فتح وإغلاق قائمة الإشعارات
+// ==========================================
+
+function setupNotificationUI() {
+
+    const button =
+        document.getElementById(
+            "notificationButton"
+        );
+
+
+    const dropdown =
+        document.getElementById(
+            "notificationDropdown"
+        );
+
+
+    const markAllButton =
+        document.getElementById(
+            "markAllNotifications"
+        );
+
+
+    if (
+        !button ||
+        !dropdown
+    ) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+
+            dropdown.style.display =
+                dropdown.style.display ===
+                "none"
+
+                    ? "block"
+
+                    : "none";
+
+        }
+    );
+
+
+    if (markAllButton) {
+
+        markAllButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.stopPropagation();
+
+                markAllNotificationsAsRead();
+
+            }
+        );
+
+    }
+
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                !dropdown.contains(
+                    event.target
+                ) &&
+                event.target !== button
+            ) {
+
+                dropdown.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// تشغيل نظام الإشعارات
+// ==========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        setupNotificationUI();
+
+    }
+);

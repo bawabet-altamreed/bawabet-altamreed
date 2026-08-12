@@ -46,19 +46,16 @@ if (!studentCode) {
 function loadStudentDashboard() {
 
     loadStudentData()
-
         .then(function () {
 
             return loadStudentResults();
 
         })
-
         .then(function () {
 
             return loadAvailableContent();
 
         })
-
         .catch(function (error) {
 
             console.error(
@@ -122,9 +119,7 @@ function renderWelcome() {
 
 
     if (!element) {
-
         return;
-
     }
 
 
@@ -151,15 +146,14 @@ function renderStudentInfo() {
 
 
     if (!container) {
-
         return;
-
     }
 
 
     container.innerHTML = `
 
         <div class="student-info-grid">
+
 
             <div class="student-info-item">
 
@@ -168,12 +162,10 @@ function renderStudentInfo() {
                 </small>
 
                 <strong>
-
                     ${escapeHtml(
                         currentStudent.name ||
                         "غير محدد"
                     )}
-
                 </strong>
 
             </div>
@@ -186,12 +178,10 @@ function renderStudentInfo() {
                 </small>
 
                 <strong>
-
                     ${escapeHtml(
                         currentStudent.grade ||
                         "غير محدد"
                     )}
-
                 </strong>
 
             </div>
@@ -204,11 +194,9 @@ function renderStudentInfo() {
                 </small>
 
                 <strong>
-
                     ${escapeHtml(
                         studentCode
                     )}
-
                 </strong>
 
             </div>
@@ -221,15 +209,14 @@ function renderStudentInfo() {
                 </small>
 
                 <strong>
-
                     ${escapeHtml(
                         currentStudent.email ||
                         "غير محدد"
                     )}
-
                 </strong>
 
             </div>
+
 
         </div>
 
@@ -251,9 +238,7 @@ function renderSubscription() {
 
 
     if (!container) {
-
         return;
-
     }
 
 
@@ -268,12 +253,9 @@ function renderSubscription() {
     let className =
         "subscription-box";
 
+
     let remainingText = "";
 
-
-    // ==================================
-    // الاشتراك متوقف
-    // ==================================
 
     if (
         currentStudent.active !== true
@@ -287,22 +269,14 @@ function renderSubscription() {
 
     }
 
-
-    // ==================================
-    // لا يوجد تاريخ انتهاء
-    // ==================================
-
-    else if (!expiry) {
+    else if (
+        !expiry
+    ) {
 
         status =
             "⚠️ لا يوجد تاريخ انتهاء";
 
     }
-
-
-    // ==================================
-    // الاشتراك منتهي
-    // ==================================
 
     else if (
         new Date() >= expiry
@@ -318,11 +292,6 @@ function renderSubscription() {
             "انتهت مدة الاشتراك";
 
     }
-
-
-    // ==================================
-    // الاشتراك نشط
-    // ==================================
 
     else {
 
@@ -374,7 +343,9 @@ function renderSubscription() {
 
                     ${
                         expiry
-                            ? formatDate(expiry)
+                            ? formatDate(
+                                expiry
+                            )
                             : "-"
                     }
 
@@ -385,7 +356,9 @@ function renderSubscription() {
 
             <p>
 
-                ⏳ ${remainingText}
+                ⏳
+
+                ${remainingText}
 
             </p>
 
@@ -462,10 +435,6 @@ function loadStudentResults() {
             );
 
 
-            // ==================================
-            // عرض النتائج
-            // ==================================
-
             renderResults();
 
             renderLatestResults();
@@ -492,9 +461,7 @@ function renderResults() {
 
 
     if (!container) {
-
         return;
-
     }
 
 
@@ -525,17 +492,29 @@ function renderResults() {
 
                     <tr>
 
-                        <th>#</th>
+                        <th>
+                            #
+                        </th>
 
-                        <th>المادة</th>
+                        <th>
+                            المادة
+                        </th>
 
-                        <th>Chapter</th>
+                        <th>
+                            Chapter
+                        </th>
 
-                        <th>الدرجة</th>
+                        <th>
+                            الدرجة
+                        </th>
 
-                        <th>النسبة</th>
+                        <th>
+                            النسبة
+                        </th>
 
-                        <th>التاريخ</th>
+                        <th>
+                            التاريخ
+                        </th>
 
                     </tr>
 
@@ -667,9 +646,7 @@ function renderLatestResults() {
 
 
     if (!container) {
-
         return;
-
     }
 
 
@@ -704,13 +681,21 @@ function renderLatestResults() {
 
                     <tr>
 
-                        <th>المادة</th>
+                        <th>
+                            المادة
+                        </th>
 
-                        <th>Chapter</th>
+                        <th>
+                            Chapter
+                        </th>
 
-                        <th>النتيجة</th>
+                        <th>
+                            النتيجة
+                        </th>
 
-                        <th>التاريخ</th>
+                        <th>
+                            التاريخ
+                        </th>
 
                     </tr>
 
@@ -875,9 +860,7 @@ function renderProgress() {
 
 
     if (!container) {
-
         return;
-
     }
 
 
@@ -1049,133 +1032,77 @@ function renderProgress() {
 
 
 // ==========================================
-// تحميل المواد المتاحة حسب الصف
+// تحميل المحتوى المتاح
 // ==========================================
 
 function loadAvailableContent() {
 
-    allContent = [];
+    return db.collection("content")
+        .where(
+            "active",
+            "==",
+            true
+        )
+        .get()
+
+        .then(function (snapshot) {
+
+            allContent = [];
 
 
-    // ==================================
-    // الصف الثاني الثانوي التمريض
-    // ==================================
+            snapshot.forEach(function (doc) {
 
-    if (
-        currentStudent.grade ===
-        "الصف الثاني الثانوي التمريض"
-    ) {
-
-        allContent = [
-
-            {
-                id: "community-health",
-
-                name:
-                    "Community Health Nursing",
-
-                icon: "🏥",
-
-                url:
-                    "community-health.html"
-
-            },
+                const content =
+                    doc.data();
 
 
-            {
-                id: "surgery",
+                // ==================================
+                // عرض محتوى الصف الخاص بالطالب فقط
+                // ==================================
 
-                name:
-                    "General Surgery",
+                if (
+                    content.grade ===
+                    currentStudent.grade
+                ) {
 
-                icon: "🩺",
+                    allContent.push({
 
-                url:
-                    "surgery.html"
+                        id: doc.id,
 
-            },
+                        ...content
 
+                    });
 
-            {
-                id: "medical-surgical",
+                }
 
-                name:
-                    "Medical-Surgical Nursing",
-
-                icon: "⚕️",
-
-                url:
-                    "medical-surgical.html"
-
-            },
+            });
 
 
-            {
-                id: "internal-medicine",
+            renderSubjects();
 
-                name:
-                    "Internal Medicine",
+        })
 
-                icon: "💊",
+        .catch(function (error) {
 
-                url:
-                    "internal-medicine.html"
-
-            }
-
-        ];
-
-    }
+            console.error(
+                "Content Error:",
+                error
+            );
 
 
-    // ==================================
-    // الصف الأول الثانوي التمريض
-    // ==================================
+            document.getElementById(
+                "subjects"
+            ).innerHTML = `
 
-    else if (
-        currentStudent.grade ===
-        "الصف الأول الثانوي التمريض"
-    ) {
+                <div class="empty-state">
 
-        allContent = [
+                    ❌ تعذر تحميل المواد
 
-            {
-                id: "anatomy",
+                </div>
 
-                name:
-                    "Anatomy",
+            `;
 
-                icon: "🫀",
-
-                url:
-                    "anatomy.html"
-
-            },
-
-
-            {
-                id: "fundamental",
-
-                name:
-                    "Fundamentals of Nursing",
-
-                icon: "👩‍⚕️",
-
-                url:
-                    "fundamental.html"
-
-            }
-
-        ];
-
-    }
-
-
-    // ==================================
-    // عرض المواد
-    // ==================================
-
-    renderSubjects();
+        });
 
 }
 
@@ -1193,15 +1120,9 @@ function renderSubjects() {
 
 
     if (!container) {
-
         return;
-
     }
 
-
-    // ==================================
-    // لا توجد مواد
-    // ==================================
 
     if (!allContent.length) {
 
@@ -1226,19 +1147,54 @@ function renderSubjects() {
     }
 
 
-    // ==================================
-    // عدد المواد
-    // ==================================
+    const subjects = {};
 
-    setText(
-        "totalSubjects",
-        allContent.length
+
+    allContent.forEach(
+        function (content) {
+
+            const subject =
+                content.subject ||
+                "مادة غير محددة";
+
+
+            if (!subjects[subject]) {
+
+                subjects[subject] = {
+
+                    count: 0,
+
+                    chapters: {}
+
+                };
+
+            }
+
+
+            subjects[subject].count++;
+
+
+            const chapter =
+                content.chapter ||
+                "-";
+
+
+            subjects[subject]
+                .chapters[chapter] = true;
+
+        }
     );
 
 
-    // ==================================
-    // إنشاء الكروت
-    // ==================================
+    const subjectNames =
+        Object.keys(subjects);
+
+
+    setText(
+        "totalSubjects",
+        subjectNames.length
+    );
+
 
     let html = `
 
@@ -1247,30 +1203,24 @@ function renderSubjects() {
     `;
 
 
-    allContent.forEach(
-        function (content) {
+    subjectNames.forEach(
+        function (subject) {
+
+            const chapters =
+                Object.keys(
+                    subjects[subject]
+                        .chapters
+                );
+
 
             html += `
 
                 <div class="subject-card">
 
-                    <div
-                        style="
-                            font-size: 35px;
-                            margin-bottom: 10px;
-                        "
-                    >
-
-                        ${content.icon || "📚"}
-
-                    </div>
-
-
                     <h3>
 
-                        ${escapeHtml(
-                            content.name ||
-                            "مادة دراسية"
+                        📚 ${escapeHtml(
+                            subject
                         )}
 
                     </h3>
@@ -1278,30 +1228,19 @@ function renderSubjects() {
 
                     <p class="subject-count">
 
-                        📖 محتوى المادة متاح
+                        📦 عدد المحتويات:
+                        ${subjects[subject].count}
 
                     </p>
 
 
-                    <a
-                        href="${escapeHtml(
-                            content.url
-                        )}"
-                        style="
-                            display: block;
-                            margin-top: 12px;
-                            padding: 10px;
-                            background: #1976d2;
-                            color: white;
-                            text-decoration: none;
-                            border-radius: 10px;
-                            text-align: center;
-                        "
-                    >
+                    <p class="subject-count">
 
-                        دخول المادة →
+                        📖 Chapters:
 
-                    </a>
+                        ${chapters.length}
+
+                    </p>
 
                 </div>
 
@@ -1389,8 +1328,6 @@ function getDate(value) {
     }
 
 
-    // Firebase Timestamp
-
     if (
         typeof value.toDate ===
         "function"
@@ -1400,23 +1337,6 @@ function getDate(value) {
 
     }
 
-
-    // JavaScript Date
-
-    if (
-        value instanceof Date
-    ) {
-
-        return isNaN(
-            value.getTime()
-        )
-            ? null
-            : value;
-
-    }
-
-
-    // String / Number
 
     const date =
         new Date(value);
@@ -1528,30 +1448,30 @@ function escapeHtml(value) {
         value ?? ""
     )
 
-        .replace(
-            /&/g,
-            "&amp;"
-        )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
 
-        .replace(
-            /</g,
-            "&lt;"
-        )
+    .replace(
+        /</g,
+        "&lt;"
+    )
 
-        .replace(
-            />/g,
-            "&gt;"
-        )
+    .replace(
+        />/g,
+        "&gt;"
+    )
 
-        .replace(
-            /"/g,
-            "&quot;"
-        )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
 
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 

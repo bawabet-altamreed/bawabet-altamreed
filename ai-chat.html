@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        مساعد بوابة التمريض
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="ai-chat.css"
+    >
+
+</head>
+
+<body>
+
+<!-- ==========================================
+     NAVBAR
+========================================== -->
+
+<nav>
+
+    <div class="logo">
+        🩺 بوابة التمريض
+    </div>
+
+    <ul>
+
+        <li>
+            <a href="index.html">
+                الرئيسية
+            </a>
+        </li>
+
+        <li>
+            <a href="student-dashboard.html">
+                لوحة الطالب
+            </a>
+        </li>
+
+        <li>
+            <a href="achievements.html">
+                🏆 إنجازاتي
+            </a>
+        </li>
+
+    </ul>
+
+</nav>
+
+
+<!-- ==========================================
+     AI PAGE
+========================================== -->
+
+<main class="ai-page">
+
+
+    <!-- ======================================
+         HEADER
+    ====================================== -->
+
+    <section class="ai-header">
+
+        <div class="ai-avatar">
+            🤖
+        </div>
+
+        <div>
+
+            <h1>
+                مساعد بوابة التمريض
+            </h1>
+
+            <p>
+                مساعدك الذكي لفهم الشرح وحل أسئلتك
+            </p>
+
+        </div>
+
+        <div class="ai-status">
+
+            <span></span>
+
+            متصل
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         CHAT
+    ====================================== -->
+
+    <section
+        id="chatMessages"
+        class="chat-messages"
+    >
+
+
+        <!-- Welcome -->
+
+        <div class="message ai-message">
+
+            <div class="message-avatar">
+                🤖
+            </div>
+
+            <div class="message-content">
+
+                <strong>
+                    مساعد بوابة التمريض
+                </strong>
+
+                <p>
+                    أهلاً بيك يا بطل 👋🩺
+                </p>
+
+                <p>
+                    أنا مساعدك الذكي داخل بوابة التمريض.
+                </p>
+
+                <p>
+                    تقدر تسألني عن سؤال مش فاهمه،
+                    أو تطلب شرح إجابة،
+                    أو تطلب تبسيط معلومة تمريضية.
+                </p>
+
+                <p>
+                    💡 مثال:
+                    <br>
+                    "اشرحلي الفرق بين inflammation و infection"
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         SUGGESTIONS
+    ====================================== -->
+
+    <div class="ai-suggestions">
+
+        <button
+            onclick="useSuggestion('اشرح لي هذه المعلومة بطريقة بسيطة')"
+        >
+            💡 اشرحلي المعلومة
+        </button>
+
+        <button
+            onclick="useSuggestion('اشرح لي إجابة هذا السؤال ولماذا هي الصحيحة')"
+        >
+            📝 اشرح إجابة سؤال
+        </button>
+
+        <button
+            onclick="useSuggestion('اعمل لي ملخص سريع لهذا الموضوع')"
+        >
+            📚 اعمل ملخص
+        </button>
+
+    </div>
+
+
+    <!-- ======================================
+         INPUT
+    ====================================== -->
+
+    <section class="chat-input-area">
+
+        <textarea
+            id="messageInput"
+            placeholder="اكتب سؤالك هنا..."
+            rows="1"
+        ></textarea>
+
+
+        <button
+            id="sendButton"
+            class="send-button"
+        >
+
+            ➤
+
+        </button>
+
+    </section>
+
+
+    <div class="ai-disclaimer">
+
+        🤖 مساعد بوابة التمريض أداة تعليمية للمساعدة
+        في الفهم والمراجعة، وليس بديلاً عن المحاضر أو المصادر الدراسية.
+
+    </div>
+
+
+</main>
+
+
+<script src="ai-chat.js"></script>
+
+</body>
+
+</html>

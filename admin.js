@@ -6,7 +6,7 @@
 (function () {
 
     // ==========================================
-    // UID حساب الأدمن الجديد
+    // UID الأدمن الحالي
     // ==========================================
 
     const ADMIN_UID =
@@ -30,7 +30,21 @@
     firebase.auth().onAuthStateChanged(
         function (user) {
 
+            console.log(
+                "🔐 Firebase User:",
+                user
+            );
+
+
+            // ==================================
+            // لا يوجد مستخدم
+            // ==================================
+
             if (!user) {
+
+                console.log(
+                    "❌ لا يوجد مستخدم مسجل في Firebase"
+                );
 
                 showDenied();
 
@@ -39,9 +53,18 @@
             }
 
 
+            // ==================================
+            // عرض UID الحقيقي في Console
+            // ==================================
+
             console.log(
-                "Firebase UID:",
+                "🔑 Firebase UID:",
                 user.uid
+            );
+
+            console.log(
+                "👑 Admin UID المطلوب:",
+                ADMIN_UID
             );
 
 
@@ -53,6 +76,20 @@
                 user.uid !== ADMIN_UID
             ) {
 
+                console.error(
+                    "❌ UID غير مطابق"
+                );
+
+                console.error(
+                    "Firebase UID:",
+                    user.uid
+                );
+
+                console.error(
+                    "Expected Admin UID:",
+                    ADMIN_UID
+                );
+
                 showDenied();
 
                 return;
@@ -61,10 +98,19 @@
 
 
             // ==================================
-            // السماح بالدخول
-            // ==========================================
+            // الأدمن صحيح
+            // ==================================
+
+            console.log(
+                "✅ تم التحقق من صلاحيات الأدمن"
+            );
+
 
             loading.classList.add(
+                "hidden"
+            );
+
+            accessDenied.classList.add(
                 "hidden"
             );
 
@@ -72,6 +118,10 @@
                 "hidden"
             );
 
+
+            // ==================================
+            // تحميل لوحة التحكم
+            // ==================================
 
             loadDashboard();
 
@@ -133,8 +183,6 @@
             }
 
 
-            // تحميل البيانات عند فتح القسم
-
             if (
                 sectionId === "students"
             ) {
@@ -185,9 +233,7 @@
             .then(function (snapshot) {
 
                 let total = 0;
-
                 let active = 0;
-
                 let expired = 0;
 
 
@@ -273,7 +319,6 @@
 
             })
 
-
             .catch(function (error) {
 
                 console.error(
@@ -290,7 +335,6 @@
             .then(function (snapshot) {
 
                 let total = 0;
-
                 let sum = 0;
 
 
@@ -304,7 +348,7 @@
                             doc.data();
 
 
-                        let score =
+                        const score =
                             Number(
                                 data.percentage ??
                                 data.score ??
@@ -343,7 +387,6 @@
                     average + "%";
 
             })
-
 
             .catch(function (error) {
 

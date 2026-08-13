@@ -1881,7 +1881,28 @@ document.addEventListener(
     }
 );
 
-// ==========================================
+
+            if (container) {
+
+                container.innerHTML = `
+
+                    <div class="empty-state">
+
+                        ❌ تعذر تحميل الشهادات
+
+                    </div>
+
+                `;
+
+            }
+
+        });
+
+}
+
+
+    
+    // ==========================================
 // Certificates System
 // نظام الشهادات
 // ==========================================
@@ -1899,55 +1920,41 @@ function loadStudentCertificates() {
         return;
     }
 
-
     db.collection("certificates")
-
-        .where(
-            "studentCode",
-            "==",
-            studentCode
-        )
-
+        .where("studentCode", "==", studentCode)
         .get()
 
-        .then(function (snapshot) {
+        .then(function(snapshot) {
 
             studentCertificates = [];
 
+            snapshot.forEach(function(doc) {
 
-            snapshot.forEach(
-                function (doc) {
+                studentCertificates.push({
 
-                    studentCertificates.push({
+                    id: doc.id,
 
-                        id:
-                            doc.id,
+                    ...doc.data()
 
-                        ...doc.data()
+                });
 
-                    });
-
-                }
-            );
-
+            });
 
             renderCertificates();
 
         })
 
-        .catch(function (error) {
+        .catch(function(error) {
 
             console.error(
                 "Certificates Error:",
                 error
             );
 
-
             const container =
                 document.getElementById(
                     "certificates"
                 );
-
 
             if (container) {
 
@@ -1974,31 +1981,32 @@ function loadStudentCertificates() {
 
 function checkChapterOneCertificate() {
 
+    if (!Array.isArray(allResults)) {
+        return null;
+    }
+
     const eligibleResult =
-        allResults.find(
-            function (result) {
+        allResults.find(function(result) {
 
-                return (
+            return (
 
-                    result.subject ===
-                        "General Surgery"
+                result.subject ===
+                    "General Surgery"
 
-                    &&
+                &&
 
-                    result.chapter ===
-                        "Chapter 1"
+                result.chapter ===
+                    "Chapter 1"
 
-                    &&
+                &&
 
-                    Number(
-                        getPercentage(result)
-                    ) >= 70
+                Number(
+                    getPercentage(result)
+                ) >= 70
 
-                );
+            );
 
-            }
-        );
-
+        });
 
     return eligibleResult || null;
 
@@ -2017,11 +2025,8 @@ function generateCertificateId() {
             .substring(2, 8)
             .toUpperCase();
 
-
     const year =
-        new Date()
-            .getFullYear();
-
+        new Date().getFullYear();
 
     return (
         "NURS-" +
@@ -2034,12 +2039,10 @@ function generateCertificateId() {
 
 
 // ==========================================
-// إنشاء شهادة Chapter 1
+// إنشاء الشهادة
 // ==========================================
 
-function createChapterOneCertificate(
-    result
-) {
+function createChapterOneCertificate(result) {
 
     if (!result) {
 
@@ -2052,13 +2055,10 @@ function createChapterOneCertificate(
     }
 
 
-    // ======================================
-    // منع إنشاء شهادة مكررة
-    // ======================================
-
+    // منع التكرار
     const existing =
         studentCertificates.find(
-            function (certificate) {
+            function(certificate) {
 
                 return (
 
@@ -2083,9 +2083,7 @@ function createChapterOneCertificate(
 
     if (existing) {
 
-        return Promise.resolve(
-            existing
-        );
+        return Promise.resolve(existing);
 
     }
 
@@ -2103,14 +2101,46 @@ function createChapterOneCertificate(
             studentCode,
 
         studentName:
-            currentStudent.name ||
-            studentName ||
-            "",
+            (
+                typeof currentStudent !==
+                "undefined"
+            )
+
+                ?
+
+                (
+                    currentStudent.name ||
+                    studentName ||
+                    ""
+                )
+
+                :
+
+                (
+                    studentName ||
+                    ""
+                ),
 
         grade:
-            currentStudent.grade ||
-            studentGrade ||
-            "",
+            (
+                typeof currentStudent !==
+                "undefined"
+            )
+
+                ?
+
+                (
+                    currentStudent.grade ||
+                    studentGrade ||
+                    ""
+                )
+
+                :
+
+                (
+                    studentGrade ||
+                    ""
+                ),
 
         type:
             "chapter",
@@ -2126,7 +2156,7 @@ function createChapterOneCertificate(
 
         score:
             Number(
-                result.percentage
+                getPercentage(result)
             ),
 
         status:
@@ -2140,24 +2170,20 @@ function createChapterOneCertificate(
     };
 
 
-    return db.collection(
-        "certificates"
-    )
+    return db.collection("certificates")
+        .add(certificateData)
 
-    .add(certificateData)
+        .then(function(doc) {
 
-    .then(function (doc) {
+            return {
 
-        return {
+                id: doc.id,
 
-            id:
-                doc.id,
+                ...certificateData
 
-            ...certificateData
+            };
 
-        };
-
-    });
+        });
 
 }
 
@@ -2173,23 +2199,18 @@ function renderCertificates() {
             "certificates"
         );
 
-
     if (!container) {
         return;
     }
 
 
-    const chapterOneResult =
-        checkChapterOneCertificate();
-
-
     // ======================================
-    // لو عنده شهادة بالفعل
+    // شهادة موجودة بالفعل
     // ======================================
 
     const chapterOneCertificate =
         studentCertificates.find(
-            function (certificate) {
+            function(certificate) {
 
                 return (
 
@@ -2274,8 +2295,12 @@ function renderCertificates() {
 
 
     // ======================================
-    // الطالب مؤهل لكن لم تنشأ الشهادة
+    // الطالب مؤهل
     // ======================================
+
+    const chapterOneResult =
+        checkChapterOneCertificate();
+
 
     if (chapterOneResult) {
 
@@ -2310,7 +2335,7 @@ function renderCertificates() {
                 <button
                     class="button-link"
                     type="button"
-                    onclick="issueChapterOneCertificate()">
+                    onclick="issueChapterOneCertificate(this)">
 
                     🎓 إصدار الشهادة
 
@@ -2362,7 +2387,7 @@ function renderCertificates() {
 // إصدار الشهادة
 // ==========================================
 
-function issueChapterOneCertificate() {
+function issueChapterOneCertificate(button) {
 
     const result =
         checkChapterOneCertificate();
@@ -2379,14 +2404,9 @@ function issueChapterOneCertificate() {
     }
 
 
-    const button =
-        event?.target;
-
-
     if (button) {
 
-        button.disabled =
-            true;
+        button.disabled = true;
 
         button.textContent =
             "⏳ جاري إصدار الشهادة...";
@@ -2394,40 +2414,35 @@ function issueChapterOneCertificate() {
     }
 
 
-    createChapterOneCertificate(
-        result
-    )
+    createChapterOneCertificate(result)
 
-    .then(function (certificate) {
+        .then(function(certificate) {
 
-        studentCertificates.push(
-            certificate
-        );
+            studentCertificates.push(
+                certificate
+            );
 
+            renderCertificates();
 
-        renderCertificates();
+            alert(
+                "🎉 تم إصدار الشهادة بنجاح!"
+            );
 
+        })
 
-        alert(
-            "🎉 تم إصدار الشهادة بنجاح!"
-        );
+        .catch(function(error) {
 
-    })
+            console.error(
+                "Issue Certificate Error:",
+                error
+            );
 
-    .catch(function (error) {
+            alert(
+                "❌ حدث خطأ أثناء إصدار الشهادة."
+            );
 
-        console.error(
-            "Issue Certificate Error:",
-            error
-        );
+            renderCertificates();
 
+        });
 
-        alert(
-            "❌ حدث خطأ أثناء إصدار الشهادة."
-        );
-
-        renderCertificates();
-
-    });
-
-}
+        }

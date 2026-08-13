@@ -1,6 +1,6 @@
 // ==========================================
 // بوابة التمريض
-// اختبار Chapter 1
+// General Surgery - Chapter 1
 // ==========================================
 
 
@@ -158,7 +158,7 @@ let score = 0;
 
 let answered = false;
 
-let timeLeft = 420;
+let timeLeft = 300;
 
 let timerInterval;
 
@@ -224,20 +224,21 @@ function loadQuestion(){
         "quiz-answer";
 
 
-        button.onclick = function(){
+        button.onclick =
+        function(){
 
             if(answered) return;
 
             answered = true;
 
 
-            let allButtons =
+            let buttons =
             document.querySelectorAll(
                 "#answers button"
             );
 
 
-            allButtons.forEach(
+            buttons.forEach(
                 function(btn){
 
                     btn.disabled = true;
@@ -259,7 +260,9 @@ function loadQuestion(){
                 button.style.color =
                 "#fff";
 
-            }else{
+            }
+
+            else{
 
                 button.style.background =
                 "red";
@@ -268,13 +271,13 @@ function loadQuestion(){
                 "#fff";
 
 
-                allButtons[
+                buttons[
                     questions[currentQuestion].correct
                 ].style.background =
                 "green";
 
 
-                allButtons[
+                buttons[
                     questions[currentQuestion].correct
                 ].style.color =
                 "#fff";
@@ -295,7 +298,8 @@ function loadQuestion(){
 // زر التالي
 // ==========================================
 
-nextBtn.onclick = function(){
+nextBtn.onclick =
+function(){
 
     if(!answered){
 
@@ -318,7 +322,9 @@ nextBtn.onclick = function(){
 
         loadQuestion();
 
-    }else{
+    }
+
+    else{
 
         clearInterval(
             timerInterval
@@ -345,159 +351,30 @@ nextBtn.onclick = function(){
 // حفظ النتيجة
 // ==========================================
 
-function saveResult(percentage) {
+function saveResult(percentage){
 
-    if (!studentCode) {
+    if(!studentCode){
 
         alert(
             "❌ يجب تسجيل الدخول أولاً"
         );
 
         window.location.href =
-            "login.html";
+        "login.html";
 
         return;
 
     }
 
 
-    const resultData = {
-
-        studentCode:
-            studentCode,
-
-        name:
-            studentName || "",
-
-        grade:
-            studentGrade || "",
-
-        subject:
-            "General Surgery",
-
-        chapter:
-            "Chapter 1",
-
-        score:
-            score,
-
-        total:
-            questions.length,
-
-        percentage:
-            percentage,
-
-        createdAt:
-            firebase.firestore.FieldValue.serverTimestamp(),
-
-        completed:
-            true
-
-    };
-
-
     // ======================================
-    // حفظ النتيجة
+    // تنظيف اسم الصف
     // ======================================
 
-    db.collection("results")
-        .add(resultData)
-
-
-        // ==================================
-        // تحديث Leaderboard
-        // ==================================
-
-        .then(function () {
-
-            return db.collection(
-                "leaderboard"
-            )
-            .doc(studentCode)
-            .get();
-
-        })
-
-
-        .then(function (leaderDoc) {
-
-            if (
-                !leaderDoc.exists ||
-                percentage >
-                Number(
-                    leaderDoc.data().percentage || 0
-                )
-            ) {
-
-                return db.collection(
-                    "leaderboard"
-                )
-                .doc(studentCode)
-                .set({
-
-                    studentCode:
-                        studentCode,
-
-                    name:
-                        studentName || "",
-
-                    grade:
-                        studentGrade || "",
-
-                    subject:
-                        "General Surgery",
-
-                    chapter:
-                        "Chapter 1",
-
-                    score:
-                        score,
-
-                    total:
-                        questions.length,
-
-                    percentage:
-                        percentage,
-
-                    updatedAt:
-                        firebase.firestore
-                            .FieldValue
-                            .serverTimestamp()
-
-                });
-
-            }
-
-        })
-
-
-        // ==================================
-        // عرض النتيجة
-        // ==================================
-
-        .then(function () {
-
-            showResult(
-                percentage
-            );
-
-        })
-
-
-        .catch(function (error) {
-
-            console.error(
-                "Save Result Error:",
-                error
-            );
-
-            alert(
-                "❌ حدث خطأ أثناء حفظ النتيجة"
-            );
-
-        });
-
-}
+    const cleanGrade =
+    (studentGrade || "")
+    .replace(/\s+/g," ")
+    .trim();
 
 
     // ======================================
@@ -514,7 +391,7 @@ function saveResult(percentage) {
         studentName || "",
 
         grade:
-        studentGrade || "",
+        cleanGrade,
 
         subject:
         "General Surgery",
@@ -535,73 +412,6 @@ function saveResult(percentage) {
         firebase.firestore
         .FieldValue
         .serverTimestamp()
-
-    })
-
-
-    // ======================================
-    // تحديث الـ Leaderboard
-    // ======================================
-
-    .then(function(){
-
-        return db.collection(
-            "leaderboard"
-        )
-        .doc(studentCode)
-        .get();
-
-    })
-
-
-    .then(function(leaderDoc){
-
-        if(
-            !leaderDoc.exists ||
-            percentage >
-            Number(
-                leaderDoc.data().percentage || 0
-            )
-        ){
-
-            return db.collection(
-                "leaderboard"
-            )
-            .doc(studentCode)
-            .set({
-
-                studentCode:
-                studentCode,
-
-                name:
-                studentName || "",
-
-                grade:
-                studentGrade || "",
-
-                subject:
-                "General Surgery",
-
-                chapter:
-                "Chapter 1",
-
-                score:
-                score,
-
-                total:
-                questions.length,
-
-                percentage:
-                percentage,
-
-                date:
-                firebase.firestore
-                .FieldValue
-                .serverTimestamp()
-
-            });
-
-        }
 
     })
 

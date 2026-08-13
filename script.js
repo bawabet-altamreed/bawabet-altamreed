@@ -158,7 +158,7 @@ let score = 0;
 
 let answered = false;
 
-let timeLeft = 300;
+let timeLeft = 420;
 
 let timerInterval;
 

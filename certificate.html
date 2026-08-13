@@ -8,14 +8,22 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>شهاداتي | بوابة التمريض</title>
+    <title>
+        شهادة | بوابة التمريض
+    </title>
 
     <link rel="stylesheet"
           href="style.css">
 
 </head>
 
+
 <body>
+
+
+<!-- ==========================================
+     NAVBAR
+========================================== -->
 
 <nav>
 
@@ -25,31 +33,273 @@
 
 </nav>
 
-<header>
 
-    <h1>🏆 شهاداتي</h1>
-
-    <p>
-        الشهادات التي حصلت عليها من بوابة التمريض
-    </p>
-
-</header>
-
+<!-- ==========================================
+     الشهادة
+========================================== -->
 
 <section class="years">
 
-    <div class="card">
+    <div class="card"
+         id="certificate">
 
-        <div id="loading">
-            ⏳ جاري تحميل الشهادات...
+
+        <!-- ======================================
+             اللوجو
+        ======================================= -->
+
+        <div style="
+            text-align:center;
+            font-size:25px;
+            font-weight:bold;
+            margin-bottom:15px;
+        ">
+
+            🩺 بوابة التمريض
+
         </div>
 
-        <div id="certificates"></div>
+
+        <!-- ======================================
+             العنوان
+        ======================================= -->
+
+        <div style="
+            text-align:center;
+        ">
+
+            <p style="
+                color:#2196f3;
+                font-size:20px;
+                font-weight:bold;
+            ">
+
+                شهادة تفوق
+
+            </p>
+
+
+            <h1>
+                شهادة إتمام الاختبار
+            </h1>
+
+
+            <p>
+                تشهد منصة بوابة التمريض بأن الطالب / الطالبة
+            </p>
+
+
+            <h2 id="studentName">
+                الطالب
+            </h2>
+
+
+            <p>
+                قد اجتاز اختبار
+            </p>
+
+
+            <h3 id="chapter">
+                Chapter
+            </h3>
+
+
+            <p id="subject">
+                المادة
+            </p>
+
+
+            <p>
+                بنسبة نجاح
+            </p>
+
+
+            <div id="percentage"
+                 style="
+                    font-size:50px;
+                    font-weight:bold;
+                    color:#159447;
+                    margin:10px 0;
+                 ">
+
+                90%
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================
+             التفاصيل
+        ======================================= -->
+
+        <div style="
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            flex-wrap:wrap;
+            margin-top:20px;
+        ">
+
+
+            <div style="
+                padding:15px 20px;
+                background:#f3f7fa;
+                border-radius:8px;
+                min-width:150px;
+                text-align:center;
+            ">
+
+                <strong>
+                    الدرجة
+                </strong>
+
+                <br>
+
+                <span id="score">
+                    -
+                </span>
+
+            </div>
+
+
+            <div style="
+                padding:15px 20px;
+                background:#f3f7fa;
+                border-radius:8px;
+                min-width:150px;
+                text-align:center;
+            ">
+
+                <strong>
+                    الصف
+                </strong>
+
+                <br>
+
+                <span id="grade">
+                    -
+                </span>
+
+            </div>
+
+
+            <div style="
+                padding:15px 20px;
+                background:#f3f7fa;
+                border-radius:8px;
+                min-width:150px;
+                text-align:center;
+            ">
+
+                <strong>
+                    كود الطالب
+                </strong>
+
+                <br>
+
+                <span id="studentCode">
+                    -
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ======================================
+             التاريخ
+        ======================================= -->
+
+        <p style="
+            text-align:center;
+            margin-top:25px;
+        ">
+
+            تاريخ الحصول على الشهادة:
+
+            <span id="date">
+                -
+            </span>
+
+        </p>
+
+
+        <!-- ======================================
+             التوقيع
+        ======================================= -->
+
+        <div style="
+            text-align:left;
+            margin-top:35px;
+        ">
+
+            <div style="
+                display:inline-block;
+                text-align:center;
+                min-width:180px;
+            ">
+
+                <div style="
+                    border-top:2px solid #12304a;
+                    margin-bottom:8px;
+                "></div>
+
+                <span>
+                    بوابة التمريض
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================
+             الأزرار
+        ====================================== -->
+
+        <div
+            id="certificateActions"
+            style="
+                display:flex;
+                justify-content:center;
+                gap:15px;
+                margin-top:30px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <button
+                onclick="window.print()"
+            >
+
+                🖨️ طباعة الشهادة
+
+            </button>
+
+
+            <button
+                onclick="
+                    location.href='certificates.html'
+                "
+            >
+
+                ↩️ العودة لشهاداتي
+
+            </button>
+
+        </div>
+
 
     </div>
 
 </section>
 
+
+<!-- ==========================================
+     FOOTER
+========================================== -->
 
 <footer>
 
@@ -60,6 +310,10 @@
 </footer>
 
 
+<!-- ==========================================
+     FIREBASE
+========================================== -->
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -68,7 +322,336 @@
 
 <script src="auth.js"></script>
 
-<script src="certificates.js"></script>
+
+<!-- ==========================================
+     بيانات الشهادة
+========================================== -->
+
+<script>
+
+
+// ==========================================
+// الحصول على ID النتيجة
+// ==========================================
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const resultId =
+    params.get("id");
+
+
+// ==========================================
+// بيانات الطالب الحالي
+// ==========================================
+
+const currentStudentCode =
+    localStorage.getItem(
+        "studentCode"
+    );
+
+
+const currentStudentName =
+    localStorage.getItem(
+        "studentName"
+    ) ||
+    "الطالب";
+
+
+const currentStudentGrade =
+    localStorage.getItem(
+        "studentGrade"
+    ) ||
+    "-";
+
+
+// ==========================================
+// التحقق من البيانات
+// ==========================================
+
+if (
+    !currentStudentCode ||
+    !resultId
+) {
+
+    showError(
+        "❌ الشهادة غير متاحة"
+    );
+
+}
+
+
+// ==========================================
+// تحميل الشهادة
+// ==========================================
+
+else {
+
+
+    db.collection("results")
+        .doc(resultId)
+        .get()
+
+
+        .then(function(doc) {
+
+
+            // ==================================
+            // النتيجة غير موجودة
+            // ==================================
+
+            if (!doc.exists) {
+
+                throw new Error(
+                    "Result not found"
+                );
+
+            }
+
+
+            const data =
+                doc.data();
+
+
+            // ==================================
+            // التأكد من ملكية النتيجة
+            // ==================================
+
+            if (
+                data.studentCode !==
+                currentStudentCode
+            ) {
+
+                throw new Error(
+                    "Unauthorized"
+                );
+
+            }
+
+
+            // ==================================
+            // النسبة
+            // ==================================
+
+            const percentage =
+                Number(
+                    data.percentage ||
+                    0
+                );
+
+
+            // ==================================
+            // التحقق من استحقاق الشهادة
+            // ==================================
+
+            if (
+                percentage < 90
+            ) {
+
+                showError(
+                    "❌ لا توجد شهادة لهذا الاختبار"
+                );
+
+                return;
+
+            }
+
+
+            // ==================================
+            // عرض بيانات الطالب
+            // ==================================
+
+            document.getElementById(
+                "studentName"
+            ).textContent =
+                data.name ||
+                currentStudentName;
+
+
+            document.getElementById(
+                "grade"
+            ).textContent =
+                data.grade ||
+                currentStudentGrade;
+
+
+            document.getElementById(
+                "studentCode"
+            ).textContent =
+                data.studentCode;
+
+
+            // ==================================
+            // بيانات الاختبار
+            // ==================================
+
+            document.getElementById(
+                "chapter"
+            ).textContent =
+                data.chapter ||
+                "Chapter";
+
+
+            document.getElementById(
+                "subject"
+            ).textContent =
+                data.subject ||
+                "المادة";
+
+
+            document.getElementById(
+                "score"
+            ).textContent =
+                (data.score || 0) +
+                " / " +
+                (data.total || 0);
+
+
+            document.getElementById(
+                "percentage"
+            ).textContent =
+                percentage +
+                "%";
+
+
+            // ==================================
+            // التاريخ
+            // ==================================
+
+            let dateText =
+                new Date()
+                    .toLocaleDateString(
+                        "ar-EG"
+                    );
+
+
+            if (
+                data.date &&
+                data.date.toDate
+            ) {
+
+                dateText =
+                    data.date
+                        .toDate()
+                        .toLocaleDateString(
+                            "ar-EG"
+                        );
+
+            }
+
+
+            document.getElementById(
+                "date"
+            ).textContent =
+                dateText;
+
+
+        })
+
+
+        .catch(function(error) {
+
+
+            console.error(
+                "Certificate Error:",
+                error
+            );
+
+
+            showError(
+                "❌ لا يمكن عرض الشهادة"
+            );
+
+        });
+
+}
+
+
+// ==========================================
+// عرض رسالة الخطأ
+// ==========================================
+
+function showError(
+    message
+) {
+
+
+    document.body.innerHTML = `
+
+        <div style="
+            text-align:center;
+            padding:80px 20px;
+            font-family:Arial;
+        ">
+
+            <h1>
+                ${message}
+            </h1>
+
+            <p>
+                تأكد من أن الشهادة
+                متاحة لحسابك.
+            </p>
+
+
+            <button
+                onclick="
+                    location.href='certificates.html'
+                "
+            >
+
+                ↩️ العودة لشهاداتي
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+</script>
+
+
+<!-- ==========================================
+     الطباعة
+========================================== -->
+
+<style>
+
+@media print {
+
+    nav,
+    footer,
+    #certificateActions {
+
+        display:none !important;
+
+    }
+
+    body {
+
+        background:white !important;
+
+    }
+
+    #certificate {
+
+        box-shadow:none !important;
+
+        width:100% !important;
+
+        margin:0 !important;
+
+    }
+
+}
+
+</style>
+
 
 </body>
 

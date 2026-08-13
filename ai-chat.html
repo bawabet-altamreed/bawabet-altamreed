@@ -62,6 +62,67 @@
 
     <main class="chat-container">
 
+        <!-- ==========================================
+     DAILY AI LIMIT
+========================================== -->
+
+<div class="daily-limit-card">
+
+    <div class="daily-limit-header">
+
+        <div class="daily-limit-title">
+
+            <div class="daily-limit-icon">
+                🤖
+            </div>
+
+            <div>
+                <h3>
+                    أسئلة الذكاء الاصطناعي
+                </h3>
+
+                <p>
+                    الحد المجاني اليومي
+                </p>
+            </div>
+
+        </div>
+
+        <div class="daily-limit-count">
+            <strong id="questionsUsed">0</strong>
+            <span>/ 10</span>
+        </div>
+
+    </div>
+
+
+    <!-- PROGRESS -->
+
+    <div class="daily-progress">
+
+        <div
+            id="dailyProgressBar"
+            class="daily-progress-bar"
+            style="width: 100%;">
+
+        </div>
+
+    </div>
+
+
+    <div class="daily-limit-footer">
+
+        <span id="questionsRemaining">
+            متبقي 10 أسئلة اليوم
+        </span>
+
+        <span>
+            يتجدد يوميًا 🔄
+        </span>
+
+    </div>
+
+</div>
 
         <!-- ======================================
              DAILY AI LIMIT

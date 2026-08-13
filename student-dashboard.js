@@ -446,11 +446,13 @@ function loadStudentResults() {
 
             renderResults();
 
-            renderLatestResults();
+renderLatestResults();
 
-            calculateStatistics();
+calculateStatistics();
 
-            renderProgress();
+renderProgress();
+
+loadStudentCertificates();
 
         });
 

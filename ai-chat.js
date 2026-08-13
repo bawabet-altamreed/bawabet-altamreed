@@ -81,6 +81,7 @@ function getStudentCode() {
 
 // ==========================================
 // DAILY USAGE KEY
+// EGYPT LOCAL DATE
 // ==========================================
 
 function getDailyUsageKey() {
@@ -88,13 +89,28 @@ function getDailyUsageKey() {
     const studentCode =
         getStudentCode();
 
+    const now =
+        new Date();
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(2, "0");
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(2, "0");
+
     const today =
-        new Date().toISOString().slice(0, 10);
+        `${year}-${month}-${day}`;
 
     return `bawabet_ai_usage_${studentCode}_${today}`;
 
 }
-
 
 // ==========================================
 // GET DAILY USAGE

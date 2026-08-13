@@ -1878,3 +1878,554 @@ document.addEventListener(
 
     }
 );
+
+// ==========================================
+// Certificates System
+// نظام الشهادات
+// ==========================================
+
+let studentCertificates = [];
+
+
+// ==========================================
+// تحميل شهادات الطالب
+// ==========================================
+
+function loadStudentCertificates() {
+
+    if (!studentCode) {
+        return;
+    }
+
+
+    db.collection("certificates")
+
+        .where(
+            "studentCode",
+            "==",
+            studentCode
+        )
+
+        .get()
+
+        .then(function (snapshot) {
+
+            studentCertificates = [];
+
+
+            snapshot.forEach(
+                function (doc) {
+
+                    studentCertificates.push({
+
+                        id:
+                            doc.id,
+
+                        ...doc.data()
+
+                    });
+
+                }
+            );
+
+
+            renderCertificates();
+
+        })
+
+        .catch(function (error) {
+
+            console.error(
+                "Certificates Error:",
+                error
+            );
+
+
+            const container =
+                document.getElementById(
+                    "certificates"
+                );
+
+
+            if (container) {
+
+                container.innerHTML = `
+
+                    <div class="empty-state">
+
+                        ❌ تعذر تحميل الشهادات
+
+                    </div>
+
+                `;
+
+            }
+
+        });
+
+}
+
+
+// ==========================================
+// التحقق من أهلية Chapter 1
+// ==========================================
+
+function checkChapterOneCertificate() {
+
+    const eligibleResult =
+        allResults.find(
+            function (result) {
+
+                return (
+
+                    result.subject ===
+                        "General Surgery"
+
+                    &&
+
+                    result.chapter ===
+                        "Chapter 1"
+
+                    &&
+
+                    Number(
+                        getPercentage(result)
+                    ) >= 70
+
+                );
+
+            }
+        );
+
+
+    return eligibleResult || null;
+
+}
+
+
+// ==========================================
+// إنشاء Certificate ID
+// ==========================================
+
+function generateCertificateId() {
+
+    const random =
+        Math.random()
+            .toString(36)
+            .substring(2, 8)
+            .toUpperCase();
+
+
+    const year =
+        new Date()
+            .getFullYear();
+
+
+    return (
+        "NURS-" +
+        year +
+        "-" +
+        random
+    );
+
+}
+
+
+// ==========================================
+// إنشاء شهادة Chapter 1
+// ==========================================
+
+function createChapterOneCertificate(
+    result
+) {
+
+    if (!result) {
+
+        return Promise.reject(
+            new Error(
+                "Student is not eligible"
+            )
+        );
+
+    }
+
+
+    // ======================================
+    // منع إنشاء شهادة مكررة
+    // ======================================
+
+    const existing =
+        studentCertificates.find(
+            function (certificate) {
+
+                return (
+
+                    certificate.studentCode ===
+                        studentCode
+
+                    &&
+
+                    certificate.subject ===
+                        "General Surgery"
+
+                    &&
+
+                    certificate.chapter ===
+                        "Chapter 1"
+
+                );
+
+            }
+        );
+
+
+    if (existing) {
+
+        return Promise.resolve(
+            existing
+        );
+
+    }
+
+
+    const certificateId =
+        generateCertificateId();
+
+
+    const certificateData = {
+
+        certificateId:
+            certificateId,
+
+        studentCode:
+            studentCode,
+
+        studentName:
+            currentStudent.name ||
+            studentName ||
+            "",
+
+        grade:
+            currentStudent.grade ||
+            studentGrade ||
+            "",
+
+        type:
+            "chapter",
+
+        subject:
+            "General Surgery",
+
+        chapter:
+            "Chapter 1",
+
+        title:
+            "Certificate of Completion",
+
+        score:
+            Number(
+                result.percentage
+            ),
+
+        status:
+            "valid",
+
+        issuedAt:
+            firebase.firestore
+                .FieldValue
+                .serverTimestamp()
+
+    };
+
+
+    return db.collection(
+        "certificates"
+    )
+
+    .add(certificateData)
+
+    .then(function (doc) {
+
+        return {
+
+            id:
+                doc.id,
+
+            ...certificateData
+
+        };
+
+    });
+
+}
+
+
+// ==========================================
+// عرض الشهادات
+// ==========================================
+
+function renderCertificates() {
+
+    const container =
+        document.getElementById(
+            "certificates"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const chapterOneResult =
+        checkChapterOneCertificate();
+
+
+    // ======================================
+    // لو عنده شهادة بالفعل
+    // ======================================
+
+    const chapterOneCertificate =
+        studentCertificates.find(
+            function (certificate) {
+
+                return (
+
+                    certificate.subject ===
+                        "General Surgery"
+
+                    &&
+
+                    certificate.chapter ===
+                        "Chapter 1"
+
+                );
+
+            }
+        );
+
+
+    if (chapterOneCertificate) {
+
+        container.innerHTML = `
+
+            <div class="subscription-box subscription-active">
+
+                <div class="subscription-status">
+
+                    🎓 شهادة مكتسبة
+
+                </div>
+
+                <p>
+
+                    <strong>
+                        General Surgery
+                    </strong>
+
+                    -
+
+                    Chapter 1
+
+                </p>
+
+                <p>
+
+                    📊 الدرجة:
+
+                    <strong>
+                        ${chapterOneCertificate.score}%
+                    </strong>
+
+                </p>
+
+                <p>
+
+                    🔐 رقم الشهادة:
+
+                    <strong>
+                        ${escapeHtml(
+                            chapterOneCertificate.certificateId
+                        )}
+                    </strong>
+
+                </p>
+
+                <a
+                    class="button-link"
+                    href="certificate.html?id=${encodeURIComponent(
+                        chapterOneCertificate.certificateId
+                    )}"
+                    target="_blank">
+
+                    🎓 عرض الشهادة
+
+                </a>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    // ======================================
+    // الطالب مؤهل لكن لم تنشأ الشهادة
+    // ======================================
+
+    if (chapterOneResult) {
+
+        container.innerHTML = `
+
+            <div class="subscription-box subscription-active">
+
+                <div class="subscription-status">
+
+                    🏆 أنت مؤهل للشهادة!
+
+                </div>
+
+                <p>
+
+                    مبروك! لقد اجتزت
+
+                    <strong>
+                        General Surgery - Chapter 1
+                    </strong>
+
+                    بنسبة
+
+                    <strong>
+                        ${getPercentage(
+                            chapterOneResult
+                        )}%
+                    </strong>
+
+                </p>
+
+                <button
+                    class="button-link"
+                    type="button"
+                    onclick="issueChapterOneCertificate()">
+
+                    🎓 إصدار الشهادة
+
+                </button>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    // ======================================
+    // غير مؤهل
+    // ======================================
+
+    container.innerHTML = `
+
+        <div class="empty-state">
+
+            🎓 لا توجد شهادات مكتسبة حتى الآن
+
+            <br><br>
+
+            أكمل اختبار
+
+            <strong>
+                General Surgery - Chapter 1
+            </strong>
+
+            بنسبة
+
+            <strong>
+                70%
+            </strong>
+
+            أو أكثر للحصول على الشهادة.
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
+// إصدار الشهادة
+// ==========================================
+
+function issueChapterOneCertificate() {
+
+    const result =
+        checkChapterOneCertificate();
+
+
+    if (!result) {
+
+        alert(
+            "❌ أنت غير مؤهل للحصول على الشهادة."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        event?.target;
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "⏳ جاري إصدار الشهادة...";
+
+    }
+
+
+    createChapterOneCertificate(
+        result
+    )
+
+    .then(function (certificate) {
+
+        studentCertificates.push(
+            certificate
+        );
+
+
+        renderCertificates();
+
+
+        alert(
+            "🎉 تم إصدار الشهادة بنجاح!"
+        );
+
+    })
+
+    .catch(function (error) {
+
+        console.error(
+            "Issue Certificate Error:",
+            error
+        );
+
+
+        alert(
+            "❌ حدث خطأ أثناء إصدار الشهادة."
+        );
+
+        renderCertificates();
+
+    });
+
+}

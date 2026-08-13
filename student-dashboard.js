@@ -21,6 +21,7 @@ let currentStudent = null;
 
 let allResults = [];
 
+
 // ==========================================
 // Notifications
 // نظام الإشعارات
@@ -29,6 +30,15 @@ let allResults = [];
 let allNotifications = [];
 
 let readNotifications = new Set();
+
+
+// ==========================================
+// Certificates System
+// نظام الشهادات
+// ==========================================
+
+let studentCertificates = [];
+
 
 // ==========================================
 // التحقق من تسجيل الدخول
@@ -446,13 +456,18 @@ function loadStudentResults() {
 
             renderResults();
 
-renderLatestResults();
+            renderLatestResults();
 
-calculateStatistics();
+            calculateStatistics();
 
-renderProgress();
+            renderProgress();
 
-loadStudentCertificates();
+
+            // ==================================
+            // تحميل الشهادات
+            // ==================================
+
+            return loadStudentCertificates();
 
         });
 
@@ -1333,6 +1348,7 @@ function showError() {
 
 }
 
+
 // ==========================================
 // تحميل إشعارات الطالب
 // ==========================================
@@ -1605,6 +1621,7 @@ function renderNotifications() {
                         }
 
                     </div>
+
 
                 </div>
 
@@ -1882,32 +1899,10 @@ document.addEventListener(
 );
 
 
-            if (container) {
-
-                container.innerHTML = `
-
-                    <div class="empty-state">
-
-                        ❌ تعذر تحميل الشهادات
-
-                    </div>
-
-                `;
-
-            }
-
-        });
-
-}
-
-
-    
-    // ==========================================
+// ==========================================
 // Certificates System
 // نظام الشهادات
 // ==========================================
-
-let studentCertificates = [];
 
 
 // ==========================================
@@ -1917,16 +1912,24 @@ let studentCertificates = [];
 function loadStudentCertificates() {
 
     if (!studentCode) {
-        return;
+
+        return Promise.resolve();
+
     }
 
-    db.collection("certificates")
-        .where("studentCode", "==", studentCode)
+
+    return db.collection("certificates")
+        .where(
+            "studentCode",
+            "==",
+            studentCode
+        )
         .get()
 
         .then(function(snapshot) {
 
             studentCertificates = [];
+
 
             snapshot.forEach(function(doc) {
 
@@ -1940,6 +1943,7 @@ function loadStudentCertificates() {
 
             });
 
+
             renderCertificates();
 
         })
@@ -1951,10 +1955,12 @@ function loadStudentCertificates() {
                 error
             );
 
+
             const container =
                 document.getElementById(
                     "certificates"
                 );
+
 
             if (container) {
 
@@ -1970,6 +1976,10 @@ function loadStudentCertificates() {
 
             }
 
+
+            // عدم إيقاف باقي الـ Dashboard
+            return;
+
         });
 
 }
@@ -1982,8 +1992,11 @@ function loadStudentCertificates() {
 function checkChapterOneCertificate() {
 
     if (!Array.isArray(allResults)) {
+
         return null;
+
     }
+
 
     const eligibleResult =
         allResults.find(function(result) {
@@ -2008,6 +2021,7 @@ function checkChapterOneCertificate() {
 
         });
 
+
     return eligibleResult || null;
 
 }
@@ -2025,8 +2039,10 @@ function generateCertificateId() {
             .substring(2, 8)
             .toUpperCase();
 
+
     const year =
         new Date().getFullYear();
+
 
     return (
         "NURS-" +
@@ -2055,7 +2071,10 @@ function createChapterOneCertificate(result) {
     }
 
 
+    // ======================================
     // منع التكرار
+    // ======================================
+
     const existing =
         studentCertificates.find(
             function(certificate) {
@@ -2097,70 +2116,54 @@ function createChapterOneCertificate(result) {
         certificateId:
             certificateId,
 
+
         studentCode:
             studentCode,
 
+
         studentName:
-            (
-                typeof currentStudent !==
-                "undefined"
-            )
-
-                ?
-
-                (
+            currentStudent
+                ? (
                     currentStudent.name ||
-                    studentName ||
                     ""
                 )
+                : "",
 
-                :
-
-                (
-                    studentName ||
-                    ""
-                ),
 
         grade:
-            (
-                typeof currentStudent !==
-                "undefined"
-            )
-
-                ?
-
-                (
+            currentStudent
+                ? (
                     currentStudent.grade ||
-                    studentGrade ||
                     ""
                 )
+                : "",
 
-                :
-
-                (
-                    studentGrade ||
-                    ""
-                ),
 
         type:
             "chapter",
 
+
         subject:
             "General Surgery",
+
 
         chapter:
             "Chapter 1",
 
+
         title:
             "Certificate of Completion",
+
 
         score:
             Number(
                 getPercentage(result)
             ),
 
+
         status:
             "valid",
+
 
         issuedAt:
             firebase.firestore
@@ -2199,8 +2202,11 @@ function renderCertificates() {
             "certificates"
         );
 
+
     if (!container) {
+
         return;
+
     }
 
 
@@ -2240,6 +2246,7 @@ function renderCertificates() {
 
                 </div>
 
+
                 <p>
 
                     <strong>
@@ -2252,6 +2259,7 @@ function renderCertificates() {
 
                 </p>
 
+
                 <p>
 
                     📊 الدرجة:
@@ -2261,6 +2269,7 @@ function renderCertificates() {
                     </strong>
 
                 </p>
+
 
                 <p>
 
@@ -2273,6 +2282,7 @@ function renderCertificates() {
                     </strong>
 
                 </p>
+
 
                 <a
                     class="button-link"
@@ -2314,6 +2324,7 @@ function renderCertificates() {
 
                 </div>
 
+
                 <p>
 
                     مبروك! لقد اجتزت
@@ -2331,6 +2342,7 @@ function renderCertificates() {
                     </strong>
 
                 </p>
+
 
                 <button
                     class="button-link"
@@ -2422,7 +2434,9 @@ function issueChapterOneCertificate(button) {
                 certificate
             );
 
+
             renderCertificates();
+
 
             alert(
                 "🎉 تم إصدار الشهادة بنجاح!"
@@ -2437,12 +2451,14 @@ function issueChapterOneCertificate(button) {
                 error
             );
 
+
             alert(
                 "❌ حدث خطأ أثناء إصدار الشهادة."
             );
+
 
             renderCertificates();
 
         });
 
-        }
+}

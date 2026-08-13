@@ -345,20 +345,159 @@ nextBtn.onclick = function(){
 // حفظ النتيجة
 // ==========================================
 
-function saveResult(percentage){
+function saveResult(percentage) {
 
-    if(!studentCode){
+    if (!studentCode) {
 
         alert(
             "❌ يجب تسجيل الدخول أولاً"
         );
 
         window.location.href =
-        "login.html";
+            "login.html";
 
         return;
 
     }
+
+
+    const resultData = {
+
+        studentCode:
+            studentCode,
+
+        name:
+            studentName || "",
+
+        grade:
+            studentGrade || "",
+
+        subject:
+            "General Surgery",
+
+        chapter:
+            "Chapter 1",
+
+        score:
+            score,
+
+        total:
+            questions.length,
+
+        percentage:
+            percentage,
+
+        createdAt:
+            firebase.firestore.FieldValue.serverTimestamp(),
+
+        completed:
+            true
+
+    };
+
+
+    // ======================================
+    // حفظ النتيجة
+    // ======================================
+
+    db.collection("results")
+        .add(resultData)
+
+
+        // ==================================
+        // تحديث Leaderboard
+        // ==================================
+
+        .then(function () {
+
+            return db.collection(
+                "leaderboard"
+            )
+            .doc(studentCode)
+            .get();
+
+        })
+
+
+        .then(function (leaderDoc) {
+
+            if (
+                !leaderDoc.exists ||
+                percentage >
+                Number(
+                    leaderDoc.data().percentage || 0
+                )
+            ) {
+
+                return db.collection(
+                    "leaderboard"
+                )
+                .doc(studentCode)
+                .set({
+
+                    studentCode:
+                        studentCode,
+
+                    name:
+                        studentName || "",
+
+                    grade:
+                        studentGrade || "",
+
+                    subject:
+                        "General Surgery",
+
+                    chapter:
+                        "Chapter 1",
+
+                    score:
+                        score,
+
+                    total:
+                        questions.length,
+
+                    percentage:
+                        percentage,
+
+                    updatedAt:
+                        firebase.firestore
+                            .FieldValue
+                            .serverTimestamp()
+
+                });
+
+            }
+
+        })
+
+
+        // ==================================
+        // عرض النتيجة
+        // ==================================
+
+        .then(function () {
+
+            showResult(
+                percentage
+            );
+
+        })
+
+
+        .catch(function (error) {
+
+            console.error(
+                "Save Result Error:",
+                error
+            );
+
+            alert(
+                "❌ حدث خطأ أثناء حفظ النتيجة"
+            );
+
+        });
+
+}
 
 
     // ======================================

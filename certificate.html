@@ -8,248 +8,67 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>شهادة | بوابة التمريض</title>
+    <title>شهاداتي | بوابة التمريض</title>
 
     <link rel="stylesheet"
-          href="certificate.css">
+          href="style.css">
 
 </head>
 
 <body>
 
-<div class="page">
+<nav>
 
-    <div class="certificate">
+    <div class="logo">
+        🩺 بوابة التمريض
+    </div>
 
-        <div class="top-decoration"></div>
+</nav>
 
-        <div class="logo">
-            🩺 بوابة التمريض
+<header>
+
+    <h1>🏆 شهاداتي</h1>
+
+    <p>
+        الشهادات التي حصلت عليها من بوابة التمريض
+    </p>
+
+</header>
+
+
+<section class="years">
+
+    <div class="card">
+
+        <div id="loading">
+            ⏳ جاري تحميل الشهادات...
         </div>
 
-        <div class="small-title">
-            شهادة تفوق
-        </div>
-
-        <h1>
-            شهادة إتمام الاختبار
-        </h1>
-
-        <p class="intro">
-            تشهد منصة بوابة التمريض بأن الطالب / الطالبة
-        </p>
-
-        <h2 id="studentName">
-            الطالب
-        </h2>
-
-        <p class="intro">
-            قد اجتاز اختبار
-        </p>
-
-        <h3 id="chapter">
-            Chapter 1
-        </h3>
-
-        <p class="subject">
-            General Surgery
-        </p>
-
-        <p class="success">
-            بنسبة نجاح
-        </p>
-
-        <div class="percentage"
-             id="percentage">
-            90%
-        </div>
-
-        <div class="details">
-
-            <div>
-                <strong>الدرجة</strong>
-                <span id="score">9 / 10</span>
-            </div>
-
-            <div>
-                <strong>الصف</strong>
-                <span id="grade">-</span>
-            </div>
-
-            <div>
-                <strong>كود الطالب</strong>
-                <span id="studentCode">-</span>
-            </div>
-
-        </div>
-
-        <div class="date">
-
-            تاريخ الحصول على الشهادة:
-            <span id="date"></span>
-
-        </div>
-
-        <div class="signature">
-
-            <div>
-
-                <div class="line"></div>
-
-                <span>
-                    بوابة التمريض
-                </span>
-
-            </div>
-
-        </div>
-
-        <div class="actions">
-
-            <button onclick="window.print()">
-                🖨️ طباعة الشهادة
-            </button>
-
-            <button onclick="history.back()">
-                ↩️ العودة
-            </button>
-
-        </div>
+        <div id="certificates"></div>
 
     </div>
 
-</div>
+</section>
 
 
-<script>
+<footer>
 
-const params =
-new URLSearchParams(
-    window.location.search
-);
+    <p>
+        © 2026 بوابة التمريض
+    </p>
 
-
-// ==========================================
-// بيانات الطالب
-// ==========================================
-
-const studentName =
-localStorage.getItem("studentName") ||
-"الطالب";
-
-const studentGrade =
-localStorage.getItem("studentGrade") ||
-"-";
-
-const studentCode =
-localStorage.getItem("studentCode") ||
-"-";
+</footer>
 
 
-// ==========================================
-// بيانات الاختبار
-// ==========================================
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
-const score =
-Number(
-    params.get("score") || 0
-);
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-const total =
-Number(
-    params.get("total") || 0
-);
+<script src="firebase.js"></script>
 
-const percentage =
-Number(
-    params.get("percentage") || 0
-);
+<script src="auth.js"></script>
 
-
-// ==========================================
-// التحقق من استحقاق الشهادة
-// ==========================================
-
-if (percentage < 90) {
-
-    document.body.innerHTML = `
-
-        <div style="
-            text-align:center;
-            padding:80px 20px;
-            font-family:Arial;
-        ">
-
-            <h1>
-                ❌ لا توجد شهادة
-            </h1>
-
-            <p>
-                يجب الحصول على 90% أو أكثر
-                للحصول على الشهادة.
-            </p>
-
-            <h2>
-                نتيجتك: ${percentage}%
-            </h2>
-
-            <button
-                onclick="history.back()"
-                style="
-                    padding:12px 25px;
-                    cursor:pointer;
-                "
-            >
-                ↩️ العودة
-            </button>
-
-        </div>
-
-    `;
-
-}
-
-
-// ==========================================
-// عرض البيانات
-// ==========================================
-
-document.getElementById(
-    "studentName"
-).textContent =
-studentName;
-
-
-document.getElementById(
-    "grade"
-).textContent =
-studentGrade;
-
-
-document.getElementById(
-    "studentCode"
-).textContent =
-studentCode;
-
-
-document.getElementById(
-    "score"
-).textContent =
-score + " / " + total;
-
-
-document.getElementById(
-    "percentage"
-).textContent =
-percentage + "%";
-
-
-document.getElementById(
-    "date"
-).textContent =
-new Date().toLocaleDateString("ar-EG");
-
-</script>
+<script src="certificates.js"></script>
 
 </body>
 

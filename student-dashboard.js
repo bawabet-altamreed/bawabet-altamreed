@@ -4,14 +4,12 @@
 // لوحة الطالب
 // ==========================================
 
-
 // ==========================================
 // الحصول على كود الطالب
 // ==========================================
 
 const studentCode =
-    localStorage.getItem("studentCode");
-
+localStorage.getItem("studentCode");
 
 // ==========================================
 // بيانات عامة
@@ -21,6 +19,14 @@ let currentStudent = null;
 
 let allResults = [];
 
+// ==========================================
+// Notifications
+// نظام الإشعارات
+// ==========================================
+
+let allNotifications = [];
+
+let readNotifications = new Set();
 
 // ==========================================
 // التحقق من تسجيل الدخول
@@ -28,14 +34,13 @@ let allResults = [];
 
 if (!studentCode) {
 
-    window.location.replace("login.html");
+window.location.replace("login.html");
 
 } else {
 
-    loadStudentDashboard();
+loadStudentDashboard();
 
 }
-
 
 // ==========================================
 // تحميل لوحة الطالب
@@ -43,25 +48,32 @@ if (!studentCode) {
 
 function loadStudentDashboard() {
 
-    loadStudentData()
-        .then(function () {
+loadStudentData()  
 
-            return loadStudentResults();
+    .then(function () {  
 
-        })
-        .catch(function (error) {
+        return loadStudentResults();  
 
-            console.error(
-                "Student Dashboard Error:",
-                error
-            );
+    })  
 
-            showError();
+    .then(function () {  
 
-        });
+        return loadStudentNotifications();  
+
+    })  
+
+    .catch(function (error) {  
+
+        console.error(  
+            "Student Dashboard Error:",  
+            error  
+        );  
+
+        showError();  
+
+    });
 
 }
-
 
 // ==========================================
 // تحميل بيانات الطالب
@@ -69,35 +81,34 @@ function loadStudentDashboard() {
 
 function loadStudentData() {
 
-    return db.collection("students")
-        .doc(studentCode)
-        .get()
+return db.collection("students")  
+    .doc(studentCode)  
+    .get()  
 
-        .then(function (studentDoc) {
+    .then(function (studentDoc) {  
 
-            if (!studentDoc.exists) {
+        if (!studentDoc.exists) {  
 
-                throw new Error(
-                    "بيانات الطالب غير موجودة"
-                );
+            throw new Error(  
+                "بيانات الطالب غير موجودة"  
+            );  
 
-            }
-
-
-            currentStudent =
-                studentDoc.data();
+        }  
 
 
-            renderStudentInfo();
+        currentStudent =  
+            studentDoc.data();  
 
-            renderSubscription();
 
-            renderWelcome();
+        renderStudentInfo();  
 
-        });
+        renderSubscription();  
+
+        renderWelcome();  
+
+    });
 
 }
-
 
 // ==========================================
 // عرض الترحيب
@@ -105,26 +116,25 @@ function loadStudentData() {
 
 function renderWelcome() {
 
-    const element =
-        document.getElementById(
-            "welcomeName"
-        );
+const element =  
+    document.getElementById(  
+        "welcomeName"  
+    );  
 
 
-    if (!element) {
-        return;
-    }
+if (!element) {  
+    return;  
+}  
 
 
-    element.textContent =
-        "👋 أهلاً بك " +
-        (
-            currentStudent.name ||
-            "طالبنا العزيز"
-        );
+element.textContent =  
+    "👋 أهلاً بك " +  
+    (  
+        currentStudent.name ||  
+        "طالبنا العزيز"  
+    );
 
 }
-
 
 // ==========================================
 // بيانات الطالب
@@ -132,91 +142,90 @@ function renderWelcome() {
 
 function renderStudentInfo() {
 
-    const container =
-        document.getElementById(
-            "studentInfo"
-        );
+const container =  
+    document.getElementById(  
+        "studentInfo"  
+    );  
 
 
-    if (!container) {
-        return;
-    }
+if (!container) {  
+    return;  
+}  
 
 
-    container.innerHTML = `
+container.innerHTML = `  
 
-        <div class="student-info-grid">
-
-
-            <div class="student-info-item">
-
-                <small>
-                    👨‍🎓 الاسم
-                </small>
-
-                <strong>
-                    ${escapeHtml(
-                        currentStudent.name ||
-                        "غير محدد"
-                    )}
-                </strong>
-
-            </div>
+    <div class="student-info-grid">  
 
 
-            <div class="student-info-item">
+        <div class="student-info-item">  
 
-                <small>
-                    🎓 الصف
-                </small>
+            <small>  
+                👨‍🎓 الاسم  
+            </small>  
 
-                <strong>
-                    ${escapeHtml(
-                        currentStudent.grade ||
-                        "غير محدد"
-                    )}
-                </strong>
+            <strong>  
+                ${escapeHtml(  
+                    currentStudent.name ||  
+                    "غير محدد"  
+                )}  
+            </strong>  
 
-            </div>
-
-
-            <div class="student-info-item">
-
-                <small>
-                    🔑 كود الاشتراك
-                </small>
-
-                <strong>
-                    ${escapeHtml(
-                        studentCode
-                    )}
-                </strong>
-
-            </div>
+        </div>  
 
 
-            <div class="student-info-item">
+        <div class="student-info-item">  
 
-                <small>
-                    📧 البريد الإلكتروني
-                </small>
+            <small>  
+                🎓 الصف  
+            </small>  
 
-                <strong>
-                    ${escapeHtml(
-                        currentStudent.email ||
-                        "غير محدد"
-                    )}
-                </strong>
+            <strong>  
+                ${escapeHtml(  
+                    currentStudent.grade ||  
+                    "غير محدد"  
+                )}  
+            </strong>  
 
-            </div>
+        </div>  
 
 
-        </div>
+        <div class="student-info-item">  
 
-    `;
+            <small>  
+                🔑 كود الاشتراك  
+            </small>  
+
+            <strong>  
+                ${escapeHtml(  
+                    studentCode  
+                )}  
+            </strong>  
+
+        </div>  
+
+
+        <div class="student-info-item">  
+
+            <small>  
+                📧 البريد الإلكتروني  
+            </small>  
+
+            <strong>  
+                ${escapeHtml(  
+                    currentStudent.email ||  
+                    "غير محدد"  
+                )}  
+            </strong>  
+
+        </div>  
+
+
+    </div>  
+
+`;
 
 }
-
 
 // ==========================================
 // حالة الاشتراك
@@ -224,143 +233,142 @@ function renderStudentInfo() {
 
 function renderSubscription() {
 
-    const container =
-        document.getElementById(
-            "subscriptionInfo"
-        );
+const container =  
+    document.getElementById(  
+        "subscriptionInfo"  
+    );  
 
 
-    if (!container) {
-        return;
-    }
+if (!container) {  
+    return;  
+}  
 
 
-    const expiry =
-        getDate(
-            currentStudent.expiresAt
-        );
+const expiry =  
+    getDate(  
+        currentStudent.expiresAt  
+    );  
 
 
-    let status = "";
+let status = "";  
 
-    let className =
-        "subscription-box";
-
-
-    let remainingText = "";
+let className =  
+    "subscription-box";  
 
 
-    if (
-        currentStudent.active !== true
-    ) {
-
-        status =
-            "⛔ الاشتراك متوقف";
-
-        className +=
-            " subscription-stopped";
-
-    }
-
-    else if (
-        !expiry
-    ) {
-
-        status =
-            "⚠️ لا يوجد تاريخ انتهاء";
-
-    }
-
-    else if (
-        new Date() >= expiry
-    ) {
-
-        status =
-            "⛔ الاشتراك منتهي";
-
-        className +=
-            " subscription-expired";
-
-        remainingText =
-            "انتهت مدة الاشتراك";
-
-    }
-
-    else {
-
-        status =
-            "✅ الاشتراك نشط";
-
-        className +=
-            " subscription-active";
+let remainingText = "";  
 
 
-        const now =
-            new Date();
+if (  
+    currentStudent.active !== true  
+) {  
+
+    status =  
+        "⛔ الاشتراك متوقف";  
+
+    className +=  
+        " subscription-stopped";  
+
+}  
+
+else if (  
+    !expiry  
+) {  
+
+    status =  
+        "⚠️ لا يوجد تاريخ انتهاء";  
+
+}  
+
+else if (  
+    new Date() >= expiry  
+) {  
+
+    status =  
+        "⛔ الاشتراك منتهي";  
+
+    className +=  
+        " subscription-expired";  
+
+    remainingText =  
+        "انتهت مدة الاشتراك";  
+
+}  
+
+else {  
+
+    status =  
+        "✅ الاشتراك نشط";  
+
+    className +=  
+        " subscription-active";  
 
 
-        const difference =
-            expiry.getTime() -
-            now.getTime();
+    const now =  
+        new Date();  
 
 
-        const days =
-            Math.ceil(
-                difference /
-                (1000 * 60 * 60 * 24)
-            );
+    const difference =  
+        expiry.getTime() -  
+        now.getTime();  
 
 
-        remainingText =
-            `متبقي ${days} يوم`;
-
-    }
-
-
-    container.innerHTML = `
-
-        <div class="${className}">
-
-            <div class="subscription-status">
-
-                ${status}
-
-            </div>
+    const days =  
+        Math.ceil(  
+            difference /  
+            (1000 * 60 * 60 * 24)  
+        );  
 
 
-            <p>
+    remainingText =  
+        `متبقي ${days} يوم`;  
 
-                📅 تاريخ الانتهاء:
-
-                <strong>
-
-                    ${
-                        expiry
-                            ? formatDate(
-                                expiry
-                            )
-                            : "-"
-                    }
-
-                </strong>
-
-            </p>
+}  
 
 
-            <p>
+container.innerHTML = `  
 
-                ⏳
+    <div class="${className}">  
 
-                ${remainingText}
+        <div class="subscription-status">  
 
-            </p>
+            ${status}  
 
-        </div>
+        </div>  
 
-    `;
+
+        <p>  
+
+            📅 تاريخ الانتهاء:  
+
+            <strong>  
+
+                ${  
+                    expiry  
+                        ? formatDate(  
+                            expiry  
+                        )  
+                        : "-"  
+                }  
+
+            </strong>  
+
+        </p>  
+
+
+        <p>  
+
+            ⏳  
+
+            ${remainingText}  
+
+        </p>  
+
+    </div>  
+
+`;
 
 }
-
 
 // ==========================================
 // تحميل جميع نتائج الطالب
@@ -368,78 +376,77 @@ function renderSubscription() {
 
 function loadStudentResults() {
 
-    return db.collection("results")
+return db.collection("results")  
 
-        .where(
-            "studentCode",
-            "==",
-            studentCode
-        )
+    .where(  
+        "studentCode",  
+        "==",  
+        studentCode  
+    )  
 
-        .get()
+    .get()  
 
-        .then(function (snapshot) {
+    .then(function (snapshot) {  
 
-            allResults = [];
-
-
-            snapshot.forEach(function (doc) {
-
-                const data =
-                    doc.data();
+        allResults = [];  
 
 
-                allResults.push({
+        snapshot.forEach(function (doc) {  
 
-                    id: doc.id,
-
-                    ...data
-
-                });
-
-            });
+            const data =  
+                doc.data();  
 
 
-            // ==================================
-            // ترتيب النتائج من الأحدث للأقدم
-            // ==================================
+            allResults.push({  
 
-            allResults.sort(
-                function (a, b) {
+                id: doc.id,  
 
-                    const dateA =
-                        getDate(
-                            a.createdAt
-                        ) || new Date(0);
+                ...data  
+
+            });  
+
+        });  
 
 
-                    const dateB =
-                        getDate(
-                            b.createdAt
-                        ) || new Date(0);
+        // ==================================  
+        // ترتيب النتائج من الأحدث للأقدم  
+        // ==================================  
+
+        allResults.sort(  
+            function (a, b) {  
+
+                const dateA =  
+                    getDate(  
+                        a.createdAt  
+                    ) || new Date(0);  
 
 
-                    return (
-                        dateB.getTime() -
-                        dateA.getTime()
-                    );
-
-                }
-            );
+                const dateB =  
+                    getDate(  
+                        b.createdAt  
+                    ) || new Date(0);  
 
 
-            renderResults();
+                return (  
+                    dateB.getTime() -  
+                    dateA.getTime()  
+                );  
 
-            renderLatestResults();
+            }  
+        );  
 
-            calculateStatistics();
 
-            renderProgress();
+        renderResults();  
 
-        });
+        renderLatestResults();  
+
+        calculateStatistics();  
+
+        renderProgress();  
+
+    });
 
 }
-
 
 // ==========================================
 // جميع النتائج
@@ -447,184 +454,183 @@ function loadStudentResults() {
 
 function renderResults() {
 
-    const container =
-        document.getElementById(
-            "results"
-        );
+const container =  
+    document.getElementById(  
+        "results"  
+    );  
 
 
-    if (!container) {
-        return;
-    }
+if (!container) {  
+    return;  
+}  
 
 
-    if (!allResults.length) {
+if (!allResults.length) {  
 
-        container.innerHTML = `
+    container.innerHTML = `  
 
-            <div class="empty-state">
+        <div class="empty-state">  
 
-                📝 لم يتم عمل أي اختبارات حتى الآن
+            📝 لم يتم عمل أي اختبارات حتى الآن  
 
-            </div>
+        </div>  
 
-        `;
+    `;  
 
-        return;
+    return;  
 
-    }
+}  
 
 
-    let html = `
+let html = `  
 
-        <div class="results-container">
+    <div class="results-container">  
 
-            <table class="results-table">
+        <table class="results-table">  
 
-                <thead>
+            <thead>  
 
-                    <tr>
+                <tr>  
 
-                        <th>
-                            #
-                        </th>
+                    <th>  
+                        #  
+                    </th>  
 
-                        <th>
-                            المادة
-                        </th>
+                    <th>  
+                        المادة  
+                    </th>  
 
-                        <th>
-                            Chapter
-                        </th>
+                    <th>  
+                        Chapter  
+                    </th>  
 
-                        <th>
-                            الدرجة
-                        </th>
+                    <th>  
+                        الدرجة  
+                    </th>  
 
-                        <th>
-                            النسبة
-                        </th>
+                    <th>  
+                        النسبة  
+                    </th>  
 
-                        <th>
-                            التاريخ
-                        </th>
+                    <th>  
+                        التاريخ  
+                    </th>  
 
-                    </tr>
+                </tr>  
 
-                </thead>
+            </thead>  
 
-                <tbody>
+            <tbody>  
 
-    `;
+`;  
 
 
-    allResults.forEach(
-        function (data, index) {
+allResults.forEach(  
+    function (data, index) {  
 
-            const percentage =
-                getPercentage(data);
+        const percentage =  
+            getPercentage(data);  
 
 
-            const score =
-                data.score ?? 0;
+        const score =  
+            data.score ?? 0;  
 
 
-            const total =
-                data.total ?? 0;
+        const total =  
+            data.total ?? 0;  
 
 
-            const passed =
-                percentage >= 50;
+        const passed =  
+            percentage >= 50;  
 
 
-            html += `
+        html += `  
 
-                <tr>
+            <tr>  
 
-                    <td>
+                <td>  
 
-                        ${index + 1}
+                    ${index + 1}  
 
-                    </td>
+                </td>  
 
 
-                    <td>
+                <td>  
 
-                        ${escapeHtml(
-                            data.subject ||
-                            "-"
-                        )}
+                    ${escapeHtml(  
+                        data.subject ||  
+                        "-"  
+                    )}  
 
-                    </td>
+                </td>  
 
 
-                    <td>
+                <td>  
 
-                        ${escapeHtml(
-                            data.chapter ||
-                            "-"
-                        )}
+                    ${escapeHtml(  
+                        data.chapter ||  
+                        "-"  
+                    )}  
 
-                    </td>
+                </td>  
 
 
-                    <td>
+                <td>  
 
-                        ${escapeHtml(
-                            String(score)
-                        )}
+                    ${escapeHtml(  
+                        String(score)  
+                    )}  
 
-                        /
+                    /  
 
-                        ${escapeHtml(
-                            String(total)
-                        )}
+                    ${escapeHtml(  
+                        String(total)  
+                    )}  
 
-                    </td>
+                </td>  
 
 
-                    <td class="${
-                        passed
-                            ? "pass"
-                            : "fail"
-                    }">
+                <td class="${  
+                    passed  
+                        ? "pass"  
+                        : "fail"  
+                }">  
 
-                        ${percentage}%
+                    ${percentage}%  
 
-                    </td>
+                </td>  
 
 
-                    <td>
+                <td>  
 
-                        ${formatDateTime(
-                            data.createdAt
-                        )}
+                    ${formatDateTime(  
+                        data.createdAt  
+                    )}  
 
-                    </td>
+                </td>  
 
-                </tr>
+            </tr>  
 
-            `;
+        `;  
 
-        }
-    );
+    }  
+);  
 
 
-    html += `
+html += `  
 
-                </tbody>
+            </tbody>  
 
-            </table>
+        </table>  
 
-        </div>
+    </div>  
 
-    `;
+`;  
 
 
-    container.innerHTML = html;
+container.innerHTML = html;
 
 }
-
 
 // ==========================================
 // آخر النتائج
@@ -632,150 +638,149 @@ function renderResults() {
 
 function renderLatestResults() {
 
-    const container =
-        document.getElementById(
-            "latestResults"
-        );
+const container =  
+    document.getElementById(  
+        "latestResults"  
+    );  
 
 
-    if (!container) {
-        return;
-    }
+if (!container) {  
+    return;  
+}  
 
 
-    if (!allResults.length) {
+if (!allResults.length) {  
 
-        container.innerHTML = `
+    container.innerHTML = `  
 
-            <div class="empty-state">
+        <div class="empty-state">  
 
-                لا توجد نتائج حتى الآن
+            لا توجد نتائج حتى الآن  
 
-            </div>
+        </div>  
 
-        `;
+    `;  
 
-        return;
+    return;  
 
-    }
-
-
-    const latest =
-        allResults.slice(0, 5);
+}  
 
 
-    let html = `
-
-        <div class="results-container">
-
-            <table class="results-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            المادة
-                        </th>
-
-                        <th>
-                            Chapter
-                        </th>
-
-                        <th>
-                            النتيجة
-                        </th>
-
-                        <th>
-                            التاريخ
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-    `;
+const latest =  
+    allResults.slice(0, 5);  
 
 
-    latest.forEach(
-        function (data) {
+let html = `  
 
-            const percentage =
-                getPercentage(data);
+    <div class="results-container">  
 
+        <table class="results-table">  
 
-            const passed =
-                percentage >= 50;
+            <thead>  
 
+                <tr>  
 
-            html += `
+                    <th>  
+                        المادة  
+                    </th>  
 
-                <tr>
+                    <th>  
+                        Chapter  
+                    </th>  
 
-                    <td>
+                    <th>  
+                        النتيجة  
+                    </th>  
 
-                        ${escapeHtml(
-                            data.subject ||
-                            "-"
-                        )}
+                    <th>  
+                        التاريخ  
+                    </th>  
 
-                    </td>
+                </tr>  
 
+            </thead>  
 
-                    <td>
+            <tbody>  
 
-                        ${escapeHtml(
-                            data.chapter ||
-                            "-"
-                        )}
-
-                    </td>
-
-
-                    <td class="${
-                        passed
-                            ? "pass"
-                            : "fail"
-                    }">
-
-                        ${percentage}%
-
-                    </td>
+`;  
 
 
-                    <td>
+latest.forEach(  
+    function (data) {  
 
-                        ${formatDateTime(
-                            data.createdAt
-                        )}
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-    );
+        const percentage =  
+            getPercentage(data);  
 
 
-    html += `
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    `;
+        const passed =  
+            percentage >= 50;  
 
 
-    container.innerHTML = html;
+        html += `  
+
+            <tr>  
+
+                <td>  
+
+                    ${escapeHtml(  
+                        data.subject ||  
+                        "-"  
+                    )}  
+
+                </td>  
+
+
+                <td>  
+
+                    ${escapeHtml(  
+                        data.chapter ||  
+                        "-"  
+                    )}  
+
+                </td>  
+
+
+                <td class="${  
+                    passed  
+                        ? "pass"  
+                        : "fail"  
+                }">  
+
+                    ${percentage}%  
+
+                </td>  
+
+
+                <td>  
+
+                    ${formatDateTime(  
+                        data.createdAt  
+                    )}  
+
+                </td>  
+
+            </tr>  
+
+        `;  
+
+    }  
+);  
+
+
+html += `  
+
+            </tbody>  
+
+        </table>  
+
+    </div>  
+
+`;  
+
+
+container.innerHTML = html;
 
 }
-
 
 // ==========================================
 // الإحصائيات
@@ -783,62 +788,61 @@ function renderLatestResults() {
 
 function calculateStatistics() {
 
-    const total =
-        allResults.length;
+const total =  
+    allResults.length;  
 
 
-    let sum = 0;
+let sum = 0;  
 
-    let passed = 0;
-
-
-    allResults.forEach(
-        function (result) {
-
-            const percentage =
-                getPercentage(result);
+let passed = 0;  
 
 
-            sum += percentage;
+allResults.forEach(  
+    function (result) {  
+
+        const percentage =  
+            getPercentage(result);  
 
 
-            if (percentage >= 50) {
-
-                passed++;
-
-            }
-
-        }
-    );
+        sum += percentage;  
 
 
-    const average =
-        total > 0
-            ? Math.round(
-                sum / total
-            )
-            : 0;
+        if (percentage >= 50) {  
+
+            passed++;  
+
+        }  
+
+    }  
+);  
 
 
-    setText(
-        "totalTests",
-        total
-    );
+const average =  
+    total > 0  
+        ? Math.round(  
+            sum / total  
+        )  
+        : 0;  
 
 
-    setText(
-        "averageScore",
-        average + "%"
-    );
+setText(  
+    "totalTests",  
+    total  
+);  
 
 
-    setText(
-        "passedTests",
-        passed
-    );
+setText(  
+    "averageScore",  
+    average + "%"  
+);  
+
+
+setText(  
+    "passedTests",  
+    passed  
+);
 
 }
-
 
 // ==========================================
 // التقدم في الاختبارات
@@ -846,183 +850,182 @@ function calculateStatistics() {
 
 function renderProgress() {
 
-    const container =
-        document.getElementById(
-            "progress"
-        );
+const container =  
+    document.getElementById(  
+        "progress"  
+    );  
 
 
-    if (!container) {
-        return;
-    }
+if (!container) {  
+    return;  
+}  
 
 
-    const total =
-        allResults.length;
+const total =  
+    allResults.length;  
 
 
-    if (!total) {
+if (!total) {  
 
-        container.innerHTML = `
+    container.innerHTML = `  
 
-            <div class="empty-state">
+        <div class="empty-state">  
 
-                📈 لم تبدأ الاختبارات بعد
+            📈 لم تبدأ الاختبارات بعد  
 
-            </div>
+        </div>  
 
-        `;
+    `;  
 
-        return;
+    return;  
 
-    }
+}  
 
 
-    let passed = 0;
+let passed = 0;  
 
-    let excellent = 0;
+let excellent = 0;  
 
-    let weak = 0;
+let weak = 0;  
 
 
-    allResults.forEach(
-        function (result) {
+allResults.forEach(  
+    function (result) {  
 
-            const percentage =
-                getPercentage(result);
+        const percentage =  
+            getPercentage(result);  
 
 
-            if (percentage >= 50) {
+        if (percentage >= 50) {  
 
-                passed++;
+            passed++;  
 
-            }
+        }  
 
 
-            if (percentage >= 85) {
+        if (percentage >= 85) {  
 
-                excellent++;
+            excellent++;  
 
-            }
+        }  
 
 
-            if (percentage < 50) {
+        if (percentage < 50) {  
 
-                weak++;
+            weak++;  
 
-            }
+        }  
 
-        }
-    );
+    }  
+);  
 
 
-    const successRate =
-        Math.round(
-            (passed / total) * 100
-        );
+const successRate =  
+    Math.round(  
+        (passed / total) * 100  
+    );  
 
 
-    const excellentRate =
-        Math.round(
-            (excellent / total) * 100
-        );
+const excellentRate =  
+    Math.round(  
+        (excellent / total) * 100  
+    );  
 
 
-    const weakRate =
-        Math.round(
-            (weak / total) * 100
-        );
+const weakRate =  
+    Math.round(  
+        (weak / total) * 100  
+    );  
 
 
-    container.innerHTML = `
+container.innerHTML = `  
 
-        <div class="progress-box">
+    <div class="progress-box">  
 
-            <div class="progress-title">
+        <div class="progress-title">  
 
-                <span>
-                    نسبة اجتياز الاختبارات
-                </span>
+            <span>  
+                نسبة اجتياز الاختبارات  
+            </span>  
 
-                <span>
-                    ${successRate}%
-                </span>
+            <span>  
+                ${successRate}%  
+            </span>  
 
-            </div>
+        </div>  
 
 
-            <div class="progress-bar">
+        <div class="progress-bar">  
 
-                <div
-                    class="progress-fill"
-                    style="width:${successRate}%">
+            <div  
+                class="progress-fill"  
+                style="width:${successRate}%">  
 
-                </div>
+            </div>  
 
-            </div>
+        </div>  
 
-        </div>
+    </div>  
 
 
-        <div class="progress-box">
+    <div class="progress-box">  
 
-            <div class="progress-title">
+        <div class="progress-title">  
 
-                <span>
-                    الاختبارات الممتازة
-                </span>
+            <span>  
+                الاختبارات الممتازة  
+            </span>  
 
-                <span>
-                    ${excellentRate}%
-                </span>
+            <span>  
+                ${excellentRate}%  
+            </span>  
 
-            </div>
+        </div>  
 
 
-            <div class="progress-bar">
+        <div class="progress-bar">  
 
-                <div
-                    class="progress-fill"
-                    style="width:${excellentRate}%">
+            <div  
+                class="progress-fill"  
+                style="width:${excellentRate}%">  
 
-                </div>
+            </div>  
 
-            </div>
+        </div>  
 
-        </div>
+    </div>  
 
 
-        <div class="progress-box">
+    <div class="progress-box">  
 
-            <div class="progress-title">
+        <div class="progress-title">  
 
-                <span>
-                    الاختبارات التي تحتاج مراجعة
-                </span>
+            <span>  
+                الاختبارات التي تحتاج مراجعة  
+            </span>  
 
-                <span>
-                    ${weakRate}%
-                </span>
+            <span>  
+                ${weakRate}%  
+            </span>  
 
-            </div>
+        </div>  
 
 
-            <div class="progress-bar">
+        <div class="progress-bar">  
 
-                <div
-                    class="progress-fill"
-                    style="width:${weakRate}%">
+            <div  
+                class="progress-fill"  
+                style="width:${weakRate}%">  
 
-                </div>
+            </div>  
 
-            </div>
+        </div>  
 
-        </div>
+    </div>  
 
-    `;
+`;
 
 }
-
 
 // ==========================================
 // حساب النسبة
@@ -1030,52 +1033,51 @@ function renderProgress() {
 
 function getPercentage(data) {
 
-    if (
-        data.percentage !== undefined &&
-        data.percentage !== null
-    ) {
+if (  
+    data.percentage !== undefined &&  
+    data.percentage !== null  
+) {  
 
-        const value =
-            Number(
-                data.percentage
-            );
-
-
-        return isNaN(value)
-            ? 0
-            : Math.round(value);
-
-    }
+    const value =  
+        Number(  
+            data.percentage  
+        );  
 
 
-    const score =
-        Number(
-            data.score
-        );
+    return isNaN(value)  
+        ? 0  
+        : Math.round(value);  
+
+}  
 
 
-    const total =
-        Number(
-            data.total
-        );
+const score =  
+    Number(  
+        data.score  
+    );  
 
 
-    if (
-        total > 0 &&
-        !isNaN(score)
-    ) {
-
-        return Math.round(
-            (score / total) * 100
-        );
-
-    }
+const total =  
+    Number(  
+        data.total  
+    );  
 
 
-    return 0;
+if (  
+    total > 0 &&  
+    !isNaN(score)  
+) {  
+
+    return Math.round(  
+        (score / total) * 100  
+    );  
+
+}  
+
+
+return 0;
 
 }
-
 
 // ==========================================
 // التاريخ
@@ -1083,42 +1085,41 @@ function getPercentage(data) {
 
 function getDate(value) {
 
-    if (!value) {
+if (!value) {  
 
-        return null;
+    return null;  
 
-    }
-
-
-    if (
-        typeof value.toDate ===
-        "function"
-    ) {
-
-        return value.toDate();
-
-    }
+}  
 
 
-    const date =
-        new Date(value);
+if (  
+    typeof value.toDate ===  
+    "function"  
+) {  
+
+    return value.toDate();  
+
+}  
 
 
-    if (
-        isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return null;
-
-    }
+const date =  
+    new Date(value);  
 
 
-    return date;
+if (  
+    isNaN(  
+        date.getTime()  
+    )  
+) {  
+
+    return null;  
+
+}  
+
+
+return date;
 
 }
-
 
 // ==========================================
 // تنسيق التاريخ
@@ -1126,28 +1127,27 @@ function getDate(value) {
 
 function formatDate(value) {
 
-    const date =
-        getDate(value);
+const date =  
+    getDate(value);  
 
 
-    if (!date) {
+if (!date) {  
 
-        return "-";
+    return "-";  
 
-    }
+}  
 
 
-    return date.toLocaleDateString(
-        "ar-EG",
-        {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
-        }
-    );
+return date.toLocaleDateString(  
+    "ar-EG",  
+    {  
+        year: "numeric",  
+        month: "2-digit",  
+        day: "2-digit"  
+    }  
+);
 
 }
-
 
 // ==========================================
 // تنسيق التاريخ والوقت
@@ -1155,30 +1155,29 @@ function formatDate(value) {
 
 function formatDateTime(value) {
 
-    const date =
-        getDate(value);
+const date =  
+    getDate(value);  
 
 
-    if (!date) {
+if (!date) {  
 
-        return "-";
+    return "-";  
 
-    }
+}  
 
 
-    return date.toLocaleString(
-        "ar-EG",
-        {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
+return date.toLocaleString(  
+    "ar-EG",  
+    {  
+        year: "numeric",  
+        month: "2-digit",  
+        day: "2-digit",  
+        hour: "2-digit",  
+        minute: "2-digit"  
+    }  
+);
 
 }
-
 
 // ==========================================
 // تغيير النص
@@ -1186,19 +1185,18 @@ function formatDateTime(value) {
 
 function setText(id, value) {
 
-    const element =
-        document.getElementById(id);
+const element =  
+    document.getElementById(id);  
 
 
-    if (element) {
+if (element) {  
 
-        element.textContent =
-            value;
-
-    }
+    element.textContent =  
+        value;  
 
 }
 
+}
 
 // ==========================================
 // حماية عرض النصوص
@@ -1206,37 +1204,36 @@ function setText(id, value) {
 
 function escapeHtml(value) {
 
-    return String(
-        value ?? ""
-    )
+return String(  
+    value ?? ""  
+)  
 
-    .replace(
-        /&/g,
-        "&amp;"
-    )
+.replace(  
+    /&/g,  
+    "&amp;"  
+)  
 
-    .replace(
-        /</g,
-        "&lt;"
-    )
+.replace(  
+    /</g,  
+    "&lt;"  
+)  
 
-    .replace(
-        />/g,
-        "&gt;"
-    )
+.replace(  
+    />/g,  
+    "&gt;"  
+)  
 
-    .replace(
-        /"/g,
-        "&quot;"
-    )
+.replace(  
+    /"/g,  
+    "&quot;"  
+)  
 
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+.replace(  
+    /'/g,  
+    "&#039;"  
+);
 
 }
-
 
 // ==========================================
 // عرض الأخطاء
@@ -1244,73 +1241,614 @@ function escapeHtml(value) {
 
 function showError() {
 
-    const studentInfo =
-        document.getElementById(
-            "studentInfo"
-        );
+const studentInfo =  
+    document.getElementById(  
+        "studentInfo"  
+    );  
 
 
-    const subscription =
-        document.getElementById(
-            "subscriptionInfo"
-        );
+const subscription =  
+    document.getElementById(  
+        "subscriptionInfo"  
+    );  
 
 
-    const progress =
-        document.getElementById(
-            "progress"
-        );
+const progress =  
+    document.getElementById(  
+        "progress"  
+    );  
 
 
-    const latest =
-        document.getElementById(
-            "latestResults"
-        );
+const latest =  
+    document.getElementById(  
+        "latestResults"  
+    );  
 
 
-    const results =
-        document.getElementById(
-            "results"
-        );
+const results =  
+    document.getElementById(  
+        "results"  
+    );  
 
 
-    if (studentInfo) {
+if (studentInfo) {  
 
-        studentInfo.innerHTML =
-            "❌ حدث خطأ أثناء تحميل بيانات الطالب";
+    studentInfo.innerHTML =  
+        "❌ حدث خطأ أثناء تحميل بيانات الطالب";  
 
-    }
-
-
-    if (subscription) {
-
-        subscription.innerHTML =
-            "❌ تعذر تحميل حالة الاشتراك";
-
-    }
+}  
 
 
-    if (progress) {
+if (subscription) {  
 
-        progress.innerHTML =
-            "❌ تعذر حساب التقدم";
+    subscription.innerHTML =  
+        "❌ تعذر تحميل حالة الاشتراك";  
 
-    }
-
-
-    if (latest) {
-
-        latest.innerHTML =
-            "❌ تعذر تحميل آخر النتائج";
-
-    }
+}  
 
 
-    if (results) {
+if (progress) {  
 
-        results.innerHTML =
-            "❌ تعذر تحميل النتائج";
+    progress.innerHTML =  
+        "❌ تعذر حساب التقدم";  
 
-    }
+}  
+
+
+if (latest) {  
+
+    latest.innerHTML =  
+        "❌ تعذر تحميل آخر النتائج";  
+
+}  
+
+
+if (results) {  
+
+    results.innerHTML =  
+        "❌ تعذر تحميل النتائج";  
 
 }
+
+}
+
+// ==========================================
+// تحميل إشعارات الطالب
+// ==========================================
+
+function loadStudentNotifications() {
+
+return db.collection("notifications")  
+
+    .orderBy(  
+        "createdAt",  
+        "desc"  
+    )  
+
+    .limit(50)  
+
+    .get()  
+
+    .then(function (snapshot) {  
+
+        allNotifications = [];  
+
+        readNotifications =  
+            new Set(  
+                JSON.parse(  
+                    localStorage.getItem(  
+                        "readNotifications_" +  
+                        studentCode  
+                    ) || "[]"  
+                )  
+            );  
+
+
+        snapshot.forEach(  
+            function (doc) {  
+
+                const notification =  
+                    doc.data();  
+
+
+                if (  
+                    !notificationIsForStudent(  
+                        notification  
+                    )  
+                ) {  
+
+                    return;  
+
+                }  
+
+
+                allNotifications.push({  
+
+                    id: doc.id,  
+
+                    ...notification  
+
+                });  
+
+            }  
+        );  
+
+
+        renderNotifications();  
+
+        updateNotificationBadge();  
+
+    })  
+
+    .catch(function (error) {  
+
+        console.error(  
+            "Notifications Error:",  
+            error  
+        );  
+
+
+        const list =  
+            document.getElementById(  
+                "notificationList"  
+            );  
+
+
+        if (list) {  
+
+            list.innerHTML = `  
+
+                <div class="notification-empty">  
+
+                    ❌ تعذر تحميل الإشعارات  
+
+                </div>  
+
+            `;  
+
+        }  
+
+    });
+
+}
+
+// ==========================================
+// هل الإشعار موجه للطالب؟
+// ==========================================
+
+function notificationIsForStudent(
+notification
+) {
+
+const targetType =  
+    notification.targetType ||  
+    "all";  
+
+
+// ======================================  
+// للجميع  
+// ======================================  
+
+if (  
+    targetType === "all"  
+) {  
+
+    return true;  
+
+}  
+
+
+// ======================================  
+// لطالب محدد  
+// ======================================  
+
+if (  
+    targetType === "student"  
+) {  
+
+    return (  
+        notification.targetId ===  
+        studentCode  
+    );  
+
+}  
+
+
+// ======================================  
+// لصف محدد  
+// ======================================  
+
+if (  
+    targetType === "grade"  
+) {  
+
+    return (  
+        String(  
+            notification.targetId  
+        ) ===  
+        String(  
+            currentStudent.grade  
+        )  
+    );  
+
+}  
+
+
+return false;
+
+}
+
+// ==========================================
+// عرض الإشعارات
+// ==========================================
+
+function renderNotifications() {
+
+const list =  
+    document.getElementById(  
+        "notificationList"  
+    );  
+
+
+if (!list) {  
+
+    return;  
+
+}  
+
+
+if (  
+    !allNotifications.length  
+) {  
+
+    list.innerHTML = `  
+
+        <div class="notification-empty">  
+
+            🔕 لا توجد إشعارات حاليًا  
+
+        </div>  
+
+    `;  
+
+    return;  
+
+}  
+
+
+let html = "";  
+
+
+allNotifications.forEach(  
+    function (notification) {  
+
+        const isRead =  
+            readNotifications.has(  
+                notification.id  
+            );  
+
+
+        html += `  
+
+            <div  
+
+                class="  
+                    notification-item  
+                    ${  
+                        isRead  
+                            ? ""  
+                            : "unread"  
+                    }  
+                "  
+
+                data-id="${escapeHtml(  
+                    notification.id  
+                )}"  
+
+            >  
+
+                <div class="notification-title">  
+
+                    ${  
+                        escapeHtml(  
+                            notification.title ||  
+                            "إشعار جديد"  
+                        )  
+                    }  
+
+                </div>  
+
+
+                <div class="notification-message">  
+
+                    ${  
+                        escapeHtml(  
+                            notification.message ||  
+                            ""  
+                        )  
+                    }  
+
+                </div>  
+
+
+                <div class="notification-time">  
+
+                    🕒  
+
+                    ${  
+                        formatDateTime(  
+                            notification.createdAt  
+                        )  
+                    }  
+
+                </div>  
+
+            </div>  
+
+        `;  
+
+    }  
+);  
+
+
+list.innerHTML = html;  
+
+
+// ======================================  
+// الضغط على إشعار  
+// ======================================  
+
+const items =  
+    list.querySelectorAll(  
+        ".notification-item"  
+    );  
+
+
+items.forEach(  
+    function (item) {  
+
+        item.addEventListener(  
+            "click",  
+            function () {  
+
+                const id =  
+                    item.dataset.id;  
+
+
+                markNotificationAsRead(  
+                    id  
+                );  
+
+            }  
+        );  
+
+    }  
+);
+
+}
+
+// ==========================================
+// تحديد إشعار كمقروء
+// ==========================================
+
+function markNotificationAsRead(
+notificationId
+) {
+
+readNotifications.add(  
+    notificationId  
+);  
+
+
+saveReadNotifications();  
+
+
+renderNotifications();  
+
+updateNotificationBadge();
+
+}
+
+// ==========================================
+// تحديد كل الإشعارات كمقروءة
+// ==========================================
+
+function markAllNotificationsAsRead() {
+
+allNotifications.forEach(  
+    function (notification) {  
+
+        readNotifications.add(  
+            notification.id  
+        );  
+
+    }  
+);  
+
+
+saveReadNotifications();  
+
+renderNotifications();  
+
+updateNotificationBadge();
+
+}
+
+// ==========================================
+// حفظ الإشعارات المقروءة
+// ==========================================
+
+function saveReadNotifications() {
+
+localStorage.setItem(  
+
+    "readNotifications_" +  
+    studentCode,  
+
+    JSON.stringify(  
+        Array.from(  
+            readNotifications  
+        )  
+    )  
+
+);
+
+}
+
+// ==========================================
+// تحديث Badge
+// ==========================================
+
+function updateNotificationBadge() {
+
+const badge =  
+    document.getElementById(  
+        "notificationBadge"  
+    );  
+
+
+if (!badge) {  
+
+    return;  
+
+}  
+
+
+const unreadCount =  
+    allNotifications.filter(  
+        function (notification) {  
+
+            return !readNotifications.has(  
+                notification.id  
+            );  
+
+        }  
+    ).length;  
+
+
+if (  
+    unreadCount <= 0  
+) {  
+
+    badge.style.display =  
+        "none";  
+
+    return;  
+
+}  
+
+
+badge.style.display =  
+    "flex";  
+
+
+badge.textContent =  
+    unreadCount > 99  
+        ? "99+"  
+        : unreadCount;
+
+}
+
+// ==========================================
+// فتح وإغلاق قائمة الإشعارات
+// ==========================================
+
+function setupNotificationUI() {
+
+const button =  
+    document.getElementById(  
+        "notificationButton"  
+    );  
+
+
+const dropdown =  
+    document.getElementById(  
+        "notificationDropdown"  
+    );  
+
+
+const markAllButton =  
+    document.getElementById(  
+        "markAllNotifications"  
+    );  
+
+
+if (  
+    !button ||  
+    !dropdown  
+) {  
+
+    return;  
+
+}  
+
+
+button.addEventListener(  
+    "click",  
+    function (event) {  
+
+        event.stopPropagation();  
+
+
+        dropdown.style.display =  
+            dropdown.style.display ===  
+            "none"  
+
+                ? "block"  
+
+                : "none";  
+
+    }  
+);  
+
+
+if (markAllButton) {  
+
+    markAllButton.addEventListener(  
+        "click",  
+        function (event) {  
+
+            event.stopPropagation();  
+
+            markAllNotificationsAsRead();  
+
+        }  
+    );  
+
+}  
+
+
+document.addEventListener(  
+    "click",  
+    function (event) {  
+
+        if (  
+            !dropdown.contains(  
+                event.target  
+            ) &&  
+            event.target !== button  
+        ) {  
+
+            dropdown.style.display =  
+                "none";  
+
+        }  
+
+    }  
+);
+
+}
+
+// ==========================================
+// تشغيل نظام الإشعارات
+// ==========================================
+
+document.addEventListener(
+"DOMContentLoaded",
+function () {
+
+setupNotificationUI();  
+
+}
+
+);

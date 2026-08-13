@@ -12,6 +12,13 @@ const AI_API_URL =
 
 
 // ==========================================
+// DAILY LIMIT
+// ==========================================
+
+const DAILY_AI_LIMIT = 10;
+
+
+// ==========================================
 // ELEMENTS
 // ==========================================
 
@@ -40,14 +47,6 @@ const charCount =
 
 function getStudentCode() {
 
-    /*
-     * مؤقتًا:
-     * نبحث عن studentCode في أكثر من مكان.
-     *
-     * لاحقًا هنربطه مباشرة بنظام تسجيل الدخول
-     * الموجود في المنصة.
-     */
-
     const localCode =
         localStorage.getItem("studentCode");
 
@@ -65,6 +64,100 @@ function getStudentCode() {
 
 
     return "TEST001";
+}
+
+
+// ==========================================
+// DAILY USAGE KEY
+// ==========================================
+
+function getDailyUsageKey() {
+
+    const studentCode =
+        getStudentCode();
+
+    const today =
+        new Date().toISOString().slice(0, 10);
+
+    return `bawabet_ai_usage_${studentCode}_${today}`;
+
+}
+
+
+// ==========================================
+// GET DAILY USAGE
+// ==========================================
+
+function getDailyUsage() {
+
+    const key =
+        getDailyUsageKey();
+
+    const saved =
+        localStorage.getItem(key);
+
+    const count =
+        parseInt(saved, 10);
+
+    if (Number.isNaN(count)) {
+        return 0;
+    }
+
+    return count;
+
+}
+
+
+// ==========================================
+// INCREASE DAILY USAGE
+// ==========================================
+
+function increaseDailyUsage() {
+
+    const key =
+        getDailyUsageKey();
+
+    const current =
+        getDailyUsage();
+
+    localStorage.setItem(
+        key,
+        String(current + 1)
+    );
+
+}
+
+
+// ==========================================
+// REMAINING QUESTIONS
+// ==========================================
+
+function getRemainingQuestions() {
+
+    return Math.max(
+        0,
+        DAILY_AI_LIMIT - getDailyUsage()
+    );
+
+}
+
+
+// ==========================================
+// DAILY LIMIT MESSAGE
+// ==========================================
+
+function showDailyLimitMessage() {
+
+    addMessage(
+        `⛔ وصلت للحد المجاني اليومي.
+
+مسموح لك بـ ${DAILY_AI_LIMIT} أسئلة يوميًا.
+
+استخدم المساعد مرة أخرى غدًا ❤️`,
+        "ai",
+        false
+    );
+
 }
 
 
@@ -90,6 +183,23 @@ async function sendMessage() {
         );
 
         return;
+    }
+
+
+    // ======================================
+    // CHECK DAILY LIMIT
+    // ======================================
+
+    const remaining =
+        getRemainingQuestions();
+
+
+    if (remaining <= 0) {
+
+        showDailyLimitMessage();
+
+        return;
+
     }
 
 
@@ -202,6 +312,20 @@ async function sendMessage() {
             data.reply,
             "ai"
         );
+
+
+        // ==================================
+        // COUNT SUCCESSFUL QUESTION
+        // ==================================
+
+        increaseDailyUsage();
+
+
+        // ==================================
+        // UPDATE LIMIT DISPLAY
+        // ==================================
+
+        updateDailyLimitDisplay();
 
 
     } catch (error) {
@@ -379,7 +503,6 @@ function formatAIResponse(text) {
         escapeHTML(text);
 
 
-    // Bold
     escaped =
         escaped.replace(
             /\*\*(.*?)\*\*/g,
@@ -387,7 +510,6 @@ function formatAIResponse(text) {
         );
 
 
-    // Bullet points
     escaped =
         escaped.replace(
             /^[-•]\s+(.*)$/gm,
@@ -402,7 +524,6 @@ function formatAIResponse(text) {
         );
 
 
-    // Line breaks
     escaped =
         escaped.replace(
             /\n/g,
@@ -467,6 +588,22 @@ function setLoading(isLoading) {
         messageInput.focus();
 
     }
+
+}
+
+
+// ==========================================
+// DAILY LIMIT DISPLAY
+// ==========================================
+
+function updateDailyLimitDisplay() {
+
+    const remaining =
+        getRemainingQuestions();
+
+    console.log(
+        `🤖 AI Questions Remaining: ${remaining}/${DAILY_AI_LIMIT}`
+    );
 
 }
 
@@ -669,3 +806,5 @@ newChatBtn.addEventListener(
 setupSuggestions();
 
 updateCharacterCount();
+
+updateDailyLimitDisplay();

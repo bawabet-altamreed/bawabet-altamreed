@@ -40,6 +40,18 @@ const typingIndicator =
 const charCount =
     document.getElementById("charCount");
 
+const dailyLimitCard =
+    document.getElementById("dailyLimitCard");
+
+const dailyLimitNumber =
+    document.getElementById("dailyLimitNumber");
+
+const dailyLimitText =
+    document.getElementById("dailyLimitText");
+
+const dailyProgressBar =
+    document.getElementById("dailyProgressBar");
+
 
 // ==========================================
 // STUDENT CODE
@@ -103,7 +115,10 @@ function getDailyUsage() {
         return 0;
     }
 
-    return count;
+    return Math.max(
+        0,
+        count
+    );
 
 }
 
@@ -122,28 +137,135 @@ function increaseDailyUsage() {
 
     localStorage.setItem(
         key,
-        String(current + 1)
+        String(
+            Math.min(
+                DAILY_AI_LIMIT,
+                current + 1
+            )
+        )
     );
 
 }
 
 
 // ==========================================
-// REMAINING QUESTIONS
+// UPDATE DAILY LIMIT UI
 // ==========================================
 
-function getRemainingQuestions() {
+function updateDailyLimitDisplay() {
 
-    return Math.max(
-        0,
-        DAILY_AI_LIMIT - getDailyUsage()
+    const used =
+        getDailyUsage();
+
+    const remaining =
+        Math.max(
+            0,
+            DAILY_AI_LIMIT - used
+        );
+
+    const percentage =
+        Math.min(
+            100,
+            (used / DAILY_AI_LIMIT) * 100
+        );
+
+
+    // ======================================
+    // NUMBER
+    // ======================================
+
+    dailyLimitNumber.textContent =
+        `${remaining} / ${DAILY_AI_LIMIT}`;
+
+
+    // ======================================
+    // TEXT
+    // ======================================
+
+    if (remaining <= 0) {
+
+        dailyLimitText.textContent =
+            "انتهت أسئلتك المجانية اليوم. تتجدد غدًا ❤️";
+
+    } else if (remaining <= 3) {
+
+        dailyLimitText.textContent =
+            `⚠️ متبقي ${remaining} أسئلة فقط اليوم`;
+
+    } else {
+
+        dailyLimitText.textContent =
+            `متبقي ${remaining} أسئلة اليوم`;
+
+    }
+
+
+    // ======================================
+    // PROGRESS
+    // ======================================
+
+    dailyProgressBar.style.width =
+        `${percentage}%`;
+
+
+    // ======================================
+    // CARD STATE
+    // ======================================
+
+    dailyLimitCard.classList.remove(
+        "warning",
+        "danger"
     );
+
+
+    if (remaining <= 0) {
+
+        dailyLimitCard.classList.add(
+            "danger"
+        );
+
+    } else if (remaining <= 3) {
+
+        dailyLimitCard.classList.add(
+            "warning"
+        );
+
+    }
+
+
+    // ======================================
+    // DISABLE CHAT
+    // ======================================
+
+    if (remaining <= 0) {
+
+        messageInput.disabled =
+            true;
+
+        sendBtn.disabled =
+            true;
+
+        messageInput.placeholder =
+            "انتهت أسئلتك اليوم ❤️";
+
+    } else {
+
+        messageInput.disabled =
+            false;
+
+        sendBtn.disabled =
+            false;
+
+        messageInput.placeholder =
+            "اكتب سؤالك هنا...";
+
+    }
 
 }
 
 
 // ==========================================
-// DAILY LIMIT MESSAGE
+// SHOW DAILY LIMIT MESSAGE
 // ==========================================
 
 function showDailyLimitMessage() {
@@ -153,7 +275,7 @@ function showDailyLimitMessage() {
 
 مسموح لك بـ ${DAILY_AI_LIMIT} أسئلة يوميًا.
 
-استخدم المساعد مرة أخرى غدًا ❤️`,
+أسئلتك ستتجدد تلقائيًا غدًا ❤️`,
         "ai",
         false
     );
@@ -176,6 +298,24 @@ async function sendMessage() {
     }
 
 
+    // ======================================
+    // CHECK DAILY LIMIT
+    // ======================================
+
+    if (
+        getDailyUsage() >=
+        DAILY_AI_LIMIT
+    ) {
+
+        showDailyLimitMessage();
+
+        updateDailyLimitDisplay();
+
+        return;
+
+    }
+
+
     if (question.length > 4000) {
 
         alert(
@@ -183,23 +323,6 @@ async function sendMessage() {
         );
 
         return;
-    }
-
-
-    // ======================================
-    // CHECK DAILY LIMIT
-    // ======================================
-
-    const remaining =
-        getRemainingQuestions();
-
-
-    if (remaining <= 0) {
-
-        showDailyLimitMessage();
-
-        return;
-
     }
 
 
@@ -294,7 +417,10 @@ async function sendMessage() {
         // ERROR
         // ==================================
 
-        if (!response.ok || !data.success) {
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
             throw new Error(
                 data?.error ||
@@ -320,11 +446,6 @@ async function sendMessage() {
 
         increaseDailyUsage();
 
-
-        // ==================================
-        // UPDATE LIMIT DISPLAY
-        // ==================================
-
         updateDailyLimitDisplay();
 
 
@@ -345,6 +466,8 @@ async function sendMessage() {
     } finally {
 
         setLoading(false);
+
+        updateDailyLimitDisplay();
 
     }
 
@@ -579,31 +702,17 @@ function setLoading(isLoading) {
             .classList
             .add("hidden");
 
-        sendBtn.disabled =
+        messageInput.disabled =
             false;
 
-        messageInput.disabled =
+        sendBtn.disabled =
             false;
 
         messageInput.focus();
 
+        updateDailyLimitDisplay();
+
     }
-
-}
-
-
-// ==========================================
-// DAILY LIMIT DISPLAY
-// ==========================================
-
-function updateDailyLimitDisplay() {
-
-    const remaining =
-        getRemainingQuestions();
-
-    console.log(
-        `🤖 AI Questions Remaining: ${remaining}/${DAILY_AI_LIMIT}`
-    );
 
 }
 
@@ -717,6 +826,18 @@ function setupSuggestions() {
             button.addEventListener(
                 "click",
                 () => {
+
+                    if (
+                        getDailyUsage() >=
+                        DAILY_AI_LIMIT
+                    ) {
+
+                        showDailyLimitMessage();
+
+                        return;
+
+                    }
+
 
                     messageInput.value =
                         button.textContent

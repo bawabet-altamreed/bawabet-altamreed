@@ -5,219 +5,189 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <title>
-        مساعد بوابة التمريض
-    </title>
+    <title>مساعد بوابة التمريض</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="ai-chat.css"
-    >
+    <link rel="stylesheet" href="ai-chat.css">
 
 </head>
 
 <body>
 
-<!-- ==========================================
-     NAVBAR
-========================================== -->
-
-<nav>
-
-    <div class="logo">
-        🩺 بوابة التمريض
-    </div>
-
-    <ul>
-
-        <li>
-            <a href="index.html">
-                الرئيسية
-            </a>
-        </li>
-
-        <li>
-            <a href="student-dashboard.html">
-                لوحة الطالب
-            </a>
-        </li>
-
-        <li>
-            <a href="achievements.html">
-                🏆 إنجازاتي
-            </a>
-        </li>
-
-    </ul>
-
-</nav>
-
-
-<!-- ==========================================
-     AI PAGE
-========================================== -->
-
-<main class="ai-page">
-
-
-    <!-- ======================================
+    <!-- ==========================================
          HEADER
-    ====================================== -->
+    =========================================== -->
 
-    <section class="ai-header">
+    <header class="chat-header">
 
-        <div class="ai-avatar">
-            🤖
-        </div>
+        <div class="header-right">
 
-        <div>
+            <div class="ai-avatar">
+                🤖
+            </div>
 
-            <h1>
-                مساعد بوابة التمريض
-            </h1>
+            <div>
 
-            <p>
-                مساعدك الذكي لفهم الشرح وحل أسئلتك
-            </p>
+                <h1>
+                    مساعد بوابة التمريض
+                </h1>
 
-        </div>
+                <span class="online-status">
+                    ● متصل الآن
+                </span>
 
-        <div class="ai-status">
-
-            <span></span>
-
-            متصل
+            </div>
 
         </div>
 
-    </section>
+
+        <button
+            id="newChatBtn"
+            class="new-chat-btn"
+            type="button">
+
+            ＋ محادثة جديدة
+
+        </button>
+
+    </header>
 
 
-    <!-- ======================================
+    <!-- ==========================================
          CHAT
-    ====================================== -->
+    =========================================== -->
 
-    <section
-        id="chatMessages"
-        class="chat-messages"
-    >
+    <main class="chat-container">
+
+        <section
+            id="chatMessages"
+            class="chat-messages">
+
+            <!-- Welcome -->
+
+            <div class="welcome-message">
+
+                <div class="welcome-icon">
+                    🩺
+                </div>
+
+                <h2>
+                    أهلاً بيك في مساعد بوابة التمريض 👋
+                </h2>
+
+                <p>
+                    أنا هنا أساعدك في المذاكرة،
+                    الشرح، المراجعة وحل الأسئلة.
+                </p>
 
 
-        <!-- Welcome -->
+                <div class="suggestions">
 
-        <div class="message ai-message">
+                    <button
+                        type="button"
+                        class="suggestion-btn">
+
+                        📚 اشرحلي درس بطريقة بسيطة
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="suggestion-btn">
+
+                        📝 اعمللي أسئلة للمراجعة
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="suggestion-btn">
+
+                        🧠 اختبرني في المعلومات الطبية
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             TYPING
+        ======================================= -->
+
+        <div
+            id="typingIndicator"
+            class="typing-indicator hidden">
 
             <div class="message-avatar">
                 🤖
             </div>
 
-            <div class="message-content">
+            <div class="typing-bubble">
 
-                <strong>
-                    مساعد بوابة التمريض
-                </strong>
-
-                <p>
-                    أهلاً بيك يا بطل 👋🩺
-                </p>
-
-                <p>
-                    أنا مساعدك الذكي داخل بوابة التمريض.
-                </p>
-
-                <p>
-                    تقدر تسألني عن سؤال مش فاهمه،
-                    أو تطلب شرح إجابة،
-                    أو تطلب تبسيط معلومة تمريضية.
-                </p>
-
-                <p>
-                    💡 مثال:
-                    <br>
-                    "اشرحلي الفرق بين inflammation و infection"
-                </p>
+                <span></span>
+                <span></span>
+                <span></span>
 
             </div>
 
         </div>
 
-    </section>
+
+        <!-- ======================================
+             INPUT
+        ======================================= -->
+
+        <div class="input-area">
+
+            <div class="input-wrapper">
+
+                <textarea
+                    id="messageInput"
+                    placeholder="اكتب سؤالك هنا..."
+                    rows="1"
+                    maxlength="4000"></textarea>
 
 
-    <!-- ======================================
-         SUGGESTIONS
-    ====================================== -->
+                <button
+                    id="sendBtn"
+                    class="send-btn"
+                    type="button"
+                    aria-label="إرسال">
 
-    <div class="ai-suggestions">
+                    ➤
 
-        <button
-            onclick="useSuggestion('اشرح لي هذه المعلومة بطريقة بسيطة')"
-        >
-            💡 اشرحلي المعلومة
-        </button>
+                </button>
 
-        <button
-            onclick="useSuggestion('اشرح لي إجابة هذا السؤال ولماذا هي الصحيحة')"
-        >
-            📝 اشرح إجابة سؤال
-        </button>
+            </div>
 
-        <button
-            onclick="useSuggestion('اعمل لي ملخص سريع لهذا الموضوع')"
-        >
-            📚 اعمل ملخص
-        </button>
+            <div class="input-footer">
 
-    </div>
+                <span>
+                    مساعد تعليمي لطلاب التمريض
+                </span>
 
+                <span id="charCount">
+                    0 / 4000
+                </span>
 
-    <!-- ======================================
-         INPUT
-    ====================================== -->
+            </div>
 
-    <section class="chat-input-area">
+        </div>
 
-        <textarea
-            id="messageInput"
-            placeholder="اكتب سؤالك هنا..."
-            rows="1"
-        ></textarea>
+    </main>
 
 
-        <button
-            id="sendButton"
-            class="send-button"
-        >
+    <!-- ==========================================
+         JAVASCRIPT
+    =========================================== -->
 
-            ➤
-
-        </button>
-
-    </section>
-
-
-    <div class="ai-disclaimer">
-
-        🤖 مساعد بوابة التمريض أداة تعليمية للمساعدة
-        في الفهم والمراجعة، وليس بديلاً عن المحاضر أو المصادر الدراسية.
-
-    </div>
-
-
-</main>
-
-
-<script src="ai-chat.js"></script>
+    <script src="ai-chat.js"></script>
 
 </body>
 

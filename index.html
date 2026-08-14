@@ -601,6 +601,20 @@ window.location.href = "login.html";
 });
 
 </script>
+
+     <script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+            .then(() => {
+                console.log("بوابة التمريض: Service Worker registered");
+            })
+            .catch(error => {
+                console.error("Service Worker Error:", error);
+            });
+    });
+}
+</script>
      
 </body>
 

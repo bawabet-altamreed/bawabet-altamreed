@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Anatomy - Chapter 1 Quiz</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🦴 Anatomy</h1>
+
+<p>
+Chapter 1 - The Bones
+</p>
+
+</header>
+
+
+<section class="years">
+
+<div class="card">
+
+<div class="timer">
+
+⏳ <span id="timer">10:00</span>
+
+</div>
+
+
+<div class="progress">
+
+<div class="progress-bar" id="progressBar"></div>
+
+</div>
+
+
+<h2 id="question"></h2>
+
+
+<div id="answers"></div>
+
+
+<button id="nextBtn">
+
+▶️ التالي
+
+</button>
+
+</div>
+
+</section>
+
+
+<script>
+
+
+// ==========================================
+// تسجيل دخول الطالب
+// ==========================================
+
+let currentUser = null;
+
+
+firebase.auth().onAuthStateChanged(function(user){
+
+    if(user){
+
+        currentUser = user;
+
+    }else{
+
+        window.location.href =
+        "login.html";
+
+    }
+
+});
+
+
+// ==========================================
+// الأسئلة
+// ==========================================
+
+const questions = [
+
+
+{
+question:"Which of the following is classified as a Long Bone?",
+
+answers:[
+{text:"Humerus",correct:true},
+{text:"Scapula",correct:false},
+{text:"Vertebra",correct:false},
+{text:"Carpal bone",correct:false}
+]
+
+},
+
+
+{
+question:"Which of the following is an example of a Short Bone?",
+
+answers:[
+{text:"Femur",correct:false},
+{text:"Carpal bone",correct:true},
+{text:"Sternum",correct:false},
+{text:"Humerus",correct:false}
+]
+
+},
+
+
+{
+question:"Vertebrae are classified as:",
+
+answers:[
+{text:"Flat bones",correct:false},
+{text:"Pneumatic bones",correct:false},
+{text:"Irregular bones",correct:true},
+{text:"Sesamoid bones",correct:false}
+]
+
+},
+
+
+{
+question:"Which of the following is an example of a Sesamoid Bone?",
+
+answers:[
+{text:"Patella",correct:true},
+{text:"Femur",correct:false},
+{text:"Scapula",correct:false},
+{text:"Radius",correct:false}
+]
+
+},
+
+
+{
+question:"Pneumatic bones contain air-filled spaces known as:",
+
+answers:[
+{text:"Fontanelles",correct:false},
+{text:"Foramina",correct:false},
+{text:"Paranasal Sinuses",correct:true},
+{text:"Sutures",correct:false}
+]
+
+},
+
+
+{
+question:"The skeleton is divided into:",
+
+answers:[
+{text:"Cranial and facial skeleton",correct:false},
+{text:"Axial and appendicular skeleton",correct:true},
+{text:"Upper and lower skeleton only",correct:false},
+{text:"Thoracic and pelvic skeleton",correct:false}
+]
+
+},
+
+
+{
+question:"Which of the following belongs to the Axial Skeleton?",
+
+answers:[
+{text:"Femur",correct:false},
+{text:"Humerus",correct:false},
+{text:"Skull",correct:true},
+{text:"Radius",correct:false}
+]
+
+},
+
+
+{
+question:"How many bones are normally present in the adult skull?",
+
+answers:[
+{text:"18 bones",correct:false},
+{text:"20 bones",correct:false},
+{text:"22 bones",correct:true},
+{text:"24 bones",correct:false}
+]
+
+},
+
+
+{
+question:"Which of the following is a paired bone of the skull?",
+
+answers:[
+{text:"Frontal bone",correct:false},
+{text:"Occipital bone",correct:false},
+{text:"Parietal bone",correct:true},
+{text:"Mandible",correct:false}
+]
+
+},
+
+
+{
+question:"A fracture of the skull base may cause:",
+
+answers:[
+{text:"Bleeding from the nose or ears",correct:true},
+{text:"Increased appetite",correct:false},
+{text:"Improved hearing",correct:false},
+{text:"Pain only in the foot",correct:false}
+]
+
+},
+
+
+{
+question:"The soft membranous areas between the skull bones of a newborn are called:",
+
+answers:[
+{text:"Sutures",correct:false},
+{text:"Fontanelles",correct:true},
+{text:"Foramina",correct:false},
+{text:"Sinuses",correct:false}
+]
+
+},
+
+
+{
+question:"Which statement about the Anterior Fontanelle is correct?",
+
+answers:[
+{text:"It is small and triangular",correct:false},
+{text:"It closes within 3 months",correct:false},
+{text:"It is large and diamond-shaped",correct:true},
+{text:"It is located in the lower limb",correct:false}
+]
+
+},
+
+
+{
+question:"The Radius is located on which side of the forearm?",
+
+answers:[
+{text:"Medial side",correct:false},
+{text:"Lateral side",correct:true},
+{text:"Posterior side only",correct:false},
+{text:"Central side",correct:false}
+]
+
+},
+
+
+{
+question:"Which bone does NOT directly participate in the wrist joint?",
+
+answers:[
+{text:"Radius",correct:false},
+{text:"Ulna",correct:true},
+{text:"Carpal bones",correct:false},
+{text:"Hand bones",correct:false}
+]
+
+},
+
+
+{
+question:"How many Carpal Bones are present in one hand?",
+
+answers:[
+{text:"5",correct:false},
+{text:"7",correct:false},
+{text:"8",correct:true},
+{text:"14",correct:false}
+]
+
+},
+
+
+{
+question:"Which is the longest and strongest bone in the human body?",
+
+answers:[
+{text:"Tibia",correct:false},
+{text:"Humerus",correct:false},
+{text:"Femur",correct:true},
+{text:"Fibula",correct:false}
+]
+
+},
+
+
+{
+question:"The Tibia is located on the:",
+
+answers:[
+{text:"Lateral side of the leg",correct:false},
+{text:"Medial side of the leg",correct:true},
+{text:"Lateral side of the forearm",correct:false},
+{text:"Posterior side of the arm",correct:false}
+]
+
+},
+
+
+{
+question:"Which ribs are known as Floating Ribs?",
+
+answers:[
+{text:"Ribs 1–7",correct:false},
+{text:"Ribs 8–10",correct:false},
+{text:"Ribs 10–11",correct:false},
+{text:"Ribs 11–12",correct:true}
+]
+
+},
+
+
+{
+question:"How many Thoracic Vertebrae are present?",
+
+answers:[
+{text:"5",correct:false},
+{text:"7",correct:false},
+{text:"12",correct:true},
+{text:"14",correct:false}
+]
+
+},
+
+
+{
+question:"Which of the following is a normal curve of the vertebral column?",
+
+answers:[
+{text:"Cervical Lordosis",correct:true},
+{text:"Radial Kyphosis",correct:false},
+{text:"Femoral Lordosis",correct:false},
+{text:"Pelvic Scoliosis",correct:false}
+]
+
+},
+
+
+{
+question:"Which structure does the vertebral column protect?",
+
+answers:[
+{text:"Spinal cord",correct:true},
+{text:"Femur",correct:false},
+{text:"Patella",correct:false},
+{text:"Carpal bones",correct:false}
+]
+
+},
+
+
+{
+question:"Which statement correctly describes the Female Pelvis?",
+
+answers:[
+{text:"Narrow outlet and narrow pubic arch",correct:false},
+{text:"Heart-shaped inlet",correct:false},
+{text:"Wide inlet and wide outlet",correct:true},
+{text:"Long and narrow sacrum",correct:false}
+]
+
+},
+
+
+{
+question:"How many Phalanges are present in one hand?",
+
+answers:[
+{text:"8",correct:false},
+{text:"10",correct:false},
+{text:"12",correct:false},
+{text:"14",correct:true}
+]
+
+},
+
+
+{
+question:"How many Tarsal Bones are present in one foot?",
+
+answers:[
+{text:"5",correct:false},
+{text:"7",correct:true},
+{text:"8",correct:false},
+{text:"14",correct:false}
+]
+
+}
+
+];
+
+
+// ==========================================
+// متغيرات الاختبار
+// ==========================================
+
+let currentQuestion = 0;
+
+let score = 0;
+
+let answered = false;
+
+
+// ==========================================
+// عناصر الصفحة
+// ==========================================
+
+const questionElement =
+document.getElementById("question");
+
+
+const answersElement =
+document.getElementById("answers");
+
+
+const nextButton =
+document.getElementById("nextBtn");
+
+
+const progressBar =
+document.getElementById("progressBar");
+
+
+// ==========================================
+// تحميل السؤال
+// ==========================================
+
+function showQuestion(){
+
+    answered = false;
+
+    answersElement.innerHTML = "";
+
+    nextButton.style.display =
+    "none";
+
+
+    let q =
+    questions[currentQuestion];
+
+
+    questionElement.innerHTML =
+    (currentQuestion + 1) +
+    ". " +
+    q.question;
+
+
+    progressBar.style.width =
+    ((currentQuestion + 1) /
+    questions.length) * 100 + "%";
+
+
+    document.title =
+    "Anatomy Quiz - Question " +
+    (currentQuestion + 1);
+
+
+    q.answers.forEach(function(answer){
+
+        const button =
+        document.createElement("button");
+
+
+        button.innerHTML =
+        answer.text;
+
+
+        button.className =
+        "quiz-answer";
+
+
+        button.onclick =
+        function(){
+
+            selectAnswer(
+                answer.correct,
+                button
+            );
+
+        };
+
+
+        answersElement.appendChild(button);
+
+    });
+
+}
+
+
+// ==========================================
+// اختيار الإجابة
+// ==========================================
+
+function selectAnswer(correct, button){
+
+    if(answered) return;
+
+
+    answered = true;
+
+
+    const buttons =
+    Array.from(
+        answersElement.children
+    );
+
+
+    buttons.forEach(function(btn){
+
+        btn.disabled = true;
+
+    });
+
+
+    if(correct){
+
+        score++;
+
+
+        button.style.background =
+        "green";
+
+
+        button.style.color =
+        "#fff";
+
+    }else{
+
+        button.style.background =
+        "red";
+
+
+        button.style.color =
+        "#fff";
+
+
+        const correctIndex =
+        questions[currentQuestion]
+        .answers
+        .findIndex(
+            answer =>
+            answer.correct === true
+        );
+
+
+        buttons[
+            correctIndex
+        ].style.background =
+        "green";
+
+
+        buttons[
+            correctIndex
+        ].style.color =
+        "#fff";
+
+    }
+
+
+    nextButton.style.display =
+    "block";
+
+}
+
+
+// ==========================================
+// زر التالي
+// ==========================================
+
+nextButton.onclick =
+function(){
+
+    if(!answered){
+
+        alert(
+            "من فضلك اختر إجابة أولاً"
+        );
+
+        return;
+
+    }
+
+
+    currentQuestion++;
+
+
+    if(
+        currentQuestion <
+        questions.length
+    ){
+
+        showQuestion();
+
+    }else{
+
+        clearInterval(
+            timerInterval
+        );
+
+
+        let percentage =
+        Math.round(
+            (score /
+            questions.length) * 100
+        );
+
+
+        saveResult(
+            percentage
+        );
+
+    }
+
+};
+
+
+// ==========================================
+// حفظ النتيجة في Firebase
+// ==========================================
+
+function saveResult(percentage){
+
+    if(!currentUser){
+
+        showResult(percentage);
+
+        return;
+
+    }
+
+
+    db.collection("users")
+
+    .doc(currentUser.uid)
+
+    .get()
+
+    .then(function(doc){
+
+        if(!doc.exists){
+
+            throw new Error(
+                "بيانات الطالب غير موجودة"
+            );
+
+        }
+
+
+        let userData =
+        doc.data();
+
+
+        return db.collection("results")
+
+        .add({
+
+            uid:
+            currentUser.uid,
+
+            studentCode:
+            userData.studentCode || "",
+
+            name:
+            userData.name || "",
+
+            grade:
+            userData.grade || "",
+
+            email:
+            currentUser.email || "",
+
+            subject:
+            "Anatomy",
+
+            chapter:
+            "Chapter 1",
+
+            score:
+            score,
+
+            total:
+            questions.length,
+
+            percentage:
+            percentage,
+
+            date:
+            firebase.firestore
+            .FieldValue
+            .serverTimestamp()
+
+        });
+
+    })
+
+    .then(function(){
+
+        showResult(
+            percentage
+        );
+
+    })
+
+    .catch(function(error){
+
+        console.error(
+            "Save Result Error:",
+            error
+        );
+
+
+        alert(
+            "❌ حدث خطأ أثناء حفظ النتيجة"
+        );
+
+
+        showResult(
+            percentage
+        );
+
+    });
+
+}
+
+
+// ==========================================
+// عرض النتيجة
+// ==========================================
+
+function showResult(percentage){
+
+    questionElement.innerHTML =
+    "🎉 انتهى الاختبار";
+
+
+    let message;
+
+
+    if(percentage >= 90){
+
+        message =
+        "🏆 ممتاز! أداء رائع في Anatomy.";
+
+    }
+
+    else if(percentage >= 75){
+
+        message =
+        "👏 أحسنت! مستواك جيد جدًا.";
+
+    }
+
+    else if(percentage >= 50){
+
+        message =
+        "👍 جيد، لكن راجع الشابتر مرة أخرى.";
+
+    }
+
+    else{
+
+        message =
+        "📚 تحتاج إلى مراجعة Chapter 1 ثم إعادة الاختبار.";
+
+    }
+
+
+    answersElement.innerHTML = `
+
+        <div class="result-box">
+
+            <p>النتيجة</p>
+
+            <h1>
+                ${score} / ${questions.length}
+            </h1>
+
+            <h2>
+                ${percentage}%
+            </h2>
+
+            <p>
+                ${message}
+            </p>
+
+
+            <button
+            onclick="location.reload()">
+
+                🔄 إعادة الاختبار
+
+            </button>
+
+
+            <br><br>
+
+
+            <button
+            onclick="location.href='anatomy-chapter1.html'">
+
+                🦴 العودة للشابتر
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    nextButton.style.display =
+    "none";
+
+}
+
+
+// ==========================================
+// المؤقت
+// ==========================================
+
+let timeLeft = 600;
+
+let timerInterval;
+
+
+const timer =
+document.getElementById("timer");
+
+
+function startTimer(){
+
+    timerInterval =
+    setInterval(function(){
+
+        let minutes =
+        Math.floor(
+            timeLeft / 60
+        );
+
+
+        let seconds =
+        timeLeft % 60;
+
+
+        if(seconds < 10){
+
+            seconds =
+            "0" + seconds;
+
+        }
+
+
+        timer.innerHTML =
+        "⏱️ الوقت: " +
+        minutes +
+        ":" +
+        seconds;
+
+
+        timeLeft--;
+
+
+        if(timeLeft < 0){
+
+            clearInterval(
+                timerInterval
+            );
+
+
+            let percentage =
+            Math.round(
+                (score /
+                questions.length) * 100
+            );
+
+
+            saveResult(
+                percentage
+            );
+
+        }
+
+    },1000);
+
+}
+
+
+// ==========================================
+// تشغيل الاختبار
+// ==========================================
+
+showQuestion();
+
+startTimer();
+
+
+</script>
+
+
+<script src="auth.js"></script>
+
+</body>
+
+</html>

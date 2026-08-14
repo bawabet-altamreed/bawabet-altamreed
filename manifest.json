@@ -1,0 +1,13 @@
+{
+  "name": "بوابة التمريض",
+  "short_name": "بوابة التمريض",
+  "description": "منصة بوابة التمريض للتعلم والاختبارات",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#12304a",
+  "lang": "ar",
+  "dir": "rtl"
+}

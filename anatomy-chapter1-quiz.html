@@ -11,9 +11,34 @@
 
 <link rel="stylesheet" href="style.css">
 
+
+<!-- ========================================== -->
+<!-- Firebase -->
+<!-- ========================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+
+<!-- ========================================== -->
+<!-- Firebase Configuration -->
+<!-- ========================================== -->
+
+<script src="firebase.js"></script>
+
+
 </head>
 
+
 <body>
+
+
+<!-- ========================================== -->
+<!-- Header -->
+<!-- ========================================== -->
 
 <header>
 
@@ -26,9 +51,19 @@ Chapter 1 - The Bones
 </header>
 
 
+
+<!-- ========================================== -->
+<!-- Quiz -->
+<!-- ========================================== -->
+
 <section class="years">
 
 <div class="card">
+
+
+<!-- ========================================== -->
+<!-- Timer -->
+<!-- ========================================== -->
 
 <div class="timer">
 
@@ -37,18 +72,41 @@ Chapter 1 - The Bones
 </div>
 
 
+
+<!-- ========================================== -->
+<!-- Progress -->
+<!-- ========================================== -->
+
 <div class="progress">
 
-<div class="progress-bar" id="progressBar"></div>
+<div
+class="progress-bar"
+id="progressBar">
+</div>
 
 </div>
 
 
+
+<!-- ========================================== -->
+<!-- Question -->
+<!-- ========================================== -->
+
 <h2 id="question"></h2>
 
 
+
+<!-- ========================================== -->
+<!-- Answers -->
+<!-- ========================================== -->
+
 <div id="answers"></div>
 
+
+
+<!-- ========================================== -->
+<!-- Next Button -->
+<!-- ========================================== -->
 
 <button id="nextBtn">
 
@@ -56,20 +114,39 @@ Chapter 1 - The Bones
 
 </button>
 
+
 </div>
 
 </section>
 
 
+
 <script>
 
 
-// ==========================================
-// تسجيل دخول الطالب
-// ==========================================
+// ==================================================
+// بوابة التمريض
+// Anatomy - Chapter 1 Quiz
+// ==================================================
+
+
+// ==================================================
+// Firebase Authentication
+// ==================================================
 
 let currentUser = null;
 
+
+// ==================================================
+// منع حفظ النتيجة أكثر من مرة
+// ==================================================
+
+let examFinished = false;
+
+
+// ==================================================
+// التحقق من تسجيل الدخول
+// ==================================================
 
 firebase.auth().onAuthStateChanged(function(user){
 
@@ -77,25 +154,34 @@ firebase.auth().onAuthStateChanged(function(user){
 
         currentUser = user;
 
-    }else{
+        console.log(
+            "Logged in:",
+            user.email
+        );
 
-        window.location.href =
-        "login.html";
+    }
+
+    else{
+
+        window.location.replace(
+            "login.html"
+        );
 
     }
 
 });
 
 
-// ==========================================
+
+// ==================================================
 // الأسئلة
-// ==========================================
+// ==================================================
 
 const questions = [
 
-
 {
-question:"Which of the following is classified as a Long Bone?",
+question:
+"Which of the following is classified as a Long Bone?",
 
 answers:[
 {text:"Humerus",correct:true},
@@ -103,12 +189,12 @@ answers:[
 {text:"Vertebra",correct:false},
 {text:"Carpal bone",correct:false}
 ]
-
 },
 
 
 {
-question:"Which of the following is an example of a Short Bone?",
+question:
+"Which of the following is an example of a Short Bone?",
 
 answers:[
 {text:"Femur",correct:false},
@@ -116,12 +202,12 @@ answers:[
 {text:"Sternum",correct:false},
 {text:"Humerus",correct:false}
 ]
-
 },
 
 
 {
-question:"Vertebrae are classified as:",
+question:
+"Vertebrae are classified as:",
 
 answers:[
 {text:"Flat bones",correct:false},
@@ -129,12 +215,12 @@ answers:[
 {text:"Irregular bones",correct:true},
 {text:"Sesamoid bones",correct:false}
 ]
-
 },
 
 
 {
-question:"Which of the following is an example of a Sesamoid Bone?",
+question:
+"Which of the following is an example of a Sesamoid Bone?",
 
 answers:[
 {text:"Patella",correct:true},
@@ -142,12 +228,12 @@ answers:[
 {text:"Scapula",correct:false},
 {text:"Radius",correct:false}
 ]
-
 },
 
 
 {
-question:"Pneumatic bones contain air-filled spaces known as:",
+question:
+"Pneumatic bones contain air-filled spaces known as:",
 
 answers:[
 {text:"Fontanelles",correct:false},
@@ -155,12 +241,12 @@ answers:[
 {text:"Paranasal Sinuses",correct:true},
 {text:"Sutures",correct:false}
 ]
-
 },
 
 
 {
-question:"The skeleton is divided into:",
+question:
+"The skeleton is divided into:",
 
 answers:[
 {text:"Cranial and facial skeleton",correct:false},
@@ -168,12 +254,12 @@ answers:[
 {text:"Upper and lower skeleton only",correct:false},
 {text:"Thoracic and pelvic skeleton",correct:false}
 ]
-
 },
 
 
 {
-question:"Which of the following belongs to the Axial Skeleton?",
+question:
+"Which of the following belongs to the Axial Skeleton?",
 
 answers:[
 {text:"Femur",correct:false},
@@ -181,12 +267,12 @@ answers:[
 {text:"Skull",correct:true},
 {text:"Radius",correct:false}
 ]
-
 },
 
 
 {
-question:"How many bones are normally present in the adult skull?",
+question:
+"How many bones are normally present in the adult skull?",
 
 answers:[
 {text:"18 bones",correct:false},
@@ -194,12 +280,12 @@ answers:[
 {text:"22 bones",correct:true},
 {text:"24 bones",correct:false}
 ]
-
 },
 
 
 {
-question:"Which of the following is a paired bone of the skull?",
+question:
+"Which of the following is a paired bone of the skull?",
 
 answers:[
 {text:"Frontal bone",correct:false},
@@ -207,12 +293,12 @@ answers:[
 {text:"Parietal bone",correct:true},
 {text:"Mandible",correct:false}
 ]
-
 },
 
 
 {
-question:"A fracture of the skull base may cause:",
+question:
+"A fracture of the skull base may cause:",
 
 answers:[
 {text:"Bleeding from the nose or ears",correct:true},
@@ -220,12 +306,12 @@ answers:[
 {text:"Improved hearing",correct:false},
 {text:"Pain only in the foot",correct:false}
 ]
-
 },
 
 
 {
-question:"The soft membranous areas between the skull bones of a newborn are called:",
+question:
+"The soft membranous areas between the skull bones of a newborn are called:",
 
 answers:[
 {text:"Sutures",correct:false},
@@ -233,12 +319,12 @@ answers:[
 {text:"Foramina",correct:false},
 {text:"Sinuses",correct:false}
 ]
-
 },
 
 
 {
-question:"Which statement about the Anterior Fontanelle is correct?",
+question:
+"Which statement about the Anterior Fontanelle is correct?",
 
 answers:[
 {text:"It is small and triangular",correct:false},
@@ -246,12 +332,12 @@ answers:[
 {text:"It is large and diamond-shaped",correct:true},
 {text:"It is located in the lower limb",correct:false}
 ]
-
 },
 
 
 {
-question:"The Radius is located on which side of the forearm?",
+question:
+"The Radius is located on which side of the forearm?",
 
 answers:[
 {text:"Medial side",correct:false},
@@ -259,12 +345,12 @@ answers:[
 {text:"Posterior side only",correct:false},
 {text:"Central side",correct:false}
 ]
-
 },
 
 
 {
-question:"Which bone does NOT directly participate in the wrist joint?",
+question:
+"Which bone does NOT directly participate in the wrist joint?",
 
 answers:[
 {text:"Radius",correct:false},
@@ -272,12 +358,12 @@ answers:[
 {text:"Carpal bones",correct:false},
 {text:"Hand bones",correct:false}
 ]
-
 },
 
 
 {
-question:"How many Carpal Bones are present in one hand?",
+question:
+"How many Carpal Bones are present in one hand?",
 
 answers:[
 {text:"5",correct:false},
@@ -285,12 +371,12 @@ answers:[
 {text:"8",correct:true},
 {text:"14",correct:false}
 ]
-
 },
 
 
 {
-question:"Which is the longest and strongest bone in the human body?",
+question:
+"Which is the longest and strongest bone in the human body?",
 
 answers:[
 {text:"Tibia",correct:false},
@@ -298,12 +384,12 @@ answers:[
 {text:"Femur",correct:true},
 {text:"Fibula",correct:false}
 ]
-
 },
 
 
 {
-question:"The Tibia is located on the:",
+question:
+"The Tibia is located on the:",
 
 answers:[
 {text:"Lateral side of the leg",correct:false},
@@ -311,12 +397,12 @@ answers:[
 {text:"Lateral side of the forearm",correct:false},
 {text:"Posterior side of the arm",correct:false}
 ]
-
 },
 
 
 {
-question:"Which ribs are known as Floating Ribs?",
+question:
+"Which ribs are known as Floating Ribs?",
 
 answers:[
 {text:"Ribs 1–7",correct:false},
@@ -324,12 +410,12 @@ answers:[
 {text:"Ribs 10–11",correct:false},
 {text:"Ribs 11–12",correct:true}
 ]
-
 },
 
 
 {
-question:"How many Thoracic Vertebrae are present?",
+question:
+"How many Thoracic Vertebrae are present?",
 
 answers:[
 {text:"5",correct:false},
@@ -337,12 +423,12 @@ answers:[
 {text:"12",correct:true},
 {text:"14",correct:false}
 ]
-
 },
 
 
 {
-question:"Which of the following is a normal curve of the vertebral column?",
+question:
+"Which of the following is a normal curve of the vertebral column?",
 
 answers:[
 {text:"Cervical Lordosis",correct:true},
@@ -350,12 +436,12 @@ answers:[
 {text:"Femoral Lordosis",correct:false},
 {text:"Pelvic Scoliosis",correct:false}
 ]
-
 },
 
 
 {
-question:"Which structure does the vertebral column protect?",
+question:
+"Which structure does the vertebral column protect?",
 
 answers:[
 {text:"Spinal cord",correct:true},
@@ -363,12 +449,12 @@ answers:[
 {text:"Patella",correct:false},
 {text:"Carpal bones",correct:false}
 ]
-
 },
 
 
 {
-question:"Which statement correctly describes the Female Pelvis?",
+question:
+"Which statement correctly describes the Female Pelvis?",
 
 answers:[
 {text:"Narrow outlet and narrow pubic arch",correct:false},
@@ -376,12 +462,12 @@ answers:[
 {text:"Wide inlet and wide outlet",correct:true},
 {text:"Long and narrow sacrum",correct:false}
 ]
-
 },
 
 
 {
-question:"How many Phalanges are present in one hand?",
+question:
+"How many Phalanges are present in one hand?",
 
 answers:[
 {text:"8",correct:false},
@@ -389,12 +475,12 @@ answers:[
 {text:"12",correct:false},
 {text:"14",correct:true}
 ]
-
 },
 
 
 {
-question:"How many Tarsal Bones are present in one foot?",
+question:
+"How many Tarsal Bones are present in one foot?",
 
 answers:[
 {text:"5",correct:false},
@@ -402,15 +488,15 @@ answers:[
 {text:"8",correct:false},
 {text:"14",correct:false}
 ]
-
 }
 
 ];
 
 
-// ==========================================
+
+// ==================================================
 // متغيرات الاختبار
-// ==========================================
+// ==================================================
 
 let currentQuestion = 0;
 
@@ -418,10 +504,15 @@ let score = 0;
 
 let answered = false;
 
+let timeLeft = 600;
 
-// ==========================================
+let timerInterval = null;
+
+
+
+// ==================================================
 // عناصر الصفحة
-// ==========================================
+// ==================================================
 
 const questionElement =
 document.getElementById("question");
@@ -439,21 +530,31 @@ const progressBar =
 document.getElementById("progressBar");
 
 
-// ==========================================
-// تحميل السؤال
-// ==========================================
+const timerElement =
+document.getElementById("timer");
+
+
+
+// ==================================================
+// عرض السؤال
+// ==================================================
 
 function showQuestion(){
 
+    if(examFinished) return;
+
+
     answered = false;
 
+
     answersElement.innerHTML = "";
+
 
     nextButton.style.display =
     "none";
 
 
-    let q =
+    const q =
     questions[currentQuestion];
 
 
@@ -464,8 +565,10 @@ function showQuestion(){
 
 
     progressBar.style.width =
-    ((currentQuestion + 1) /
-    questions.length) * 100 + "%";
+    (
+        ((currentQuestion + 1) /
+        questions.length) * 100
+    ) + "%";
 
 
     document.title =
@@ -477,6 +580,10 @@ function showQuestion(){
 
         const button =
         document.createElement("button");
+
+
+        button.type =
+        "button";
 
 
         button.innerHTML =
@@ -498,20 +605,24 @@ function showQuestion(){
         };
 
 
-        answersElement.appendChild(button);
+        answersElement.appendChild(
+            button
+        );
 
     });
 
 }
 
 
-// ==========================================
+
+// ==================================================
 // اختيار الإجابة
-// ==========================================
+// ==================================================
 
 function selectAnswer(correct, button){
 
-    if(answered) return;
+    if(answered || examFinished)
+        return;
 
 
     answered = true;
@@ -542,7 +653,9 @@ function selectAnswer(correct, button){
         button.style.color =
         "#fff";
 
-    }else{
+    }
+
+    else{
 
         button.style.background =
         "red";
@@ -555,22 +668,27 @@ function selectAnswer(correct, button){
         const correctIndex =
         questions[currentQuestion]
         .answers
-        .findIndex(
-            answer =>
-            answer.correct === true
-        );
+        .findIndex(function(answer){
+
+            return answer.correct === true;
+
+        });
 
 
-        buttons[
-            correctIndex
-        ].style.background =
-        "green";
+        if(correctIndex !== -1){
+
+            buttons[
+                correctIndex
+            ].style.background =
+            "green";
 
 
-        buttons[
-            correctIndex
-        ].style.color =
-        "#fff";
+            buttons[
+                correctIndex
+            ].style.color =
+            "#fff";
+
+        }
 
     }
 
@@ -581,12 +699,17 @@ function selectAnswer(correct, button){
 }
 
 
-// ==========================================
+
+// ==================================================
 // زر التالي
-// ==========================================
+// ==================================================
 
 nextButton.onclick =
 function(){
+
+    if(examFinished)
+        return;
+
 
     if(!answered){
 
@@ -609,38 +732,131 @@ function(){
 
         showQuestion();
 
-    }else{
+    }
 
-        clearInterval(
-            timerInterval
-        );
+    else{
 
-
-        let percentage =
-        Math.round(
-            (score /
-            questions.length) * 100
-        );
-
-
-        saveResult(
-            percentage
-        );
+        finishExam();
 
     }
 
 };
 
 
-// ==========================================
+
+// ==================================================
+// إنهاء الاختبار
+// ==================================================
+
+function finishExam(){
+
+    if(examFinished)
+        return;
+
+
+    examFinished = true;
+
+
+    clearInterval(
+        timerInterval
+    );
+
+
+    const percentage =
+    Math.round(
+        (score /
+        questions.length) * 100
+    );
+
+
+    disableQuiz();
+
+
+    saveResult(
+        percentage
+    );
+
+}
+
+
+
+// ==================================================
+// إنهاء الاختبار بسبب انتهاء الوقت
+// ==================================================
+
+function timeUp(){
+
+    if(examFinished)
+        return;
+
+
+    examFinished = true;
+
+
+    clearInterval(
+        timerInterval
+    );
+
+
+    const percentage =
+    Math.round(
+        (score /
+        questions.length) * 100
+    );
+
+
+    disableQuiz();
+
+
+    alert(
+        "⏰ انتهى الوقت!"
+    );
+
+
+    saveResult(
+        percentage
+    );
+
+}
+
+
+
+// ==================================================
+// تعطيل الاختبار
+// ==================================================
+
+function disableQuiz(){
+
+    const buttons =
+    answersElement.querySelectorAll(
+        "button"
+    );
+
+
+    buttons.forEach(function(button){
+
+        button.disabled = true;
+
+    });
+
+
+    nextButton.disabled = true;
+
+}
+
+
+
+// ==================================================
 // حفظ النتيجة في Firebase
-// ==========================================
+// ==================================================
 
 function saveResult(percentage){
 
     if(!currentUser){
 
-        showResult(percentage);
+        showResult(
+            percentage
+        );
 
         return;
 
@@ -664,7 +880,7 @@ function saveResult(percentage){
         }
 
 
-        let userData =
+        const userData =
         doc.data();
 
 
@@ -728,7 +944,7 @@ function saveResult(percentage){
 
 
         alert(
-            "❌ حدث خطأ أثناء حفظ النتيجة"
+            "❌ حدث خطأ أثناء حفظ النتيجة، ولكن سيتم عرض النتيجة."
         );
 
 
@@ -741,14 +957,19 @@ function saveResult(percentage){
 }
 
 
-// ==========================================
+
+// ==================================================
 // عرض النتيجة
-// ==========================================
+// ==================================================
 
 function showResult(percentage){
 
     questionElement.innerHTML =
     "🎉 انتهى الاختبار";
+
+
+    progressBar.style.width =
+    "100%";
 
 
     let message;
@@ -803,6 +1024,7 @@ function showResult(percentage){
 
 
             <button
+            type="button"
             onclick="location.reload()">
 
                 🔄 إعادة الاختبار
@@ -814,6 +1036,7 @@ function showResult(percentage){
 
 
             <button
+            type="button"
             onclick="location.href='anatomy-chapter1.html'">
 
                 🦴 العودة للشابتر
@@ -831,80 +1054,92 @@ function showResult(percentage){
 }
 
 
-// ==========================================
+
+// ==================================================
 // المؤقت
-// ==========================================
+// ==================================================
 
-let timeLeft = 600;
+function updateTimer(){
 
-let timerInterval;
+    const minutes =
+    Math.floor(
+        timeLeft / 60
+    );
 
 
-const timer =
-document.getElementById("timer");
+    const seconds =
+    timeLeft % 60;
 
+
+    const formattedSeconds =
+    seconds < 10
+    ? "0" + seconds
+    : seconds;
+
+
+    timerElement.innerHTML =
+    "⏱️ الوقت: " +
+    minutes +
+    ":" +
+    formattedSeconds;
+
+}
+
+
+
+// ==================================================
+// تشغيل المؤقت
+// ==================================================
 
 function startTimer(){
+
+    updateTimer();
+
 
     timerInterval =
     setInterval(function(){
 
-        let minutes =
-        Math.floor(
-            timeLeft / 60
-        );
-
-
-        let seconds =
-        timeLeft % 60;
-
-
-        if(seconds < 10){
-
-            seconds =
-            "0" + seconds;
-
-        }
-
-
-        timer.innerHTML =
-        "⏱️ الوقت: " +
-        minutes +
-        ":" +
-        seconds;
-
-
-        timeLeft--;
-
-
-        if(timeLeft < 0){
+        if(examFinished){
 
             clearInterval(
                 timerInterval
             );
 
-
-            let percentage =
-            Math.round(
-                (score /
-                questions.length) * 100
-            );
-
-
-            saveResult(
-                percentage
-            );
+            return;
 
         }
+
+
+        timeLeft--;
+
+
+        if(timeLeft <= 0){
+
+            timeLeft = 0;
+
+
+            updateTimer();
+
+
+            timeUp();
+
+
+            return;
+
+        }
+
+
+        updateTimer();
 
     },1000);
 
 }
 
 
-// ==========================================
+
+// ==================================================
 // تشغيل الاختبار
-// ==========================================
+// ==================================================
 
 showQuestion();
 
@@ -914,7 +1149,13 @@ startTimer();
 </script>
 
 
+
+<!-- ========================================== -->
+<!-- Authentication -->
+<!-- ========================================== -->
+
 <script src="auth.js"></script>
+
 
 </body>
 

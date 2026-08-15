@@ -11,22 +11,58 @@
 
 <link rel="stylesheet" href="style.css">
 
+
+<!-- ========================================== -->
+<!-- Firebase -->
+<!-- ========================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+
+<!-- ========================================== -->
+<!-- Firebase Configuration -->
+<!-- ========================================== -->
+
+<script src="firebase.js"></script>
+
 </head>
 
+
 <body>
+
+
+<!-- ========================================== -->
+<!-- Header -->
+<!-- ========================================== -->
 
 <header>
 
 <h1>🫀 Internal Medicine</h1>
 
-<p>Chapter 1 - Heart and Blood Vessels Diseases</p>
+<p>
+Chapter 1 - Heart and Blood Vessels Diseases
+</p>
 
 </header>
 
 
+
+<!-- ========================================== -->
+<!-- Quiz -->
+<!-- ========================================== -->
+
 <section class="years">
 
 <div class="card">
+
+
+<!-- ========================================== -->
+<!-- Timer -->
+<!-- ========================================== -->
 
 <div class="timer">
 
@@ -35,18 +71,41 @@
 </div>
 
 
+
+<!-- ========================================== -->
+<!-- Progress -->
+<!-- ========================================== -->
+
 <div class="progress">
 
-<div class="progress-bar" id="progressBar"></div>
+<div
+class="progress-bar"
+id="progressBar">
+</div>
 
 </div>
 
 
+
+<!-- ========================================== -->
+<!-- Question -->
+<!-- ========================================== -->
+
 <h2 id="question"></h2>
 
 
+
+<!-- ========================================== -->
+<!-- Answers -->
+<!-- ========================================== -->
+
 <div id="answers"></div>
 
+
+
+<!-- ========================================== -->
+<!-- Next Button -->
+<!-- ========================================== -->
 
 <button id="nextBtn">
 
@@ -54,20 +113,39 @@
 
 </button>
 
+
 </div>
 
 </section>
 
 
+
 <script>
 
 
-// ==========================================
-// تسجيل دخول الطالب
-// ==========================================
+// ==================================================
+// بوابة التمريض
+// Internal Medicine - Chapter 1 Quiz
+// ==================================================
+
+
+// ==================================================
+// Firebase Authentication
+// ==================================================
 
 let currentUser = null;
 
+
+// ==================================================
+// منع حفظ النتيجة أكثر من مرة
+// ==================================================
+
+let examFinished = false;
+
+
+// ==================================================
+// التحقق من تسجيل الدخول
+// ==================================================
 
 firebase.auth().onAuthStateChanged(function(user){
 
@@ -75,212 +153,504 @@ firebase.auth().onAuthStateChanged(function(user){
 
         currentUser = user;
 
-    }else{
+        console.log(
+            "Logged in:",
+            user.email
+        );
 
-        window.location.href = "login.html";
+    }
+
+    else{
+
+        window.location.replace(
+            "login.html"
+        );
 
     }
 
 });
 
 
-// ==========================================
+
+// ==================================================
 // الأسئلة
-// ==========================================
+// ==================================================
 
 const questions = [
 
-
 {
-question:"Which of the following best describes Angina Pectoris?",
+question:
+"Which of the following best describes Angina Pectoris?",
 
 answers:[
-{text:"Severe pain beneath the sternum",correct:true},
-{text:"A bacterial infection of the heart",correct:false},
-{text:"Permanent loss of brain function",correct:false},
-{text:"Inflammation of the lungs",correct:false}
+
+{
+text:"Severe pain beneath the sternum",
+correct:true
+},
+
+{
+text:"A bacterial infection of the heart",
+correct:false
+},
+
+{
+text:"Permanent loss of brain function",
+correct:false
+},
+
+{
+text:"Inflammation of the lungs",
+correct:false
+}
+
+]
+},
+
+
+{
+
+question:
+"The main cause of Angina Pectoris is usually:",
+
+answers:[
+
+{
+text:"Lung infection",
+correct:false
+},
+
+{
+text:"Atherosclerosis of coronary arteries",
+correct:true
+},
+
+{
+text:"Kidney failure",
+correct:false
+},
+
+{
+text:"Bone disease",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"The main cause of Angina Pectoris is usually:",
+
+question:
+"Atherosclerosis means:",
 
 answers:[
-{text:"Lung infection",correct:false},
-{text:"Atherosclerosis of coronary arteries",correct:true},
-{text:"Kidney failure",correct:false},
-{text:"Bone disease",correct:false}
+
+{
+text:"Inflammation of the heart muscle",
+correct:false
+},
+
+{
+text:"Complete stopping of the heart",
+correct:false
+},
+
+{
+text:"Deposition of fats and cholesterol in artery walls",
+correct:true
+},
+
+{
+text:"Increase in the size of the lungs",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Atherosclerosis means:",
+
+question:
+"Which symptom is commonly associated with Angina Pectoris?",
 
 answers:[
-{text:"Inflammation of the heart muscle",correct:false},
-{text:"Complete stopping of the heart",correct:false},
-{text:"Deposition of fats and cholesterol in artery walls",correct:true},
-{text:"Increase in the size of the lungs",correct:false}
+
+{
+text:"Severe abdominal swelling",
+correct:false
+},
+
+{
+text:"Chest pain that may radiate to the arm or shoulder",
+correct:true
+},
+
+{
+text:"Loss of hearing",
+correct:false
+},
+
+{
+text:"Skin rash",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Which symptom is commonly associated with Angina Pectoris?",
+
+question:
+"Myocardial Infarction occurs mainly because of:",
 
 answers:[
-{text:"Severe abdominal swelling",correct:false},
-{text:"Chest pain that may radiate to the arm or shoulder",correct:true},
-{text:"Loss of hearing",correct:false},
-{text:"Skin rash",correct:false}
+
+{
+text:"Complete blockage of a coronary artery",
+correct:true
+},
+
+{
+text:"Mild dehydration",
+correct:false
+},
+
+{
+text:"Low body temperature",
+correct:false
+},
+
+{
+text:"Eye disease",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Myocardial Infarction occurs mainly because of:",
+
+question:
+"Compared with Angina Pectoris, pain of Myocardial Infarction is usually:",
 
 answers:[
-{text:"Complete blockage of a coronary artery",correct:true},
-{text:"Mild dehydration",correct:false},
-{text:"Low body temperature",correct:false},
-{text:"Eye disease",correct:false}
+
+{
+text:"Shorter and milder",
+correct:false
+},
+
+{
+text:"Absent completely",
+correct:false
+},
+
+{
+text:"More severe and lasts longer",
+correct:true
+},
+
+{
+text:"Only felt in the legs",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Compared with Angina Pectoris, pain of Myocardial Infarction is usually:",
+
+question:
+"Which of the following is a complication of Myocardial Infarction?",
 
 answers:[
-{text:"Shorter and milder",correct:false},
-{text:"Absent completely",correct:false},
-{text:"More severe and lasts longer",correct:true},
-{text:"Only felt in the legs",correct:false}
+
+{
+text:"Heart failure",
+correct:true
+},
+
+{
+text:"Hair loss",
+correct:false
+},
+
+{
+text:"Improved vision",
+correct:false
+},
+
+{
+text:"Increased appetite",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Which of the following is a complication of Myocardial Infarction?",
+
+question:
+"According to the study material, Hypertension is diagnosed when blood pressure is:",
 
 answers:[
-{text:"Heart failure",correct:true},
-{text:"Hair loss",correct:false},
-{text:"Improved vision",correct:false},
-{text:"Increased appetite",correct:false}
+
+{
+text:"100/60 mmHg",
+correct:false
+},
+
+{
+text:"110/70 mmHg",
+correct:false
+},
+
+{
+text:"120/80 mmHg",
+correct:false
+},
+
+{
+text:"140/90 mmHg or more",
+correct:true
+}
+
 ]
 
 },
 
 
 {
-question:"According to the study material, Hypertension is diagnosed when blood pressure is:",
+
+question:
+"Which of the following is usually true about Hypertension?",
 
 answers:[
-{text:"100/60 mmHg",correct:false},
-{text:"110/70 mmHg",correct:false},
-{text:"120/80 mmHg",correct:false},
-{text:"140/90 mmHg or more",correct:true}
+
+{
+text:"It always causes severe pain",
+correct:false
+},
+
+{
+text:"It often has no specific symptoms",
+correct:true
+},
+
+{
+text:"It only affects children",
+correct:false
+},
+
+{
+text:"It always causes fever",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Which of the following is usually true about Hypertension?",
+
+question:
+"Which of the following is a complication of Hypertension?",
 
 answers:[
-{text:"It always causes severe pain",correct:false},
-{text:"It often has no specific symptoms",correct:true},
-{text:"It only affects children",correct:false},
-{text:"It always causes fever",correct:false}
+
+{
+text:"Brain hemorrhage",
+correct:true
+},
+
+{
+text:"Common cold",
+correct:false
+},
+
+{
+text:"Broken bone",
+correct:false
+},
+
+{
+text:"Ear infection",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Which of the following is a complication of Hypertension?",
+
+question:
+"Heart Failure means that the heart:",
 
 answers:[
-{text:"Brain hemorrhage",correct:true},
-{text:"Common cold",correct:false},
-{text:"Broken bone",correct:false},
-{text:"Ear infection",correct:false}
+
+{
+text:"Pumps more blood than normal",
+correct:false
+},
+
+{
+text:"Cannot pump enough blood to body tissues",
+correct:true
+},
+
+{
+text:"Stops producing hormones",
+correct:false
+},
+
+{
+text:"Becomes an infectious organ",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Heart Failure means that the heart:",
+
+question:
+"Which symptom is commonly associated with Heart Failure?",
 
 answers:[
-{text:"Pumps more blood than normal",correct:false},
-{text:"Cannot pump enough blood to body tissues",correct:true},
-{text:"Stops producing hormones",correct:false},
-{text:"Becomes an infectious organ",correct:false}
+
+{
+text:"Shortness of breath",
+correct:true
+},
+
+{
+text:"Improved exercise tolerance",
+correct:false
+},
+
+{
+text:"Increased hearing ability",
+correct:false
+},
+
+{
+text:"Skin pigmentation only",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Which symptom is commonly associated with Heart Failure?",
+
+question:
+"Edema of the feet may occur in:",
 
 answers:[
-{text:"Shortness of breath",correct:true},
-{text:"Improved exercise tolerance",correct:false},
-{text:"Increased hearing ability",correct:false},
-{text:"Skin pigmentation only",correct:false}
+
+{
+text:"Heart Failure",
+correct:true
+},
+
+{
+text:"Simple headache",
+correct:false
+},
+
+{
+text:"Angina only",
+correct:false
+},
+
+{
+text:"Common cold",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Edema of the feet may occur in:",
+
+question:
+"Which of the following is a sign of cardiac and respiratory arrest?",
 
 answers:[
-{text:"Heart Failure",correct:true},
-{text:"Simple headache",correct:false},
-{text:"Angina only",correct:false},
-{text:"Common cold",correct:false}
+
+{
+text:"Normal consciousness",
+correct:false
+},
+
+{
+text:"Strong pulse",
+correct:false
+},
+
+{
+text:"Loss of consciousness and absence of pulse",
+correct:true
+},
+
+{
+text:"Increased appetite",
+correct:false
+}
+
 ]
 
 },
 
 
 {
-question:"Which of the following is a sign of cardiac and respiratory arrest?",
+
+question:
+"The main purpose of CPR is to:",
 
 answers:[
-{text:"Normal consciousness",correct:false},
-{text:"Strong pulse",correct:false},
-{text:"Loss of consciousness and absence of pulse",correct:true},
-{text:"Increased appetite",correct:false}
-]
-
-},
-
 
 {
-question:"The main purpose of CPR is to:",
+text:"Treat skin infections",
+correct:false
+},
 
-answers:[
-{text:"Treat skin infections",correct:false},
-{text:"Maintain circulation and breathing during cardiac arrest",correct:true},
-{text:"Reduce body weight",correct:false},
-{text:"Treat hypertension permanently",correct:false}
+{
+text:"Maintain circulation and breathing during cardiac arrest",
+correct:true
+},
+
+{
+text:"Reduce body weight",
+correct:false
+},
+
+{
+text:"Treat hypertension permanently",
+correct:false
+}
+
 ]
 
 }
@@ -288,9 +658,10 @@ answers:[
 ];
 
 
-// ==========================================
+
+// ==================================================
 // متغيرات الاختبار
-// ==========================================
+// ==================================================
 
 let currentQuestion = 0;
 
@@ -298,10 +669,15 @@ let score = 0;
 
 let answered = false;
 
+let timeLeft = 300;
 
-// ==========================================
+let timerInterval = null;
+
+
+
+// ==================================================
 // عناصر الصفحة
-// ==========================================
+// ==================================================
 
 const questionElement =
 document.getElementById("question");
@@ -319,20 +695,32 @@ const progressBar =
 document.getElementById("progressBar");
 
 
-// ==========================================
-// تحميل السؤال
-// ==========================================
+const timerElement =
+document.getElementById("timer");
+
+
+
+// ==================================================
+// عرض السؤال
+// ==================================================
 
 function showQuestion(){
 
+    if(examFinished)
+        return;
+
+
     answered = false;
+
 
     answersElement.innerHTML = "";
 
-    nextButton.style.display = "none";
+
+    nextButton.style.display =
+    "none";
 
 
-    let q =
+    const q =
     questions[currentQuestion];
 
 
@@ -343,12 +731,14 @@ function showQuestion(){
 
 
     progressBar.style.width =
-    ((currentQuestion + 1) /
-    questions.length) * 100 + "%";
+    (
+        ((currentQuestion + 1) /
+        questions.length) * 100
+    ) + "%";
 
 
     document.title =
-    "Question " +
+    "Internal Medicine Quiz - Question " +
     (currentQuestion + 1);
 
 
@@ -356,6 +746,10 @@ function showQuestion(){
 
         const button =
         document.createElement("button");
+
+
+        button.type =
+        "button";
 
 
         button.innerHTML =
@@ -377,20 +771,24 @@ function showQuestion(){
         };
 
 
-        answersElement.appendChild(button);
+        answersElement.appendChild(
+            button
+        );
 
     });
 
 }
 
 
-// ==========================================
+
+// ==================================================
 // اختيار الإجابة
-// ==========================================
+// ==================================================
 
 function selectAnswer(correct, button){
 
-    if(answered) return;
+    if(answered || examFinished)
+        return;
 
 
     answered = true;
@@ -413,16 +811,21 @@ function selectAnswer(correct, button){
 
         score++;
 
+
         button.style.background =
         "green";
+
 
         button.style.color =
         "#fff";
 
-    }else{
+    }
+
+    else{
 
         button.style.background =
         "red";
+
 
         button.style.color =
         "#fff";
@@ -431,21 +834,27 @@ function selectAnswer(correct, button){
         const correctIndex =
         questions[currentQuestion]
         .answers
-        .findIndex(
-            answer => answer.correct === true
-        );
+        .findIndex(function(answer){
+
+            return answer.correct === true;
+
+        });
 
 
-        buttons[
-            correctIndex
-        ].style.background =
-        "green";
+        if(correctIndex !== -1){
+
+            buttons[
+                correctIndex
+            ].style.background =
+            "green";
 
 
-        buttons[
-            correctIndex
-        ].style.color =
-        "#fff";
+            buttons[
+                correctIndex
+            ].style.color =
+            "#fff";
+
+        }
 
     }
 
@@ -456,12 +865,17 @@ function selectAnswer(correct, button){
 }
 
 
-// ==========================================
+
+// ==================================================
 // زر التالي
-// ==========================================
+// ==================================================
 
 nextButton.onclick =
 function(){
+
+    if(examFinished)
+        return;
+
 
     if(!answered){
 
@@ -484,38 +898,131 @@ function(){
 
         showQuestion();
 
-    }else{
+    }
 
-        clearInterval(
-            timerInterval
-        );
+    else{
 
-
-        let percentage =
-        Math.round(
-            (score /
-            questions.length) * 100
-        );
-
-
-        saveResult(
-            percentage
-        );
+        finishExam();
 
     }
 
 };
 
 
-// ==========================================
+
+// ==================================================
+// إنهاء الاختبار
+// ==================================================
+
+function finishExam(){
+
+    if(examFinished)
+        return;
+
+
+    examFinished = true;
+
+
+    clearInterval(
+        timerInterval
+    );
+
+
+    const percentage =
+    Math.round(
+        (score /
+        questions.length) * 100
+    );
+
+
+    disableQuiz();
+
+
+    saveResult(
+        percentage
+    );
+
+}
+
+
+
+// ==================================================
+// انتهاء الوقت
+// ==================================================
+
+function timeUp(){
+
+    if(examFinished)
+        return;
+
+
+    examFinished = true;
+
+
+    clearInterval(
+        timerInterval
+    );
+
+
+    const percentage =
+    Math.round(
+        (score /
+        questions.length) * 100
+    );
+
+
+    disableQuiz();
+
+
+    alert(
+        "⏰ انتهى الوقت!"
+    );
+
+
+    saveResult(
+        percentage
+    );
+
+}
+
+
+
+// ==================================================
+// تعطيل الاختبار
+// ==================================================
+
+function disableQuiz(){
+
+    const buttons =
+    answersElement.querySelectorAll(
+        "button"
+    );
+
+
+    buttons.forEach(function(button){
+
+        button.disabled = true;
+
+    });
+
+
+    nextButton.disabled = true;
+
+}
+
+
+
+// ==================================================
 // حفظ النتيجة في Firebase
-// ==========================================
+// ==================================================
 
 function saveResult(percentage){
 
     if(!currentUser){
 
-        showResult(percentage);
+        showResult(
+            percentage
+        );
 
         return;
 
@@ -539,7 +1046,7 @@ function saveResult(percentage){
         }
 
 
-        let userData =
+        const userData =
         doc.data();
 
 
@@ -603,7 +1110,7 @@ function saveResult(percentage){
 
 
         alert(
-            "❌ حدث خطأ أثناء حفظ النتيجة"
+            "❌ حدث خطأ أثناء حفظ النتيجة، ولكن سيتم عرض النتيجة."
         );
 
 
@@ -616,14 +1123,19 @@ function saveResult(percentage){
 }
 
 
-// ==========================================
+
+// ==================================================
 // عرض النتيجة
-// ==========================================
+// ==================================================
 
 function showResult(percentage){
 
     questionElement.innerHTML =
     "🎉 انتهى الاختبار";
+
+
+    progressBar.style.width =
+    "100%";
 
 
     let message;
@@ -662,30 +1174,40 @@ function showResult(percentage){
 
         <div class="result-box">
 
-            <p>النتيجة</p>
+            <p>
+                النتيجة
+            </p>
+
 
             <h1>
                 ${score} / ${questions.length}
             </h1>
 
+
             <h2>
                 ${percentage}%
             </h2>
+
 
             <p>
                 ${message}
             </p>
 
+
             <button
+            type="button"
             onclick="location.reload()">
 
                 🔄 إعادة الاختبار
 
             </button>
 
+
             <br><br>
 
+
             <button
+            type="button"
             onclick="history.back()">
 
                 🏠 العودة للشابتر
@@ -703,80 +1225,96 @@ function showResult(percentage){
 }
 
 
-// ==========================================
-// المؤقت
-// ==========================================
 
-let timeLeft = 300;
+// ==================================================
+// المؤقت - 5 دقائق
+// ==================================================
 
-let timerInterval;
+function updateTimer(){
+
+    const minutes =
+    Math.floor(
+        timeLeft / 60
+    );
 
 
-const timer =
-document.getElementById("timer");
+    const seconds =
+    timeLeft % 60;
 
+
+    const formattedMinutes =
+    String(minutes)
+    .padStart(2,"0");
+
+
+    const formattedSeconds =
+    String(seconds)
+    .padStart(2,"0");
+
+
+    timerElement.innerHTML =
+    "⏱️ الوقت: " +
+    formattedMinutes +
+    ":" +
+    formattedSeconds;
+
+}
+
+
+
+// ==================================================
+// تشغيل المؤقت
+// ==================================================
 
 function startTimer(){
+
+    updateTimer();
+
 
     timerInterval =
     setInterval(function(){
 
-        let minutes =
-        Math.floor(
-            timeLeft / 60
-        );
-
-
-        let seconds =
-        timeLeft % 60;
-
-
-        if(seconds < 10){
-
-            seconds =
-            "0" + seconds;
-
-        }
-
-
-        timer.innerHTML =
-        "⏱️ الوقت: " +
-        minutes +
-        ":" +
-        seconds;
-
-
-        timeLeft--;
-
-
-        if(timeLeft < 0){
+        if(examFinished){
 
             clearInterval(
                 timerInterval
             );
 
-
-            let percentage =
-            Math.round(
-                (score /
-                questions.length) * 100
-            );
-
-
-            saveResult(
-                percentage
-            );
+            return;
 
         }
+
+
+        timeLeft--;
+
+
+        if(timeLeft <= 0){
+
+            timeLeft = 0;
+
+
+            updateTimer();
+
+
+            timeUp();
+
+
+            return;
+
+        }
+
+
+        updateTimer();
 
     },1000);
 
 }
 
 
-// ==========================================
+
+// ==================================================
 // تشغيل الاختبار
-// ==========================================
+// ==================================================
 
 showQuestion();
 
@@ -786,7 +1324,13 @@ startTimer();
 </script>
 
 
+
+<!-- ========================================== -->
+<!-- Authentication -->
+<!-- ========================================== -->
+
 <script src="auth.js"></script>
+
 
 </body>
 

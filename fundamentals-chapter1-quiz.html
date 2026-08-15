@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fundamentals of Nursing - Chapter 1 Quiz</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🩺 Fundamentals of Nursing</h1>
+
+<p>Chapter 1 - Nursing Profession, Ethics & Patient Safety Quiz</p>
+
+</header>
+
+<section class="years">
+
+<div class="card">
+
+<div class="timer">
+⏳ <span id="timer">05:00</span>
+</div>
+
+<div class="progress">
+
+<div class="progress-bar" id="progressBar"></div>
+
+</div>
+
+<h2 id="question"></h2>
+
+<div id="answers"></div>
+
+<button id="nextBtn">
+▶️ التالي
+</button>
+
+</div>
+
+</section>
+
+<script>
+
+const questions = [
+
+{
+question:"1- Nursing is considered:",
+answers:[
+{text:"Only an art",correct:false},
+{text:"Only a science",correct:false},
+{text:"Both an art and a science",correct:true},
+{text:"Only a medical treatment",correct:false}
+]
+},
+
+{
+question:"2- Which of the following is one of the four broad aims of nursing?",
+answers:[
+{text:"To prevent illness",correct:true},
+{text:"To increase hospital costs",correct:false},
+{text:"To avoid communication with patients",correct:false},
+{text:"To replace the physician",correct:false}
+]
+},
+
+{
+question:"3- Which step of the Nursing Process involves collecting comprehensive data about the patient's health?",
+answers:[
+{text:"Diagnosis",correct:false},
+{text:"Assessment",correct:true},
+{text:"Implementation",correct:false},
+{text:"Evaluation",correct:false}
+]
+},
+
+{
+question:"4- Which nursing role involves protecting the patient's human and legal rights?",
+answers:[
+{text:"Researcher",correct:false},
+{text:"Teacher",correct:false},
+{text:"Advocate",correct:true},
+{text:"Leader",correct:false}
+]
+},
+
+{
+question:"5- Which ethical principle means acting for the good and welfare of others?",
+answers:[
+{text:"Autonomy",correct:false},
+{text:"Justice",correct:false},
+{text:"Beneficence",correct:true},
+{text:"Veracity",correct:false}
+]
+},
+
+{
+question:"6- Which ethical principle means acting in a way that prevents harm to others?",
+answers:[
+{text:"Fidelity",correct:false},
+{text:"Nonmaleficence",correct:true},
+{text:"Autonomy",correct:false},
+{text:"Integrity",correct:false}
+]
+},
+
+{
+question:"7- Autonomy means:",
+answers:[
+{text:"Treating all patients equally",correct:false},
+{text:"Being truthful with patients",correct:false},
+{text:"Respecting the patient's right to make decisions",correct:true},
+{text:"Protecting the environment",correct:false}
+]
+},
+
+{
+question:"8- According to patient safety goals, how many patient identifiers should be used at least when identifying a patient before certain treatments or procedures?",
+answers:[
+{text:"One identifier",correct:false},
+{text:"Two identifiers",correct:true},
+{text:"Five identifiers",correct:false},
+{text:"Ten identifiers",correct:false}
+]
+},
+
+{
+question:"9- Which of the following is a factor that can influence patient safety?",
+answers:[
+{text:"Mobility and health status",correct:true},
+{text:"Favorite food",correct:false},
+{text:"Type of clothing only",correct:false},
+{text:"Hair color",correct:false}
+]
+},
+
+{
+question:"10- Which ethical principle means being truthful, trustworthy, and accurate?",
+answers:[
+{text:"Justice",correct:false},
+{text:"Fidelity",correct:false},
+{text:"Veracity",correct:true},
+{text:"Beneficence",correct:false}
+]
+}
+
+];
+
+
+let currentQuestion = 0;
+
+let score = 0;
+
+let timeLeft = 300;
+
+let answered = false;
+
+
+const timer =
+document.getElementById("timer");
+
+const questionElement =
+document.getElementById("question");
+
+const answersElement =
+document.getElementById("answers");
+
+const nextButton =
+document.getElementById("nextBtn");
+
+const progressBar =
+document.getElementById("progressBar");
+
+
+const countdown = setInterval(function(){
+
+if(timeLeft <= 0){
+
+clearInterval(countdown);
+
+showResult();
+
+return;
+
+}
+
+timeLeft--;
+
+let minutes =
+Math.floor(timeLeft / 60);
+
+let seconds =
+timeLeft % 60;
+
+timer.innerHTML =
+String(minutes).padStart(2,"0")
++
+":"
++
+String(seconds).padStart(2,"0");
+
+},1000);
+
+
+function showQuestion(){
+
+answered = false;
+
+nextButton.style.display = "none";
+
+answersElement.innerHTML = "";
+
+
+progressBar.style.width =
+((currentQuestion + 1) /
+questions.length) * 100 + "%";
+
+
+let q =
+questions[currentQuestion];
+
+
+questionElement.innerHTML =
+q.question;
+
+
+q.answers.forEach(function(answer){
+
+const button =
+document.createElement("button");
+
+button.innerHTML =
+answer.text;
+
+
+button.className =
+"quiz-answer";
+
+
+button.onclick = function(){
+
+selectAnswer(
+answer.correct,
+button
+);
+
+};
+
+
+answersElement.appendChild(button);
+
+});
+
+}
+
+
+function selectAnswer(correct,button){
+
+if(answered) return;
+
+answered = true;
+
+
+if(correct){
+
+score++;
+
+button.style.background =
+"green";
+
+button.style.color =
+"#fff";
+
+}else{
+
+button.style.background =
+"red";
+
+button.style.color =
+"#fff";
+
+
+let buttons =
+Array.from(
+answersElement.children
+);
+
+
+let current =
+questions[currentQuestion];
+
+
+let correctIndex =
+current.answers.findIndex(
+answer => answer.correct
+);
+
+
+buttons[
+correctIndex
+].style.background =
+"green";
+
+buttons[
+correctIndex
+].style.color =
+"#fff";
+
+}
+
+
+Array.from(
+answersElement.children
+).forEach(function(btn){
+
+btn.disabled = true;
+
+});
+
+
+nextButton.style.display =
+"block";
+
+}
+
+
+nextButton.onclick = function(){
+
+if(!answered){
+
+alert(
+"من فضلك اختر إجابة أولاً"
+);
+
+return;
+
+}
+
+
+currentQuestion++;
+
+
+if(currentQuestion <
+questions.length){
+
+showQuestion();
+
+}else{
+
+showResult();
+
+}
+
+};
+
+
+function showResult(){
+
+clearInterval(countdown);
+
+
+let percentage =
+Math.round(
+(score / questions.length) * 100
+);
+
+
+let message = "";
+
+
+if(percentage >= 90){
+
+message =
+"🏆 ممتاز! أداء رائع.";
+
+}
+
+else if(percentage >= 75){
+
+message =
+"👏 أحسنت، مستواك ممتاز.";
+
+}
+
+else if(percentage >= 50){
+
+message =
+"👍 جيد، راجع الشابتر مرة أخرى.";
+
+}
+
+else{
+
+message =
+"📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار.";
+
+}
+
+
+document.querySelector(".card").innerHTML = `
+
+<div class="result-box">
+
+<h2>🎉 انتهى الاختبار</h2>
+
+<p>النتيجة</p>
+
+<h1>
+${score} / ${questions.length}
+</h1>
+
+<h2>
+${percentage}%
+</h2>
+
+<p>
+${message}
+</p>
+
+<button onclick="location.reload()">
+🔄 إعادة الاختبار
+</button>
+
+<br><br>
+
+<button onclick="history.back()">
+🏠 العودة للشابتر
+</button>
+
+</div>
+
+`;
+
+}
+
+
+showQuestion();
+
+</script>
+
+<script src="auth.js"></script>
+
+</body>
+
+</html>

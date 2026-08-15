@@ -4,57 +4,148 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Medical-Surgical Nursing - Chapter 2 Quiz</title>
 
 <link rel="stylesheet" href="style.css">
 
+
+<!-- ========================================== -->
+<!-- Firebase -->
+<!-- ========================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+
+<!-- ========================================== -->
+<!-- Firebase Configuration -->
+<!-- ========================================== -->
+
+<script src="firebase.js"></script>
+
 </head>
 
+
 <body>
+
+
+<!-- ========================================== -->
+<!-- Header -->
+<!-- ========================================== -->
 
 <header>
 
 <h1>🩺 Medical-Surgical Nursing</h1>
 
-<p>Chapter 2 - Perioperative Care Quiz</p>
+<p>
+Chapter 2 - Perioperative Care Quiz
+</p>
 
 </header>
 
+
+
+<!-- ========================================== -->
+<!-- Quiz -->
+<!-- ========================================== -->
 
 <section class="years">
 
 <div class="card">
 
+
+<!-- ========================================== -->
+<!-- Timer -->
+<!-- ========================================== -->
+
 <div class="timer">
+
 ⏳ <span id="timer">05:00</span>
+
 </div>
 
+
+
+<!-- ========================================== -->
+<!-- Progress -->
+<!-- ========================================== -->
+
 <div class="progress">
-<div class="progress-bar" id="progressBar"></div>
+
+<div
+class="progress-bar"
+id="progressBar">
 </div>
+
+</div>
+
+
+
+<!-- ========================================== -->
+<!-- Question -->
+<!-- ========================================== -->
 
 <h2 id="question"></h2>
 
+
+
+<!-- ========================================== -->
+<!-- Answers -->
+<!-- ========================================== -->
+
 <div id="answers"></div>
 
+
+
+<!-- ========================================== -->
+<!-- Next Button -->
+<!-- ========================================== -->
+
 <button id="nextBtn">
+
 ▶️ التالي
+
 </button>
+
 
 </div>
 
 </section>
 
 
+
 <script>
 
-// ==========================================
+
+// ==================================================
+// بوابة التمريض
+// Medical-Surgical Nursing - Chapter 2 Quiz
+// ==================================================
+
+
+// ==================================================
 // Firebase Authentication
-// ==========================================
+// ==================================================
 
 let currentUser = null;
+
+
+// ==================================================
+// منع حفظ النتيجة أكثر من مرة
+// ==================================================
+
+let examFinished = false;
+
+
+// ==================================================
+// التحقق من تسجيل الدخول
+// ==================================================
 
 firebase.auth().onAuthStateChanged(function(user){
 
@@ -62,195 +153,343 @@ firebase.auth().onAuthStateChanged(function(user){
 
         currentUser = user;
 
-    }else{
+        console.log(
+            "Logged in:",
+            user.email
+        );
 
-        window.location.href = "login.html";
+    }
+
+    else{
+
+        window.location.replace(
+            "login.html"
+        );
 
     }
 
 });
 
 
-// ==========================================
+
+// ==================================================
 // Questions
-// ==========================================
+// ==================================================
 
 const questions = [
 
 {
-question:"1- Perioperative nursing includes which three phases?",
+question:
+"Perioperative nursing includes which three phases?",
 
 answers:[
 
-{text:"Assessment, Diagnosis and Treatment",correct:false},
+{
+text:"Assessment, Diagnosis and Treatment",
+correct:false
+},
 
-{text:"Preoperative, Intraoperative and Postoperative",correct:true},
+{
+text:"Preoperative, Intraoperative and Postoperative",
+correct:true
+},
 
-{text:"Admission, Surgery and Discharge",correct:false},
+{
+text:"Admission, Surgery and Discharge",
+correct:false
+},
 
-{text:"Planning, Surgery and Rehabilitation",correct:false}
+{
+text:"Planning, Surgery and Rehabilitation",
+correct:false
+}
+
+]
+},
+
+
+{
+
+question:
+"The preoperative phase begins when:",
+
+answers:[
+
+{
+text:"The patient enters the recovery room",
+correct:false
+},
+
+{
+text:"The patient receives anesthesia",
+correct:false
+},
+
+{
+text:"The decision for surgical intervention is made",
+correct:true
+},
+
+{
+text:"The surgical wound is closed",
+correct:false
+}
 
 ]
 
 },
 
+
 {
 
-question:"2- The preoperative phase begins when:",
+question:
+"Which type of surgery requires immediate attention to maintain life?",
 
 answers:[
 
-{text:"The patient enters the recovery room",correct:false},
+{
+text:"Elective surgery",
+correct:false
+},
 
-{text:"The patient receives anesthesia",correct:false},
+{
+text:"Optional surgery",
+correct:false
+},
 
-{text:"The decision for surgical intervention is made",correct:true},
+{
+text:"Required surgery",
+correct:false
+},
 
-{text:"The surgical wound is closed",correct:false}
+{
+text:"Emergent surgery",
+correct:true
+}
 
 ]
 
 },
 
+
 {
 
-question:"3- Which type of surgery requires immediate attention to maintain life?",
+question:
+"A biopsy is an example of which type of surgery according to purpose?",
 
 answers:[
 
-{text:"Elective surgery",correct:false},
+{
+text:"Diagnostic surgery",
+correct:true
+},
 
-{text:"Optional surgery",correct:false},
+{
+text:"Palliative surgery",
+correct:false
+},
 
-{text:"Required surgery",correct:false},
+{
+text:"Aesthetic surgery",
+correct:false
+},
 
-{text:"Emergent surgery",correct:true}
+{
+text:"Reconstructive surgery",
+correct:false
+}
 
 ]
 
 },
 
+
 {
 
-question:"4- A biopsy is an example of which type of surgery according to purpose?",
+question:
+"Which nursing action is an important part of preoperative preparation?",
 
 answers:[
 
-{text:"Diagnostic surgery",correct:true},
+{
+text:"Allowing the patient to eat immediately before surgery",
+correct:false
+},
 
-{text:"Palliative surgery",correct:false},
+{
+text:"Ignoring the patient's questions",
+correct:false
+},
 
-{text:"Aesthetic surgery",correct:false},
+{
+text:"Explaining the procedure and answering questions",
+correct:true
+},
 
-{text:"Reconstructive surgery",correct:false}
+{
+text:"Preventing communication with the healthcare team",
+correct:false
+}
 
 ]
 
 },
 
+
 {
 
-question:"5- Which nursing action is an important part of preoperative preparation?",
+question:
+"What is the main purpose of informed consent?",
 
 answers:[
 
-{text:"Allowing the patient to eat immediately before surgery",correct:false},
+{
+text:"To replace the nursing assessment",
+correct:false
+},
 
-{text:"Ignoring the patient's questions",correct:false},
+{
+text:"To give permission for a specific procedure",
+correct:true
+},
 
-{text:"Explaining the procedure and answering questions",correct:true},
+{
+text:"To guarantee that complications will not occur",
+correct:false
+},
 
-{text:"Preventing communication with the healthcare team",correct:false}
+{
+text:"To determine the patient's discharge date",
+correct:false
+}
 
 ]
 
 },
 
+
 {
 
-question:"6- What is the main purpose of informed consent?",
+question:
+"Which nurse is responsible for maintaining the sterile field and passing instruments to the surgeon?",
 
 answers:[
 
-{text:"To replace the nursing assessment",correct:false},
+{
+text:"Circulating nurse",
+correct:false
+},
 
-{text:"To give permission for a specific procedure",correct:true},
+{
+text:"Nursing assistant",
+correct:false
+},
 
-{text:"To guarantee that complications will not occur",correct:false},
+{
+text:"Scrub nurse",
+correct:true
+},
 
-{text:"To determine the patient's discharge date",correct:false}
+{
+text:"Recovery room nurse",
+correct:false
+}
 
 ]
 
 },
 
+
 {
 
-question:"7- Which nurse is responsible for maintaining the sterile field and passing instruments to the surgeon?",
+question:
+"Which position is commonly used for spinal surgery?",
 
 answers:[
 
-{text:"Circulating nurse",correct:false},
+{
+text:"Lithotomy",
+correct:false
+},
 
-{text:"Nursing assistant",correct:false},
+{
+text:"Trendelenburg",
+correct:false
+},
 
-{text:"Scrub nurse",correct:true},
+{
+text:"Lateral",
+correct:false
+},
 
-{text:"Recovery room nurse",correct:false}
+{
+text:"Prone",
+correct:true
+}
 
 ]
 
 },
 
+
 {
 
-question:"8- Which position is commonly used for spinal surgery?",
+question:
+"Which of the following is a principle of surgical asepsis?",
 
 answers:[
 
-{text:"Lithotomy",correct:false},
+{
+text:"Sterile articles may touch any surface",
+correct:false
+},
 
-{text:"Trendelenburg",correct:false},
+{
+text:"Sterile equipment should be kept below the waist",
+correct:false
+},
 
-{text:"Lateral",correct:false},
+{
+text:"Sterile articles should touch only sterile articles or surfaces",
+correct:true
+},
 
-{text:"Prone",correct:true}
+{
+text:"Unnecessary traffic around the sterile area should be encouraged",
+correct:false
+}
 
 ]
 
 },
 
+
 {
 
-question:"9- Which of the following is a principle of surgical asepsis?",
+question:
+"Which intervention helps prevent postoperative pulmonary complications?",
 
 answers:[
 
-{text:"Sterile articles may touch any surface",correct:false},
-
-{text:"Sterile equipment should be kept below the waist",correct:false},
-
-{text:"Sterile articles should touch only sterile articles or surfaces",correct:true},
-
-{text:"Unnecessary traffic around the sterile area should be encouraged",correct:false}
-
-]
-
+{
+text:"Encouraging deep breathing, coughing and early ambulation",
+correct:true
 },
 
 {
+text:"Keeping the patient completely immobile",
+correct:false
+},
 
-question:"10- Which intervention helps prevent postoperative pulmonary complications?",
+{
+text:"Restricting all fluids",
+correct:false
+},
 
-answers:[
-
-{text:"Encouraging deep breathing, coughing and early ambulation",correct:true},
-
-{text:"Keeping the patient completely immobile",correct:false},
-
-{text:"Restricting all fluids",correct:false},
-
-{text:"Avoiding respiratory exercises",correct:false}
+{
+text:"Avoiding respiratory exercises",
+correct:false
+}
 
 ]
 
@@ -259,9 +498,10 @@ answers:[
 ];
 
 
-// ==========================================
+
+// ==================================================
 // Quiz Variables
-// ==========================================
+// ==================================================
 
 let currentQuestion = 0;
 
@@ -269,34 +509,59 @@ let score = 0;
 
 let answered = false;
 
+let timeLeft = 300;
 
-// ==========================================
+let timerInterval = null;
+
+
+
+// ==================================================
 // Page Elements
-// ==========================================
+// ==================================================
 
 const questionElement =
 document.getElementById("question");
 
+
 const answersElement =
 document.getElementById("answers");
+
 
 const nextButton =
 document.getElementById("nextBtn");
 
 
-// ==========================================
-// Load Question
-// ==========================================
+const progressBar =
+document.getElementById("progressBar");
+
+
+const timerElement =
+document.getElementById("timer");
+
+
+
+// ==================================================
+// Show Question
+// ==================================================
 
 function showQuestion(){
 
+    if(examFinished)
+        return;
+
+
     answered = false;
 
-    nextButton.style.display = "none";
 
     answersElement.innerHTML = "";
 
-    const q = questions[currentQuestion];
+
+    nextButton.style.display =
+    "none";
+
+
+    const q =
+    questions[currentQuestion];
 
 
     questionElement.innerHTML =
@@ -305,15 +570,21 @@ function showQuestion(){
     q.question;
 
 
-    document.getElementById("progressBar").style.width =
-    ((currentQuestion + 1) /
-    questions.length) * 100 + "%";
+    progressBar.style.width =
+    (
+        ((currentQuestion + 1) /
+        questions.length) * 100
+    ) + "%";
 
 
     q.answers.forEach(function(answer){
 
         const button =
         document.createElement("button");
+
+
+        button.type =
+        "button";
 
 
         button.innerHTML =
@@ -335,20 +606,25 @@ function showQuestion(){
         };
 
 
-        answersElement.appendChild(button);
+        answersElement.appendChild(
+            button
+        );
 
     });
 
 }
 
 
-// ==========================================
+
+// ==================================================
 // Select Answer
-// ==========================================
+// ==================================================
 
 function selectAnswer(correct, button){
 
-    if(answered) return;
+    if(answered || examFinished)
+        return;
+
 
     answered = true;
 
@@ -370,16 +646,21 @@ function selectAnswer(correct, button){
 
         score++;
 
+
         button.style.background =
         "green";
+
 
         button.style.color =
         "#fff";
 
-    }else{
+    }
+
+    else{
 
         button.style.background =
         "red";
+
 
         button.style.color =
         "#fff";
@@ -390,21 +671,25 @@ function selectAnswer(correct, button){
         .answers
         .findIndex(function(answer){
 
-            return answer.correct;
+            return answer.correct === true;
 
         });
 
 
-        buttons[
-            correctIndex
-        ].style.background =
-        "green";
+        if(correctIndex !== -1){
+
+            buttons[
+                correctIndex
+            ].style.background =
+            "green";
 
 
-        buttons[
-            correctIndex
-        ].style.color =
-        "#fff";
+            buttons[
+                correctIndex
+            ].style.color =
+            "#fff";
+
+        }
 
     }
 
@@ -415,11 +700,17 @@ function selectAnswer(correct, button){
 }
 
 
-// ==========================================
-// Next Button
-// ==========================================
 
-nextButton.onclick = function(){
+// ==================================================
+// Next Button
+// ==================================================
+
+nextButton.onclick =
+function(){
+
+    if(examFinished)
+        return;
+
 
     if(!answered){
 
@@ -442,38 +733,131 @@ nextButton.onclick = function(){
 
         showQuestion();
 
-    }else{
+    }
 
-        clearInterval(
-            countdown
-        );
+    else{
 
-
-        let percentage =
-        Math.round(
-            (score /
-            questions.length) * 100
-        );
-
-
-        saveResult(
-            percentage
-        );
+        finishExam();
 
     }
 
 };
 
 
-// ==========================================
+
+// ==================================================
+// Finish Exam
+// ==================================================
+
+function finishExam(){
+
+    if(examFinished)
+        return;
+
+
+    examFinished = true;
+
+
+    clearInterval(
+        timerInterval
+    );
+
+
+    const percentage =
+    Math.round(
+        (score /
+        questions.length) * 100
+    );
+
+
+    disableQuiz();
+
+
+    saveResult(
+        percentage
+    );
+
+}
+
+
+
+// ==================================================
+// Time Up
+// ==================================================
+
+function timeUp(){
+
+    if(examFinished)
+        return;
+
+
+    examFinished = true;
+
+
+    clearInterval(
+        timerInterval
+    );
+
+
+    const percentage =
+    Math.round(
+        (score /
+        questions.length) * 100
+    );
+
+
+    disableQuiz();
+
+
+    alert(
+        "⏰ انتهى الوقت!"
+    );
+
+
+    saveResult(
+        percentage
+    );
+
+}
+
+
+
+// ==================================================
+// Disable Quiz
+// ==================================================
+
+function disableQuiz(){
+
+    const buttons =
+    answersElement.querySelectorAll(
+        "button"
+    );
+
+
+    buttons.forEach(function(button){
+
+        button.disabled = true;
+
+    });
+
+
+    nextButton.disabled = true;
+
+}
+
+
+
+// ==================================================
 // Save Result
-// ==========================================
+// ==================================================
 
 function saveResult(percentage){
 
     if(!currentUser){
 
-        showResult(percentage);
+        showResult(
+            percentage
+        );
 
         return;
 
@@ -481,21 +865,35 @@ function saveResult(percentage){
 
 
     db.collection("users")
-    .doc(currentUser.uid)
-    .get()
 
+    .doc(currentUser.uid)
+
+    .get()
 
     .then(function(doc){
 
-        let userData =
-        doc.data() || {};
+        if(!doc.exists){
+
+            throw new Error(
+                "بيانات الطالب غير موجودة"
+            );
+
+        }
+
+
+        const userData =
+        doc.data();
 
 
         return db.collection("results")
+
         .add({
 
             uid:
             currentUser.uid,
+
+            studentCode:
+            userData.studentCode || "",
 
             name:
             userData.name || "",
@@ -530,7 +928,6 @@ function saveResult(percentage){
 
     })
 
-
     .then(function(){
 
         showResult(
@@ -539,13 +936,18 @@ function saveResult(percentage){
 
     })
 
-
     .catch(function(error){
 
         console.error(
             "Save Result Error:",
             error
         );
+
+
+        alert(
+            "❌ حدث خطأ أثناء حفظ النتيجة، ولكن سيتم عرض النتيجة."
+        );
+
 
         showResult(
             percentage
@@ -556,9 +958,10 @@ function saveResult(percentage){
 }
 
 
-// ==========================================
+
+// ==================================================
 // Show Result
-// ==========================================
+// ==================================================
 
 function showResult(percentage){
 
@@ -566,58 +969,71 @@ function showResult(percentage){
     "🎉 انتهى الاختبار";
 
 
+    progressBar.style.width =
+    "100%";
+
+
+    let message;
+
+
+    if(percentage >= 90){
+
+        message =
+        "🏆 ممتاز! أداء رائع.";
+
+    }
+
+    else if(percentage >= 75){
+
+        message =
+        "👏 أحسنت، مستواك ممتاز.";
+
+    }
+
+    else if(percentage >= 50){
+
+        message =
+        "👍 جيد، راجع الشابتر مرة أخرى.";
+
+    }
+
+    else{
+
+        message =
+        "📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار.";
+
+    }
+
+
     answersElement.innerHTML = `
 
         <div class="result-box">
 
-            <p>النتيجة</p>
+            <p>
+                النتيجة
+            </p>
+
 
             <h1>
                 ${score} / ${questions.length}
             </h1>
 
+
             <h2>
                 ${percentage}%
             </h2>
 
+
             <p>
-
-            ${
-                percentage >= 90
-
-                ?
-
-                "🏆 ممتاز! أداء رائع."
-
-                :
-
-                percentage >= 75
-
-                ?
-
-                "👏 أحسنت، مستواك ممتاز."
-
-                :
-
-                percentage >= 50
-
-                ?
-
-                "👍 جيد، راجع الشابتر مرة أخرى."
-
-                :
-
-                "📚 تحتاج إلى مراجعة الشابتر ثم إعادة الاختبار."
-
-            }
-
+                ${message}
             </p>
 
 
             <button
+            type="button"
             onclick="location.reload()">
 
-            🔄 إعادة الاختبار
+                🔄 إعادة الاختبار
 
             </button>
 
@@ -626,9 +1042,10 @@ function showResult(percentage){
 
 
             <button
+            type="button"
             onclick="history.back()">
 
-            🏠 العودة للشابتر
+                🏠 العودة للشابتر
 
             </button>
 
@@ -643,85 +1060,112 @@ function showResult(percentage){
 }
 
 
-// ==========================================
-// Timer - 5 Minutes
-// ==========================================
 
-let timeLeft = 300;
+// ==================================================
+// Timer
+// ==================================================
 
+function updateTimer(){
 
-const timer =
-document.getElementById("timer");
-
-
-const countdown =
-setInterval(function(){
-
-    if(timeLeft <= 0){
-
-        clearInterval(
-            countdown
-        );
-
-
-        let percentage =
-        Math.round(
-            (score /
-            questions.length) * 100
-        );
-
-
-        saveResult(
-            percentage
-        );
-
-
-        return;
-
-    }
-
-
-    timeLeft--;
-
-
-    let minutes =
+    const minutes =
     Math.floor(
         timeLeft / 60
     );
 
 
-    let seconds =
+    const seconds =
     timeLeft % 60;
 
 
-    timer.innerHTML =
-
+    const formattedMinutes =
     String(minutes)
-    .padStart(2,"0")
+    .padStart(2,"0");
 
-    +
 
-    ":"
-
-    +
-
+    const formattedSeconds =
     String(seconds)
     .padStart(2,"0");
 
 
-},1000);
+    timerElement.innerHTML =
+    "⏱️ الوقت: " +
+    formattedMinutes +
+    ":" +
+    formattedSeconds;
+
+}
 
 
-// ==========================================
+
+// ==================================================
+// Start Timer
+// ==================================================
+
+function startTimer(){
+
+    updateTimer();
+
+
+    timerInterval =
+    setInterval(function(){
+
+        if(examFinished){
+
+            clearInterval(
+                timerInterval
+            );
+
+            return;
+
+        }
+
+
+        timeLeft--;
+
+
+        if(timeLeft <= 0){
+
+            timeLeft = 0;
+
+
+            updateTimer();
+
+
+            timeUp();
+
+
+            return;
+
+        }
+
+
+        updateTimer();
+
+    },1000);
+
+}
+
+
+
+// ==================================================
 // Start Quiz
-// ==========================================
+// ==================================================
 
 showQuestion();
+
+startTimer();
+
 
 </script>
 
 
+
+<!-- ========================================== -->
+<!-- Authentication -->
+<!-- ========================================== -->
+
 <script src="auth.js"></script>
+
 
 </body>
 

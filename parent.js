@@ -20,6 +20,49 @@ const studentCode =
 
 
 // ==========================================
+// Device ID
+// ==========================================
+
+// استخدام نفس Device ID الموجود إن كان موجودًا
+let deviceId =
+    localStorage.getItem("deviceId");
+
+
+// إنشاء Device ID جديد إذا لم يكن موجودًا
+if (!deviceId) {
+
+    if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+    ) {
+
+        deviceId =
+            crypto.randomUUID();
+
+    }
+
+    else {
+
+        deviceId =
+            "device-" +
+            Date.now() +
+            "-" +
+            Math.random()
+                .toString(36)
+                .substring(2, 15);
+
+    }
+
+
+    localStorage.setItem(
+        "deviceId",
+        deviceId
+    );
+
+}
+
+
+// ==========================================
 // التحقق من الدخول
 // ==========================================
 
@@ -123,7 +166,40 @@ function loadParentData() {
                 doc.data();
 
 
-            renderParentWelcome();
+            // ==================================
+            // تحديث Device ID لولي الأمر
+            // ==================================
+
+            return db.collection("parents")
+                .doc(parentCode)
+                .update({
+
+                    deviceId:
+                        deviceId,
+
+                    lastDeviceUpdate:
+                        firebase.firestore.FieldValue
+                            .serverTimestamp()
+
+                })
+
+                .catch(function (error) {
+
+                    console.error(
+                        "Parent Device ID Error:",
+                        error
+                    );
+
+                    // لا نوقف Dashboard
+                    // إذا فشل تحديث Device ID
+
+                })
+
+                .then(function () {
+
+                    renderParentWelcome();
+
+                });
 
         });
 
@@ -143,7 +219,9 @@ function renderParentWelcome() {
 
 
     if (!element) {
+
         return;
+
     }
 
 
@@ -182,9 +260,6 @@ function loadStudentData() {
 
             studentData =
                 doc.data();
-
-
-            renderStudentLevel();
 
         });
 
@@ -256,6 +331,18 @@ function loadStudentResults() {
                 }
             );
 
+
+            // ==================================
+            // مهم جدًا
+            // حساب مستوى الطالب بعد تحميل النتائج
+            // ==================================
+
+            renderStudentLevel();
+
+
+            // ==================================
+            // باقي الإحصائيات
+            // ==================================
 
             renderStatistics();
 
@@ -414,7 +501,9 @@ function renderSubjects() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -536,7 +625,9 @@ function renderWeakPoints() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -574,7 +665,7 @@ function renderWeakPoints() {
 
             const key =
                 subject +
-                "|||"+
+                "|||" +
                 chapter;
 
 
@@ -739,7 +830,9 @@ function renderLatestTests() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -876,7 +969,9 @@ function calculateImprovement() {
 
 
                 if (!date) {
+
                     return false;
+
                 }
 
 
@@ -922,7 +1017,9 @@ function calculateImprovement() {
 
 
                 if (!date) {
+
                     return false;
+
                 }
 
 
@@ -1150,15 +1247,18 @@ function renderMonthlyReport() {
             "لا توجد مقارنة"
         );
 
+
         setText(
             "improvement",
             "—"
         );
 
+
         setText(
             "improvementText",
             "لا توجد نتائج للشهر السابق"
         );
+
 
         return;
 
@@ -1203,6 +1303,7 @@ function renderMonthlyReport() {
                 ? "📉 تراجع عن الشهر السابق"
 
                 : "➖ لا يوجد تغيير"
+
     );
 
 }
@@ -1228,7 +1329,9 @@ function getCurrentMonthResults() {
 
 
             if (!date) {
+
                 return false;
+
             }
 
 
@@ -1321,7 +1424,9 @@ function findWeakestChapter(
 ) {
 
     if (!results.length) {
+
         return null;
+
     }
 
 
@@ -1580,7 +1685,9 @@ function renderNotifications() {
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -1664,7 +1771,9 @@ function calculateAverage(
 ) {
 
     if (!results.length) {
+
         return 0;
+
     }
 
 
@@ -1755,7 +1864,9 @@ function getPercentage(
 function getDate(value) {
 
     if (!value) {
+
         return null;
+
     }
 
 
@@ -1765,6 +1876,17 @@ function getDate(value) {
     ) {
 
         return value.toDate();
+
+    }
+
+
+    if (
+        value.seconds !== undefined
+    ) {
+
+        return new Date(
+            value.seconds * 1000
+        );
 
     }
 
@@ -1802,13 +1924,16 @@ function formatDateTime(
 
 
     if (!date) {
+
         return "-";
+
     }
 
 
     return date.toLocaleString(
         "ar-EG",
         {
+
             year:
                 "numeric",
 
@@ -1823,6 +1948,7 @@ function formatDateTime(
 
             minute:
                 "2-digit"
+
         }
     );
 
@@ -1898,9 +2024,15 @@ function escapeHtml(
 // تسجيل الخروج
 // ==========================================
 
-document
-    .getElementById("logoutBtn")
-    .addEventListener(
+const logoutButton =
+    document.getElementById(
+        "logoutBtn"
+    );
+
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
         "click",
         function () {
 
@@ -1920,6 +2052,10 @@ document
                 "parentName"
             );
 
+            localStorage.removeItem(
+                "deviceId"
+            );
+
 
             firebase.auth()
                 .signOut()
@@ -1935,6 +2071,8 @@ document
 
         }
     );
+
+}
 
 
 // ==========================================

@@ -1,68 +1,101 @@
-// ==========================================
+// ==========================================================
 // بوابة التمريض
 // Admin Panel
-// إدارة الطلاب والأكواد والنتائج والمحتوى
-// الطلاب + أولياء الأمور
-// ==========================================
-
-(function () {
-
-    // ==========================================
-    // UID الخاص بالأدمن
-    // ==========================================
-
-    const ADMIN_UID =
-        "H4wMJm2ComSSy19ttzb1KxZz7Yu1";
+// لوحة إدارة بوابة التمريض
+// ==========================================================
 
 
-    // ==========================================
-    // عناصر الصفحة
-    // ==========================================
+// ==========================================================
+// إعدادات الأدمن
+// ==========================================================
+
+// UID الخاص بحساب الأدمن المسموح له بالدخول
+
+const ADMIN_UIDS = [
+
+    "H4wMJm2ComSSy19ttzb1KxZz7Yu1"
+
+];
+
+
+// ==========================================================
+// متغيرات عامة
+// ==========================================================
+
+let allStudents = [];
+
+let allCodes = [];
+
+let allParents = [];
+
+let allResults = [];
+
+let allContent = [];
+
+let allNotifications = [];
+
+let allLeaderboard = [];
+
+let currentAdmin = null;
+
+
+// ==========================================================
+// تشغيل لوحة الإدارة
+// ==========================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        initializeAdmin();
+
+        setupAdminEvents();
+
+    }
+);
+
+
+// ==========================================================
+// التحقق من الأدمن
+// ==========================================================
+
+function initializeAdmin() {
 
     const loading =
         document.getElementById("loading");
 
-    const accessDenied =
+    const denied =
         document.getElementById("accessDenied");
 
-    const adminPanel =
+    const panel =
         document.getElementById("adminPanel");
 
-
-    // ==========================================
-    // بيانات مؤقتة
-    // ==========================================
-
-    let allStudents = [];
-
-    let allContent = [];
-
-
-    // ==========================================
-    // حماية لوحة الإدارة
-    // ==========================================
 
     firebase.auth().onAuthStateChanged(
         function (user) {
 
             if (!user) {
 
-                showDenied();
+                showAccessDenied();
 
                 return;
 
             }
 
 
-            console.log(
-                "Firebase UID:",
-                user.uid
-            );
+            currentAdmin = user;
 
 
-            if (user.uid !== ADMIN_UID) {
+            if (
+                !ADMIN_UIDS.includes(user.uid)
+            ) {
 
-                showDenied();
+                console.error(
+                    "Unauthorized admin:",
+                    user.uid
+                );
+
+                showAccessDenied();
 
                 return;
 
@@ -75,625 +108,233 @@
 
             }
 
-            if (accessDenied) {
 
-                accessDenied.classList.add("hidden");
+            if (denied) {
 
-            }
-
-            if (adminPanel) {
-
-                adminPanel.classList.remove("hidden");
+                denied.classList.add("hidden");
 
             }
 
 
-            loadDashboard();
+            if (panel) {
+
+                panel.classList.remove("hidden");
+
+            }
+
+
+            loadAdminData();
+
+        }
+    );
+
+}
+
+
+// ==========================================================
+// رفض الدخول
+// ==========================================================
+
+function showAccessDenied() {
+
+    const loading =
+        document.getElementById("loading");
+
+    const denied =
+        document.getElementById("accessDenied");
+
+    const panel =
+        document.getElementById("adminPanel");
+
+
+    if (loading) {
+
+        loading.classList.add("hidden");
+
+    }
+
+
+    if (panel) {
+
+        panel.classList.add("hidden");
+
+    }
+
+
+    if (denied) {
+
+        denied.classList.remove("hidden");
+
+    }
+
+}
+
+
+// ==========================================================
+// تحميل بيانات لوحة الإدارة
+// ==========================================================
+
+function loadAdminData() {
+
+    loadStudents()
+        .then(function () {
+
+            return loadCodes();
+
+        })
+        .then(function () {
+
+            return loadParents();
+
+        })
+        .then(function () {
+
+            return loadResults();
+
+        })
+        .then(function () {
+
+            return loadContent();
+
+        })
+        .then(function () {
+
+            return loadNotifications();
+
+        })
+        .then(function () {
+
+            return loadLeaderboard();
+
+        })
+        .then(function () {
+
+            updateDashboard();
+
+        })
+        .catch(function (error) {
+
+            console.error(
+                "Admin loading error:",
+                error
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// التنقل بين الأقسام
+// ==========================================================
+
+function showSection(sectionId) {
+
+    const sections =
+        document.querySelectorAll(
+            ".section"
+        );
+
+
+    sections.forEach(
+        function (section) {
+
+            section.classList.remove(
+                "active"
+            );
 
         }
     );
 
 
-    // ==========================================
-    // رفض الدخول
-    // ==========================================
+    const target =
+        document.getElementById(
+            sectionId
+        );
 
-    function showDenied() {
 
-        if (loading) {
+    if (target) {
 
-            loading.classList.add("hidden");
-
-        }
-
-        if (adminPanel) {
-
-            adminPanel.classList.add("hidden");
-
-        }
-
-        if (accessDenied) {
-
-            accessDenied.classList.remove("hidden");
-
-        }
+        target.classList.add("active");
 
     }
 
 
-    // ==========================================
-    // التنقل بين الأقسام
-    // ==========================================
+    // تحميل البيانات عند فتح القسم
 
-    window.showSection =
-        function (sectionId) {
+    if (sectionId === "students") {
 
-            document
-                .querySelectorAll(".section")
-                .forEach(function (section) {
-
-                    section.classList.remove("active");
-
-                });
-
-
-            const section =
-                document.getElementById(sectionId);
-
-
-            if (section) {
-
-                section.classList.add("active");
-
-            }
-
-
-            if (sectionId === "dashboard") {
-
-                loadDashboard();
-
-            }
-
-
-            if (sectionId === "students") {
-
-                loadStudents();
-
-            }
-
-
-            if (sectionId === "codes") {
-
-                loadCodes();
-
-            }
-
-
-            if (sectionId === "results") {
-
-                loadResults();
-
-            }
-
-
-            if (sectionId === "leaderboard") {
-
-                loadLeaderboard();
-
-            }
-
-
-            if (sectionId === "content") {
-
-                loadContent();
-
-            }
-
-
-            if (sectionId === "notifications") {
-
-                loadNotifications();
-
-            }
-
-        };
-
-
-    // ==========================================
-    // Dashboard
-    // ==========================================
-
-    function loadDashboard() {
-
-        // --------------------------------------
-        // الطلاب
-        // --------------------------------------
-
-        db.collection("students")
-            .get()
-
-            .then(function (snapshot) {
-
-                let total = 0;
-
-                let active = 0;
-
-                let expired = 0;
-
-
-                snapshot.forEach(function (doc) {
-
-                    total++;
-
-
-                    const student =
-                        doc.data();
-
-
-                    const expiry =
-                        getDate(
-                            student.expiresAt
-                        );
-
-
-                    if (
-                        student.active === true &&
-                        (
-                            !expiry ||
-                            new Date() < expiry
-                        )
-                    ) {
-
-                        active++;
-
-                    }
-
-
-                    if (
-                        expiry &&
-                        new Date() >= expiry
-                    ) {
-
-                        expired++;
-
-                    }
-
-                });
-
-
-                setText(
-                    "totalStudents",
-                    total
-                );
-
-
-                setText(
-                    "activeStudents",
-                    active
-                );
-
-
-                setText(
-                    "expiredStudents",
-                    expired
-                );
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Dashboard Students Error:",
-                    error
-                );
-
-            });
-
-
-        // --------------------------------------
-        // النتائج
-        // --------------------------------------
-
-        db.collection("results")
-            .get()
-
-            .then(function (snapshot) {
-
-                let total = 0;
-
-                let sum = 0;
-
-
-                snapshot.forEach(function (doc) {
-
-                    total++;
-
-
-                    const data =
-                        doc.data();
-
-
-                    let score =
-                        Number(
-                            data.percentage ??
-                            data.score ??
-                            0
-                        );
-
-
-                    if (!isNaN(score)) {
-
-                        if (
-                            score > 0 &&
-                            score <= 1
-                        ) {
-
-                            score *= 100;
-
-                        }
-
-
-                        sum += score;
-
-                    }
-
-                });
-
-
-                const average =
-                    total > 0
-                        ? Math.round(
-                            sum / total
-                        )
-                        : 0;
-
-
-                setText(
-                    "totalResults",
-                    total
-                );
-
-
-                setText(
-                    "averageScore",
-                    average + "%"
-                );
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Dashboard Results Error:",
-                    error
-                );
-
-            });
+        renderStudents();
 
     }
 
 
-    // ==========================================
-    // الطلاب
-    // ==========================================
+    if (sectionId === "codes") {
 
-    function loadStudents() {
-
-        db.collection("students")
-            .get()
-
-            .then(function (snapshot) {
-
-                allStudents = [];
-
-
-                snapshot.forEach(function (doc) {
-
-                    allStudents.push({
-
-                        id: doc.id,
-
-                        ...doc.data()
-
-                    });
-
-                });
-
-
-                renderStudents(
-                    allStudents
-                );
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Students Error:",
-                    error
-                );
-
-
-                const table =
-                    document.getElementById(
-                        "studentsTable"
-                    );
-
-
-                if (table) {
-
-                    table.innerHTML = `
-
-                        <tr>
-
-                            <td colspan="6">
-
-                                ❌ تعذر تحميل الطلاب
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-
-
-                alert(
-                    "❌ تعذر تحميل الطلاب"
-                );
-
-            });
+        renderCodes();
 
     }
 
 
-    // ==========================================
-    // عرض الطلاب
-    // ==========================================
+    if (sectionId === "parents") {
 
-    function renderStudents(students) {
-
-        const table =
-            document.getElementById(
-                "studentsTable"
-            );
-
-
-        if (!table) {
-
-            return;
-
-        }
-
-
-        table.innerHTML = "";
-
-
-        if (!students.length) {
-
-            table.innerHTML = `
-
-                <tr>
-
-                    <td colspan="6">
-
-                        لا يوجد طلاب
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
-
-        }
-
-
-        students.forEach(function (student) {
-
-            const row =
-                document.createElement("tr");
-
-
-            const expiry =
-                getDate(
-                    student.expiresAt
-                );
-
-
-            let status =
-                "⛔ متوقف";
-
-
-            if (
-                student.active === true
-            ) {
-
-                if (
-                    expiry &&
-                    new Date() >= expiry
-                ) {
-
-                    status =
-                        "⛔ منتهي";
-
-                }
-
-                else {
-
-                    status =
-                        "✅ نشط";
-
-                }
-
-            }
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeHtml(student.id)}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        student.name || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        student.grade || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${status}
-                </td>
-
-                <td>
-                    ${formatDate(
-                        student.expiresAt
-                    )}
-                </td>
-
-                <td>
-
-                    <button
-                        class="admin-btn primary-btn"
-                        title="عرض التفاصيل"
-                        onclick="viewStudent('${escapeAttribute(student.id)}')">
-
-                        👁️
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn primary-btn"
-                        title="تعديل"
-                        onclick="editStudent('${escapeAttribute(student.id)}')">
-
-                        ✏️
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn success-btn"
-                        title="تمديد"
-                        onclick="extendStudent('${escapeAttribute(student.id)}')">
-
-                        ⏳
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn"
-                        title="تفعيل / إيقاف"
-                        onclick="toggleStudent('${escapeAttribute(student.id)}')">
-
-                        ${
-                            student.active === true
-                                ? "⛔"
-                                : "✅"
-                        }
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn"
-                        title="فك الجهاز"
-                        onclick="resetDevice('${escapeAttribute(student.id)}')">
-
-                        📱
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn danger-btn"
-                        title="حذف"
-                        onclick="deleteCode('${escapeAttribute(student.id)}')">
-
-                        🗑️
-
-                    </button>
-
-                </td>
-
-            `;
-
-
-            table.appendChild(row);
-
-        });
+        renderParents();
 
     }
 
 
-    // ==========================================
-    // البحث عن طالب
-    // ==========================================
+    if (sectionId === "results") {
 
-    const searchInput =
+        renderAdminResults();
+
+    }
+
+
+    if (sectionId === "leaderboard") {
+
+        renderLeaderboard();
+
+    }
+
+
+    if (sectionId === "content") {
+
+        renderContent();
+
+    }
+
+
+    if (sectionId === "notifications") {
+
+        renderNotificationsAdmin();
+
+    }
+
+}
+
+
+// ==========================================================
+// إعداد Events
+// ==========================================================
+
+function setupAdminEvents() {
+
+    // البحث عن الطلاب
+
+    const studentSearch =
         document.getElementById(
             "studentSearch"
         );
 
 
-    if (searchInput) {
+    if (studentSearch) {
 
-        searchInput.addEventListener(
+        studentSearch.addEventListener(
             "input",
             function () {
 
-                const value =
-                    this.value
-                        .trim()
-                        .toLowerCase();
-
-
-                const filtered =
-                    allStudents.filter(
-                        function (student) {
-
-                            return (
-
-                                String(
-                                    student.id
-                                )
-                                .toLowerCase()
-                                .includes(value)
-
-                                ||
-
-                                String(
-                                    student.name || ""
-                                )
-                                .toLowerCase()
-                                .includes(value)
-
-                                ||
-
-                                String(
-                                    student.email || ""
-                                )
-                                .toLowerCase()
-                                .includes(value)
-
-                            );
-
-                        }
-                    );
-
-
                 renderStudents(
-                    filtered
+                    this.value
                 );
 
             }
@@ -702,2762 +343,49 @@
     }
 
 
-    // ==========================================
-    // تعديل الطالب
-    // ==========================================
-
-    window.editStudent =
-        function (code) {
-
-            const student =
-                allStudents.find(
-                    function (item) {
-
-                        return item.id === code;
-
-                    }
-                );
-
-
-            if (!student) {
-
-                alert(
-                    "❌ الطالب غير موجود"
-                );
-
-                return;
-
-            }
-
-
-            const name =
-                prompt(
-                    "اسم الطالب:",
-                    student.name || ""
-                );
-
-
-            if (name === null) {
-
-                return;
-
-            }
-
-
-            const grade =
-                prompt(
-                    "الصف:",
-                    student.grade || ""
-                );
-
-
-            if (grade === null) {
-
-                return;
-
-            }
-
-
-            const password =
-                prompt(
-                    "كلمة مرور الطالب:",
-                    student.password || ""
-                );
-
-
-            if (password === null) {
-
-                return;
-
-            }
-
-
-            db.collection("students")
-                .doc(code)
-                .update({
-
-                    name:
-                        name.trim(),
-
-                    grade:
-                        grade.trim(),
-
-                    password:
-                        password.trim()
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم تعديل بيانات الطالب"
-                    );
-
-
-                    loadStudents();
-
-                    loadCodes();
-
-                    loadDashboard();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "❌ فشل تعديل البيانات\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // تمديد الاشتراك
-    // ==========================================
-
-    window.extendStudent =
-        function (code) {
-
-            const days =
-                prompt(
-                    "عدد الأيام التي تريد إضافتها:",
-                    "30"
-                );
-
-
-            if (days === null) {
-
-                return;
-
-            }
-
-
-            const numberOfDays =
-                Number(days);
-
-
-            if (
-                !numberOfDays ||
-                numberOfDays < 1
-            ) {
-
-                alert(
-                    "❌ أدخل عدد أيام صحيح"
-                );
-
-                return;
-
-            }
-
-
-            db.collection("students")
-                .doc(code)
-                .get()
-
-                .then(function (doc) {
-
-                    if (!doc.exists) {
-
-                        throw new Error(
-                            "الطالب غير موجود"
-                        );
-
-                    }
-
-
-                    const student =
-                        doc.data();
-
-
-                    let currentExpiry =
-                        getDate(
-                            student.expiresAt
-                        );
-
-
-                    if (
-                        !currentExpiry ||
-                        currentExpiry < new Date()
-                    ) {
-
-                        currentExpiry =
-                            new Date();
-
-                    }
-
-
-                    currentExpiry.setDate(
-                        currentExpiry.getDate() +
-                        numberOfDays
-                    );
-
-
-                    return db.collection("students")
-                        .doc(code)
-                        .update({
-
-                            expiresAt:
-                                firebase.firestore
-                                    .Timestamp
-                                    .fromDate(
-                                        currentExpiry
-                                    ),
-
-                            active:
-                                true
-
-                        });
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم تمديد الاشتراك بنجاح"
-                    );
-
-
-                    loadStudents();
-
-                    loadCodes();
-
-                    loadDashboard();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "❌ فشل تمديد الاشتراك\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // تفعيل / إيقاف الطالب
-    // ==========================================
-
-    window.toggleStudent =
-        function (code) {
-
-            db.collection("students")
-                .doc(code)
-                .get()
-
-                .then(function (doc) {
-
-                    if (!doc.exists) {
-
-                        throw new Error(
-                            "الطالب غير موجود"
-                        );
-
-                    }
-
-
-                    const student =
-                        doc.data();
-
-
-                    const newStatus =
-                        student.active !== true;
-
-
-                    return db.collection("students")
-                        .doc(code)
-                        .update({
-
-                            active:
-                                newStatus
-
-                        });
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم تغيير حالة الطالب"
-                    );
-
-
-                    loadStudents();
-
-                    loadCodes();
-
-                    loadDashboard();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "❌ فشل تغيير حالة الطالب\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // فك الجهاز
-    // ==========================================
-
-    window.resetDevice =
-        function (code) {
-
-            if (
-                !confirm(
-                    "📱 هل تريد فك الجهاز المرتبط بهذا الطالب؟"
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            db.collection("students")
-                .doc(code)
-                .update({
-
-                    deviceId: ""
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم فك الجهاز بنجاح"
-                    );
-
-
-                    loadStudents();
-
-                    loadCodes();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "❌ فشل فك الجهاز\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // إضافة طالب + ولي أمر
-    //
-    // الأكواد يتم إدخالها يدويًا
-    // ==========================================
-
-    window.createStudentCode =
-        function () {
-
-            // --------------------------------------
-            // بيانات الطالب
-            // --------------------------------------
-
-            const codeElement =
-                document.getElementById(
-                    "newCode"
-                );
-
-
-            const passwordElement =
-                document.getElementById(
-                    "newPassword"
-                );
-
-
-            const nameElement =
-                document.getElementById(
-                    "newName"
-                );
-
-
-            const gradeElement =
-                document.getElementById(
-                    "newGrade"
-                );
-
-
-            const daysElement =
-                document.getElementById(
-                    "subscriptionDays"
-                );
-
-
-            // --------------------------------------
-            // بيانات ولي الأمر
-            // --------------------------------------
-
-            const parentNameElement =
-                document.getElementById(
-                    "newParentName"
-                );
-
-
-            const parentCodeElement =
-                document.getElementById(
-                    "newParentCode"
-                );
-
-
-            const parentPasswordElement =
-                document.getElementById(
-                    "newParentPassword"
-                );
-
-
-            // --------------------------------------
-            // التأكد من وجود الحقول
-            // --------------------------------------
-
-            if (
-                !codeElement ||
-                !passwordElement ||
-                !nameElement ||
-                !gradeElement ||
-                !daysElement ||
-                !parentNameElement ||
-                !parentCodeElement ||
-                !parentPasswordElement
-            ) {
-
-                alert(
-                    "❌ يوجد حقل مفقود في HTML.\n\n" +
-                    "تأكد من وجود:\n" +
-                    "newCode\n" +
-                    "newPassword\n" +
-                    "newName\n" +
-                    "newGrade\n" +
-                    "subscriptionDays\n" +
-                    "newParentName\n" +
-                    "newParentCode\n" +
-                    "newParentPassword"
-                );
-
-                return;
-
-            }
-
-
-            // --------------------------------------
-            // قراءة بيانات الطالب
-            // --------------------------------------
-
-            const code =
-                codeElement.value.trim();
-
-
-            const password =
-                passwordElement.value.trim();
-
-
-            const name =
-                nameElement.value.trim();
-
-
-            const grade =
-                gradeElement.value.trim();
-
-
-            const days =
-                Number(
-                    daysElement.value
-                );
-
-
-            // --------------------------------------
-            // قراءة بيانات ولي الأمر
-            // --------------------------------------
-
-            const parentName =
-                parentNameElement.value.trim();
-
-
-            const parentCode =
-                parentCodeElement.value.trim();
-
-
-            const parentPassword =
-                parentPasswordElement.value.trim();
-
-
-            // --------------------------------------
-            // التحقق من بيانات الطالب
-            // --------------------------------------
-
-            if (
-                !code ||
-                !password ||
-                !name ||
-                !grade
-            ) {
-
-                alert(
-                    "⚠️ من فضلك أكمل جميع بيانات الطالب"
-                );
-
-                return;
-
-            }
-
-
-            // --------------------------------------
-            // التحقق من مدة الاشتراك
-            // --------------------------------------
-
-            if (
-                !days ||
-                days < 1
-            ) {
-
-                alert(
-                    "❌ مدة الاشتراك غير صحيحة"
-                );
-
-                return;
-
-            }
-
-
-            // --------------------------------------
-            // التحقق من بيانات ولي الأمر
-            // --------------------------------------
-
-            if (
-                !parentName ||
-                !parentCode ||
-                !parentPassword
-            ) {
-
-                alert(
-                    "⚠️ من فضلك أكمل جميع بيانات ولي الأمر"
-                );
-
-                return;
-
-            }
-
-
-            // --------------------------------------
-            // منع استخدام نفس الكود
-            // --------------------------------------
-
-            if (
-                code === parentCode
-            ) {
-
-                alert(
-                    "❌ لا يمكن أن يكون كود الطالب هو نفس كود ولي الأمر"
-                );
-
-                return;
-
-            }
-
-
-            // --------------------------------------
-            // حساب تاريخ انتهاء الاشتراك
-            // --------------------------------------
-
-            const expiresAt =
-                new Date();
-
-
-            expiresAt.setDate(
-                expiresAt.getDate() +
-                days
-            );
-
-
-            // --------------------------------------
-            // تأكيد الإنشاء
-            // --------------------------------------
-
-            const confirmCreate =
-                confirm(
-
-                    "👨‍🎓 بيانات الطالب\n\n" +
-
-                    "الاسم: " +
-                    name +
-                    "\n" +
-
-                    "الكود: " +
-                    code +
-                    "\n" +
-
-                    "الباسورد: " +
-                    password +
-                    "\n" +
-
-                    "الصف: " +
-                    grade +
-                    "\n" +
-
-                    "مدة الاشتراك: " +
-                    days +
-                    " يوم\n\n" +
-
-                    "👨‍👩‍👦 بيانات ولي الأمر\n\n" +
-
-                    "الاسم: " +
-                    parentName +
-                    "\n" +
-
-                    "الكود: " +
-                    parentCode +
-                    "\n" +
-
-                    "الباسورد: " +
-                    parentPassword +
-                    "\n\n" +
-
-                    "هل تريد إنشاء الحسابين؟"
-
-                );
-
-
-            if (!confirmCreate) {
-
-                return;
-
-            }
-
-
-            // --------------------------------------
-            // التأكد من عدم وجود الطالب
-            // --------------------------------------
-
-            db.collection("students")
-                .doc(code)
-                .get()
-
-                .then(function (existingStudent) {
-
-                    if (existingStudent.exists) {
-
-                        throw new Error(
-                            "❌ كود الطالب موجود بالفعل"
-                        );
-
-                    }
-
-
-                    // --------------------------------------
-                    // التأكد من عدم وجود ولي الأمر
-                    // --------------------------------------
-
-                    return db.collection("parents")
-                        .doc(parentCode)
-                        .get();
-
-                })
-
-
-                .then(function (existingParent) {
-
-                    if (existingParent.exists) {
-
-                        throw new Error(
-                            "❌ كود ولي الأمر موجود بالفعل"
-                        );
-
-                    }
-
-
-                    // --------------------------------------
-                    // Batch
-                    // إنشاء الطالب وولي الأمر معًا
-                    // --------------------------------------
-
-                    const batch =
-                        db.batch();
-
-
-                    // --------------------------------------
-                    // Student Document
-                    // --------------------------------------
-
-                    const studentRef =
-                        db.collection("students")
-                            .doc(code);
-
-
-                    batch.set(
-                        studentRef,
-                        {
-
-                            name:
-                                name,
-
-                            password:
-                                password,
-
-                            grade:
-                                grade,
-
-                            active:
-                                true,
-
-                            expiresAt:
-                                firebase.firestore
-                                    .Timestamp
-                                    .fromDate(
-                                        expiresAt
-                                    ),
-
-                            deviceId:
-                                "",
-
-                            createdAt:
-                                firebase.firestore
-                                    .FieldValue
-                                    .serverTimestamp()
-
-                        }
-                    );
-
-
-                    // --------------------------------------
-                    // Parent Document
-                    // --------------------------------------
-
-                    const parentRef =
-                        db.collection("parents")
-                            .doc(parentCode);
-
-
-                    batch.set(
-                        parentRef,
-                        {
-
-                            parentName:
-                                parentName,
-
-                            password:
-                                parentPassword,
-
-                            studentCode:
-                                code,
-
-                            active:
-                                true,
-
-                            createdAt:
-                                firebase.firestore
-                                    .FieldValue
-                                    .serverTimestamp()
-
-                        }
-                    );
-
-
-                    // --------------------------------------
-                    // تنفيذ العمليتين معًا
-                    // --------------------------------------
-
-                    return batch.commit();
-
-                })
-
-
-                // --------------------------------------
-                // نجاح الإنشاء
-                // --------------------------------------
-
-                .then(function () {
-
-                    alert(
-
-                        "✅ تم إنشاء الحسابين بنجاح!\n\n" +
-
-                        "👨‍🎓 الطالب\n" +
-
-                        "الاسم: " +
-                        name +
-                        "\n" +
-
-                        "الكود: " +
-                        code +
-                        "\n" +
-
-                        "الباسورد: " +
-                        password +
-                        "\n\n" +
-
-                        "👨‍👩‍👦 ولي الأمر\n" +
-
-                        "الاسم: " +
-                        parentName +
-                        "\n" +
-
-                        "الكود: " +
-                        parentCode +
-                        "\n" +
-
-                        "الباسورد: " +
-                        parentPassword
-
-                    );
-
-
-                    // --------------------------------------
-                    // تنظيف بيانات الطالب
-                    // --------------------------------------
-
-                    codeElement.value = "";
-
-                    passwordElement.value = "";
-
-                    nameElement.value = "";
-
-                    gradeElement.value = "";
-
-                    daysElement.value = "30";
-
-
-                    // --------------------------------------
-                    // تنظيف بيانات ولي الأمر
-                    // --------------------------------------
-
-                    parentNameElement.value = "";
-
-                    parentCodeElement.value = "";
-
-                    parentPasswordElement.value = "";
-
-
-                    // --------------------------------------
-                    // تحديث لوحة الإدارة
-                    // --------------------------------------
-
-                    loadCodes();
-
-                    loadStudents();
-
-                    loadDashboard();
-
-                })
-
-
-                // --------------------------------------
-                // الأخطاء
-                // --------------------------------------
-
-                .catch(function (error) {
-
-                    console.error(
-                        "Create Student + Parent Error:",
-                        error
-                    );
-
-
-                    alert(
-
-                        "❌ فشل إنشاء الحساب\n\n" +
-                        error.message
-
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // الأكواد
-    // ==========================================
-
-    function loadCodes() {
-
-        db.collection("students")
-            .get()
-
-            .then(function (snapshot) {
-
-                const table =
-                    document.getElementById(
-                        "codesTable"
-                    );
-
-
-                if (!table) {
-
-                    return;
-
-                }
-
-
-                table.innerHTML = "";
-
-
-                if (snapshot.empty) {
-
-                    table.innerHTML = `
-
-                        <tr>
-
-                            <td colspan="6">
-
-                                📭 لا توجد أكواد
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                    return;
-
-                }
-
-
-                snapshot.forEach(function (doc) {
-
-                    const student =
-                        doc.data();
-
-
-                    const expiry =
-                        getDate(
-                            student.expiresAt
-                        );
-
-
-                    let status =
-                        "⛔ متوقف";
-
-
-                    if (
-                        student.active === true
-                    ) {
-
-                        if (
-                            expiry &&
-                            new Date() >= expiry
-                        ) {
-
-                            status =
-                                "⛔ منتهي";
-
-                        }
-
-                        else {
-
-                            status =
-                                "✅ نشط";
-
-                        }
-
-                    }
-
-
-                    const row =
-                        document.createElement(
-                            "tr"
-                        );
-
-
-                    row.innerHTML = `
-
-                        <td>
-                            ${escapeHtml(
-                                doc.id
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                student.name || "-"
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                student.grade || "-"
-                            )}
-                        </td>
-
-                        <td>
-                            ${status}
-                        </td>
-
-                        <td>
-                            ${formatDate(
-                                student.expiresAt
-                            )}
-                        </td>
-
-                        <td>
-
-                            <button
-                                class="admin-btn primary-btn"
-                                title="عرض التفاصيل"
-                                onclick="viewStudent('${escapeAttribute(doc.id)}')">
-
-                                👁️
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn primary-btn"
-                                title="تعديل"
-                                onclick="editStudent('${escapeAttribute(doc.id)}')">
-
-                                ✏️
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn success-btn"
-                                title="تمديد"
-                                onclick="extendStudent('${escapeAttribute(doc.id)}')">
-
-                                ⏳
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn danger-btn"
-                                title="حذف"
-                                onclick="deleteCode('${escapeAttribute(doc.id)}')">
-
-                                🗑️
-
-                            </button>
-
-                        </td>
-
-                    `;
-
-
-                    table.appendChild(row);
-
-                });
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Codes Error:",
-                    error
-                );
-
-            });
-
-    }
-
-
-    // ==========================================
-    // حذف كود / طالب
-    // ==========================================
-
-    window.deleteCode =
-        function (code) {
-
-            if (
-                !confirm(
-                    "⚠️ هل أنت متأكد من حذف الطالب والكود؟\n\n" +
-                    code
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            db.collection("students")
-                .doc(code)
-                .get()
-
-                .then(function (studentDoc) {
-
-                    if (!studentDoc.exists) {
-
-                        throw new Error(
-                            "الطالب غير موجود"
-                        );
-
-                    }
-
-
-                    const student =
-                        studentDoc.data();
-
-
-                    // ----------------------------------
-                    // لو للطالب ولي أمر مرتبط به
-                    // نحاول حذف ولي الأمر أيضًا
-                    // ----------------------------------
-
-                    return db.collection("parents")
-                        .where(
-                            "studentCode",
-                            "==",
-                            code
-                        )
-                        .get()
-
-                        .then(function (parentsSnapshot) {
-
-                            const batch =
-                                db.batch();
-
-
-                            batch.delete(
-                                db.collection("students")
-                                    .doc(code)
-                            );
-
-
-                            parentsSnapshot.forEach(
-                                function (parentDoc) {
-
-                                    batch.delete(
-                                        parentDoc.ref
-                                    );
-
-                                }
-                            );
-
-
-                            return batch.commit();
-
-                        });
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم حذف الطالب والكود وحساب ولي الأمر المرتبط به"
-                    );
-
-
-                    loadCodes();
-
-                    loadStudents();
-
-                    loadDashboard();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "❌ فشل الحذف\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // النتائج
-    // ==========================================
-
-    function loadResults() {
-
-        db.collection("results")
-            .orderBy(
-                "createdAt",
-                "desc"
-            )
-            .limit(100)
-            .get()
-
-            .then(function (snapshot) {
-
-                let html = `
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    الطالب
-                                </th>
-
-                                <th>
-                                    المادة
-                                </th>
-
-                                <th>
-                                    Chapter
-                                </th>
-
-                                <th>
-                                    الدرجة
-                                </th>
-
-                                <th>
-                                    النسبة
-                                </th>
-
-                                <th>
-                                    التاريخ
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                `;
-
-
-                if (snapshot.empty) {
-
-                    html += `
-
-                        <tr>
-
-                            <td colspan="6">
-
-                                📭 لا توجد نتائج
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-
-
-                snapshot.forEach(function (doc) {
-
-                    const data =
-                        doc.data();
-
-
-                    let percentage =
-                        data.percentage;
-
-
-                    if (
-                        percentage !== undefined &&
-                        percentage !== null
-                    ) {
-
-                        percentage =
-                            Number(
-                                percentage
-                            );
-
-
-                        if (
-                            percentage > 0 &&
-                            percentage <= 1
-                        ) {
-
-                            percentage *= 100;
-
-                        }
-
-                    }
-
-
-                    html += `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    data.studentName ||
-                                    data.name ||
-                                    data.studentCode ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    data.subject ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    data.chapter ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    String(
-                                        data.score ??
-                                        "-"
-                                    )
-                                )}
-                            </td>
-
-                            <td>
-
-                                ${
-                                    percentage !== undefined &&
-                                    percentage !== null &&
-                                    !isNaN(percentage)
-
-                                    ? escapeHtml(
-                                        String(
-                                            Math.round(
-                                                percentage
-                                            )
-                                        )
-                                    ) + "%"
-
-                                    : "-"
-
-                                }
-
-                            </td>
-
-                            <td>
-                                ${formatDate(
-                                    data.createdAt
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                });
-
-
-                html += `
-
-                        </tbody>
-
-                    </table>
-
-                `;
-
-
-                const table =
-                    document.getElementById(
-                        "resultsTable"
-                    );
-
-
-                if (table) {
-
-                    table.innerHTML =
-                        html;
-
-                }
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Results Error:",
-                    error
-                );
-
-
-                const table =
-                    document.getElementById(
-                        "resultsTable"
-                    );
-
-
-                if (table) {
-
-                    table.innerHTML = `
-
-                        ❌ تعذر تحميل النتائج
-
-                    `;
-
-                }
-
-            });
-
-    }
-
-
-    // ==========================================
-    // Leaderboard
-    // ==========================================
-
-    function loadLeaderboard() {
-
-        db.collection("leaderboard")
-            .get()
-
-            .then(function (snapshot) {
-
-                let rows = [];
-
-
-                snapshot.forEach(function (doc) {
-
-                    rows.push({
-
-                        id:
-                            doc.id,
-
-                        ...doc.data()
-
-                    });
-
-                });
-
-
-                rows.sort(function (a, b) {
-
-                    const scoreA =
-                        Number(
-                            a.average ??
-                            a.score ??
-                            0
-                        );
-
-
-                    const scoreB =
-                        Number(
-                            b.average ??
-                            b.score ??
-                            0
-                        );
-
-
-                    return scoreB - scoreA;
-
-                });
-
-
-                let html = `
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    الترتيب
-                                </th>
-
-                                <th>
-                                    الطالب
-                                </th>
-
-                                <th>
-                                    الصف
-                                </th>
-
-                                <th>
-                                    المتوسط
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                `;
-
-
-                if (!rows.length) {
-
-                    html += `
-
-                        <tr>
-
-                            <td colspan="4">
-
-                                📭 لا توجد بيانات
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-
-
-                rows.forEach(
-                    function (data, index) {
-
-                        html += `
-
-                            <tr>
-
-                                <td>
-
-                                    ${
-                                        index === 0
-                                            ? "🥇"
-                                            : index === 1
-                                                ? "🥈"
-                                                : index === 2
-                                                    ? "🥉"
-                                                    : index + 1
-                                    }
-
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        data.name ||
-                                        data.studentName ||
-                                        "-"
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        data.grade ||
-                                        "-"
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        String(
-                                            data.average ??
-                                            data.score ??
-                                            "-"
-                                        )
-                                    )}
-                                </td>
-
-                            </tr>
-
-                        `;
-
-                    }
-                );
-
-
-                html += `
-
-                        </tbody>
-
-                    </table>
-
-                `;
-
-
-                const table =
-                    document.getElementById(
-                        "leaderboardTable"
-                    );
-
-
-                if (table) {
-
-                    table.innerHTML =
-                        html;
-
-                }
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Leaderboard Error:",
-                    error
-                );
-
-
-                const table =
-                    document.getElementById(
-                        "leaderboardTable"
-                    );
-
-
-                if (table) {
-
-                    table.innerHTML = `
-
-                        ❌ تعذر تحميل لوحة الترتيب
-
-                    `;
-
-                }
-
-            });
-
-    }
-
-
-    // ==========================================
-    // إدارة المحتوى
-    // ==========================================
-
-    function loadContent() {
-
-        db.collection("content")
-            .orderBy(
-                "createdAt",
-                "desc"
-            )
-            .get()
-
-            .then(function (snapshot) {
-
-                allContent = [];
-
-
-                snapshot.forEach(function (doc) {
-
-                    allContent.push({
-
-                        id:
-                            doc.id,
-
-                        ...doc.data()
-
-                    });
-
-                });
-
-
-                renderContent(
-                    allContent
-                );
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Content Error:",
-                    error
-                );
-
-
-                const table =
-                    document.getElementById(
-                        "contentTable"
-                    );
-
-
-                if (table) {
-
-                    table.innerHTML = `
-
-                        <tr>
-
-                            <td colspan="7">
-
-                                ❌ تعذر تحميل المحتوى
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-
-            });
-
-    }
-
-
-    // ==========================================
-    // عرض المحتوى
-    // ==========================================
-
-    function renderContent(contents) {
-
-        const table =
-            document.getElementById(
-                "contentTable"
-            );
-
-
-        if (!table) {
-
-            return;
-
-        }
-
-
-        table.innerHTML = "";
-
-
-        if (!contents.length) {
-
-            table.innerHTML = `
-
-                <tr>
-
-                    <td colspan="7">
-
-                        📭 لا يوجد محتوى حاليًا
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
-
-        }
-
-
-        contents.forEach(function (content) {
-
-            const row =
-                document.createElement("tr");
-
-
-            let typeText = "-";
-
-
-            if (
-                content.type === "pdf"
-            ) {
-
-                typeText =
-                    "📄 PDF";
-
-            }
-
-            else if (
-                content.type === "video"
-            ) {
-
-                typeText =
-                    "🎬 فيديو";
-
-            }
-
-            else if (
-                content.type === "quiz"
-            ) {
-
-                typeText =
-                    "📝 اختبار";
-
-            }
-
-            else if (
-                content.type === "chapter"
-            ) {
-
-                typeText =
-                    "📚 Chapter";
-
-            }
-
-
-            const status =
-                content.active === false
-                    ? "⛔ مخفي"
-                    : "✅ ظاهر";
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeHtml(
-                        content.grade || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        content.subject || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        content.chapter || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        content.title || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${typeText}
-                </td>
-
-                <td>
-                    ${status}
-                </td>
-
-                <td>
-
-                    <button
-                        class="admin-btn primary-btn"
-                        title="تعديل"
-                        onclick="editContent('${escapeAttribute(content.id)}')">
-
-                        ✏️
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn"
-                        title="إظهار / إخفاء"
-                        onclick="toggleContent('${escapeAttribute(content.id)}')">
-
-                        ${
-                            content.active === false
-                                ? "👁️"
-                                : "⛔"
-                        }
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn danger-btn"
-                        title="حذف"
-                        onclick="deleteContent('${escapeAttribute(content.id)}')">
-
-                        🗑️
-
-                    </button>
-
-                </td>
-
-            `;
-
-
-            table.appendChild(row);
-
-        });
-
-    }
-
-
-    // ==========================================
-    // إضافة محتوى
-    // ==========================================
-
-    window.createContent =
-        function () {
-
-            const grade =
-                document.getElementById(
-                    "contentGrade"
-                ).value;
-
-
-            const subject =
-                document.getElementById(
-                    "contentSubject"
-                ).value;
-
-
-            const chapter =
-                document.getElementById(
-                    "contentChapter"
-                )
-                .value
-                .trim();
-
-
-            const title =
-                document.getElementById(
-                    "contentTitle"
-                )
-                .value
-                .trim();
-
-
-            const type =
-                document.getElementById(
-                    "contentType"
-                ).value;
-
-
-            const url =
-                document.getElementById(
-                    "contentUrl"
-                )
-                .value
-                .trim();
-
-
-            if (
-                !grade ||
-                !subject ||
-                !chapter ||
-                !title ||
-                !type
-            ) {
-
-                alert(
-                    "⚠️ من فضلك أكمل جميع البيانات"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                (
-                    type === "pdf" ||
-                    type === "video" ||
-                    type === "quiz"
-                ) &&
-                !url
-            ) {
-
-                alert(
-                    "⚠️ من فضلك أدخل رابط المحتوى"
-                );
-
-                return;
-
-            }
-
-
-            db.collection("content")
-                .add({
-
-                    grade:
-                        grade,
-
-                    subject:
-                        subject,
-
-                    chapter:
-                        chapter,
-
-                    title:
-                        title,
-
-                    type:
-                        type,
-
-                    url:
-                        url,
-
-                    active:
-                        true,
-
-                    createdAt:
-                        firebase.firestore
-                            .FieldValue
-                            .serverTimestamp()
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم إضافة المحتوى بنجاح"
-                    );
-
-
-                    document.getElementById(
-                        "contentGrade"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "contentSubject"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "contentChapter"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "contentTitle"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "contentType"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "contentUrl"
-                    ).value = "";
-
-
-                    loadContent();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(
-                        "Create Content Error:",
-                        error
-                    );
-
-
-                    alert(
-                        "❌ فشل إضافة المحتوى\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // تعديل المحتوى
-    // ==========================================
-
-    window.editContent =
-        function (id) {
-
-            const content =
-                allContent.find(
-                    function (item) {
-
-                        return item.id === id;
-
-                    }
-                );
-
-
-            if (!content) {
-
-                alert(
-                    "❌ المحتوى غير موجود"
-                );
-
-                return;
-
-            }
-
-
-            const title =
-                prompt(
-                    "عنوان المحتوى:",
-                    content.title || ""
-                );
-
-
-            if (title === null) {
-
-                return;
-
-            }
-
-
-            const chapter =
-                prompt(
-                    "Chapter:",
-                    content.chapter || ""
-                );
-
-
-            if (chapter === null) {
-
-                return;
-
-            }
-
-
-            const url =
-                prompt(
-                    "الرابط:",
-                    content.url || ""
-                );
-
-
-            if (url === null) {
-
-                return;
-
-            }
-
-
-            db.collection("content")
-                .doc(id)
-                .update({
-
-                    title:
-                        title.trim(),
-
-                    chapter:
-                        chapter.trim(),
-
-                    url:
-                        url.trim()
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم تعديل المحتوى"
-                    );
-
-
-                    loadContent();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "❌ فشل تعديل المحتوى\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // إظهار / إخفاء المحتوى
-    // ==========================================
-
-    window.toggleContent =
-        function (id) {
-
-            const content =
-                allContent.find(
-                    function (item) {
-
-                        return item.id === id;
-
-                    }
-                );
-
-
-            if (!content) {
-
-                alert(
-                    "❌ المحتوى غير موجود"
-                );
-
-                return;
-
-            }
-
-
-            const newStatus =
-                content.active === false;
-
-
-            db.collection("content")
-                .doc(id)
-                .update({
-
-                    active:
-                        newStatus
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        newStatus
-                            ? "✅ تم إظهار المحتوى"
-                            : "⛔ تم إخفاء المحتوى"
-                    );
-
-
-                    loadContent();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "❌ فشل تغيير حالة المحتوى\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // حذف المحتوى
-    // ==========================================
-
-    window.deleteContent =
-        function (id) {
-
-            const content =
-                allContent.find(
-                    function (item) {
-
-                        return item.id === id;
-
-                    }
-                );
-
-
-            if (!content) {
-
-                alert(
-                    "❌ المحتوى غير موجود"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !confirm(
-                    "⚠️ هل أنت متأكد من حذف هذا المحتوى؟\n\n" +
-                    (
-                        content.title ||
-                        ""
-                    )
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            db.collection("content")
-                .doc(id)
-                .delete()
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم حذف المحتوى"
-                    );
-
-
-                    loadContent();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "❌ فشل حذف المحتوى\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
     // فلترة المحتوى
-    // ==========================================
 
-    function filterContent() {
-
-        const subject =
-            document.getElementById(
-                "filterSubject"
-            ).value;
+    const filterSubject =
+        document.getElementById(
+            "filterSubject"
+        );
 
 
-        const grade =
-            document.getElementById(
-                "filterGrade"
-            ).value;
+    const filterGrade =
+        document.getElementById(
+            "filterGrade"
+        );
 
 
-        const filtered =
-            allContent.filter(
-                function (content) {
+    if (filterSubject) {
 
-                    const subjectMatch =
-                        !subject ||
-                        content.subject === subject;
+        filterSubject.addEventListener(
+            "change",
+            function () {
 
+                renderContent();
 
-                    const gradeMatch =
-                        !grade ||
-                        content.grade === grade;
-
-
-                    return (
-                        subjectMatch &&
-                        gradeMatch
-                    );
-
-                }
-            );
-
-
-        renderContent(
-            filtered
+            }
         );
 
     }
 
 
-    document.addEventListener(
-        "change",
-        function (event) {
+    if (filterGrade) {
 
-            if (
-                event.target.id ===
-                "filterSubject"
-            ) {
+        filterGrade.addEventListener(
+            "change",
+            function () {
 
-                filterContent();
+                renderContent();
 
             }
+        );
 
+    }
 
-            if (
-                event.target.id ===
-                "filterGrade"
-            ) {
 
-                filterContent();
-
-            }
-
-        }
-    );
-
-
-    // ==========================================
-    // عرض تفاصيل الطالب
-    // ==========================================
-
-    window.viewStudent =
-        function (code) {
-
-            const student =
-                allStudents.find(
-                    function (item) {
-
-                        return item.id === code;
-
-                    }
-                );
-
-
-            if (!student) {
-
-                alert(
-                    "❌ الطالب غير موجود"
-                );
-
-                return;
-
-            }
-
-
-            const modal =
-                document.getElementById(
-                    "studentModal"
-                );
-
-
-            const details =
-                document.getElementById(
-                    "studentDetails"
-                );
-
-
-            if (!modal || !details) {
-
-                return;
-
-            }
-
-
-            const expiry =
-                getDate(
-                    student.expiresAt
-                );
-
-
-            let status =
-                "⛔ متوقف";
-
-
-            if (
-                student.active === true
-            ) {
-
-                if (
-                    expiry &&
-                    new Date() >= expiry
-                ) {
-
-                    status =
-                        "⛔ منتهي";
-
-                }
-
-                else {
-
-                    status =
-                        "✅ نشط";
-
-                }
-
-            }
-
-
-            details.innerHTML = `
-
-                <div class="student-info-grid">
-
-
-                    <div class="student-info">
-
-                        <small>
-                            🔑 كود الطالب
-                        </small>
-
-                        <strong>
-                            ${escapeHtml(
-                                student.id
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="student-info">
-
-                        <small>
-                            👨‍🎓 الاسم
-                        </small>
-
-                        <strong>
-                            ${escapeHtml(
-                                student.name || "-"
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="student-info">
-
-                        <small>
-                            🎓 الصف
-                        </small>
-
-                        <strong>
-                            ${escapeHtml(
-                                student.grade || "-"
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="student-info">
-
-                        <small>
-                            📧 البريد الإلكتروني
-                        </small>
-
-                        <strong>
-                            ${escapeHtml(
-                                student.email || "-"
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="student-info">
-
-                        <small>
-                            📊 حالة الاشتراك
-                        </small>
-
-                        <strong>
-                            ${status}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="student-info">
-
-                        <small>
-                            📅 تاريخ الانتهاء
-                        </small>
-
-                        <strong>
-                            ${formatDate(
-                                student.expiresAt
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="student-info">
-
-                        <small>
-                            📱 الجهاز
-                        </small>
-
-                        <strong>
-
-                            ${
-                                student.deviceId
-                                    ? "📱 جهاز مرتبط"
-                                    : "❌ لا يوجد جهاز"
-                            }
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="student-info">
-
-                        <small>
-                            📅 تاريخ التسجيل
-                        </small>
-
-                        <strong>
-                            ${formatDate(
-                                student.createdAt
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="student-info">
-
-                        <small>
-                            ⏳ الأيام المتبقية
-                        </small>
-
-                        <strong>
-                            ${getRemainingDays(
-                                student.expiresAt
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                </div>
-
-
-                <h3 class="student-detail-title">
-
-                    ⚙️ إجراءات الطالب
-
-                </h3>
-
-
-                <div style="
-                    display:flex;
-                    gap:10px;
-                    flex-wrap:wrap;
-                ">
-
-
-                    <button
-                        class="admin-btn primary-btn"
-                        onclick="
-                            closeStudentModal();
-                            editStudent('${escapeAttribute(student.id)}')
-                        ">
-
-                        ✏️ تعديل
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn success-btn"
-                        onclick="
-                            closeStudentModal();
-                            extendStudent('${escapeAttribute(student.id)}')
-                        ">
-
-                        ⏳ تمديد
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn"
-                        onclick="
-                            closeStudentModal();
-                            toggleStudent('${escapeAttribute(student.id)}')
-                        ">
-
-                        ${
-                            student.active === true
-                                ? "⛔ إيقاف"
-                                : "✅ تفعيل"
-                        }
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn"
-                        onclick="
-                            closeStudentModal();
-                            resetDevice('${escapeAttribute(student.id)}')
-                        ">
-
-                        📱 فك الجهاز
-
-                    </button>
-
-
-                    <button
-                        class="admin-btn danger-btn"
-                        onclick="
-                            closeStudentModal();
-                            deleteCode('${escapeAttribute(student.id)}')
-                        ">
-
-                        🗑️ حذف
-
-                    </button>
-
-
-                </div>
-
-            `;
-
-
-            modal.classList.remove(
-                "hidden"
-            );
-
-        };
-
-
-    // ==========================================
-    // إغلاق تفاصيل الطالب
-    // ==========================================
-
-    window.closeStudentModal =
-        function () {
-
-            const modal =
-                document.getElementById(
-                    "studentModal"
-                );
-
-
-            if (modal) {
-
-                modal.classList.add(
-                    "hidden"
-                );
-
-            }
-
-        };
-
-
-    // ==========================================
-    // إغلاق Modal عند الضغط خارجها
-    // ==========================================
-
-    document.addEventListener(
-        "click",
-        function (event) {
-
-            const modal =
-                document.getElementById(
-                    "studentModal"
-                );
-
-
-            if (
-                modal &&
-                event.target === modal
-            ) {
-
-                closeStudentModal();
-
-            }
-
-        }
-    );
-
-
-    // ==========================================
-    // Notifications
-    // إدارة الإشعارات
-    // ==========================================
+    // نوع الإشعار
 
     const notificationTargetType =
         document.getElementById(
@@ -3471,45 +399,51 @@
             "change",
             function () {
 
-                const targetId =
+                const target =
                     document.getElementById(
                         "notificationTargetId"
                     );
 
 
-                if (!targetId) {
+                if (!target) {
 
                     return;
 
                 }
 
 
-                if (this.value === "all") {
+                if (
+                    this.value === "all"
+                ) {
 
-                    targetId.style.display =
+                    target.style.display =
                         "none";
 
-                    targetId.value = "";
+                    target.value = "";
 
                 }
 
-                else if (this.value === "grade") {
+                else {
 
-                    targetId.style.display =
+                    target.style.display =
                         "block";
 
-                    targetId.placeholder =
-                        "مثال: الصف الأول الثانوي التمريض";
 
-                }
+                    if (
+                        this.value === "grade"
+                    ) {
 
-                else if (this.value === "student") {
+                        target.placeholder =
+                            "اكتب الصف مثل: الصف الأول الثانوي التمريض";
 
-                    targetId.style.display =
-                        "block";
+                    }
 
-                    targetId.placeholder =
-                        "اكتب كود الطالب";
+                    else {
+
+                        target.placeholder =
+                            "اكتب كود الطالب";
+
+                    }
 
                 }
 
@@ -3519,646 +453,3867 @@
     }
 
 
-    // ==========================================
-    // إنشاء إشعار
-    // ==========================================
+    // إغلاق Modal بالضغط خارجها
 
-    window.createNotification =
-        function () {
-
-            const targetType =
-                document.getElementById(
-                    "notificationTargetType"
-                ).value;
+    const modal =
+        document.getElementById(
+            "studentModal"
+        );
 
 
-            const targetId =
-                document.getElementById(
-                    "notificationTargetId"
-                ).value
-                .trim();
+    if (modal) {
 
+        modal.addEventListener(
+            "click",
+            function (event) {
 
-            const title =
-                document.getElementById(
-                    "notificationTitle"
-                ).value
-                .trim();
+                if (
+                    event.target === modal
+                ) {
 
-
-            const message =
-                document.getElementById(
-                    "notificationMessage"
-                ).value
-                .trim();
-
-
-            if (!title || !message) {
-
-                alert(
-                    "⚠️ من فضلك اكتب عنوان الإشعار والرسالة"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                targetType !== "all" &&
-                !targetId
-            ) {
-
-                alert(
-                    "⚠️ من فضلك حدد الطالب أو الصف"
-                );
-
-                return;
-
-            }
-
-
-            const confirmSend =
-                confirm(
-                    "🔔 هل تريد إرسال هذا الإشعار؟\n\n" +
-                    "العنوان: " +
-                    title
-                );
-
-
-            if (!confirmSend) {
-
-                return;
-
-            }
-
-
-            db.collection("notifications")
-                .add({
-
-                    title:
-                        title,
-
-                    message:
-                        message,
-
-                    targetType:
-                        targetType,
-
-                    targetId:
-                        targetType === "all"
-                            ? ""
-                            : targetId,
-
-                    createdAt:
-                        firebase.firestore
-                            .FieldValue
-                            .serverTimestamp()
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم إرسال الإشعار بنجاح 🔔"
-                    );
-
-
-                    document.getElementById(
-                        "notificationTitle"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "notificationMessage"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "notificationTargetId"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "notificationTargetType"
-                    ).value = "all";
-
-
-                    document.getElementById(
-                        "notificationTargetId"
-                    ).style.display = "none";
-
-
-                    loadNotifications();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(
-                        "Create Notification Error:",
-                        error
-                    );
-
-
-                    alert(
-                        "❌ فشل إرسال الإشعار\n\n" +
-                        error.message
-                    );
-
-                });
-
-        };
-
-
-    // ==========================================
-    // تحميل الإشعارات
-    // ==========================================
-
-    function loadNotifications() {
-
-        db.collection("notifications")
-            .orderBy(
-                "createdAt",
-                "desc"
-            )
-            .get()
-
-            .then(function (snapshot) {
-
-                const table =
-                    document.getElementById(
-                        "notificationsTable"
-                    );
-
-
-                if (!table) {
-
-                    return;
+                    closeStudentModal();
 
                 }
 
+            }
+        );
 
-                table.innerHTML = "";
+    }
+
+}
 
 
-                if (snapshot.empty) {
+// ==========================================================
+// تحميل الطلاب
+// ==========================================================
 
-                    table.innerHTML = `
+function loadStudents() {
+
+    return db.collection("students")
+        .get()
+        .then(function (snapshot) {
+
+            allStudents = [];
+
+
+            snapshot.forEach(
+                function (doc) {
+
+                    allStudents.push({
+
+                        id: doc.id,
+
+                        ...doc.data()
+
+                    });
+
+                }
+            );
+
+
+            return allStudents;
+
+        });
+
+}
+
+
+// ==========================================================
+// عرض الطلاب
+// ==========================================================
+
+function renderStudents(searchText) {
+
+    const table =
+        document.getElementById(
+            "studentsTable"
+        );
+
+
+    if (!table) {
+
+        return;
+
+    }
+
+
+    let students =
+        [...allStudents];
+
+
+    const search =
+        String(
+            searchText || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if (search) {
+
+        students =
+            students.filter(
+                function (student) {
+
+                    return (
+
+                        String(
+                            student.id || ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                        ||
+
+                        String(
+                            student.name || ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                        ||
+
+                        String(
+                            student.email || ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                    );
+
+                }
+            );
+
+    }
+
+
+    if (!students.length) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    لا يوجد طلاب
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    table.innerHTML =
+        students.map(
+            function (student) {
+
+                const expiry =
+                    getDate(
+                        student.expiresAt
+                    );
+
+
+                const active =
+                    isStudentActive(
+                        student
+                    );
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+
+                            ${escapeHtml(
+                                student.id
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                student.name || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                student.grade || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                active
+                                    ? "✅ نشط"
+                                    : "⛔ منتهي"
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                expiry
+                                    ? formatDate(expiry)
+                                    : "-"
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                class="admin-btn primary-btn"
+                                title="عرض التفاصيل"
+                                onclick="viewStudent('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                👁️
+
+                            </button>
+
+
+                            <button
+                                class="admin-btn success-btn"
+                                title="تمديد الاشتراك"
+                                onclick="extendStudent('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                ➕
+
+                            </button>
+
+
+                            <button
+                                class="admin-btn danger-btn"
+                                title="حذف الطالب"
+                                onclick="deleteStudent('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                🗑️
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+// ==========================================================
+// عرض تفاصيل الطالب
+// ==========================================================
+
+function viewStudent(studentCode) {
+
+    const student =
+        allStudents.find(
+            function (item) {
+
+                return item.id === studentCode;
+
+            }
+        );
+
+
+    if (!student) {
+
+        alert("❌ الطالب غير موجود");
+
+        return;
+
+    }
+
+
+    const modal =
+        document.getElementById(
+            "studentModal"
+        );
+
+
+    const details =
+        document.getElementById(
+            "studentDetails"
+        );
+
+
+    if (!modal || !details) {
+
+        return;
+
+    }
+
+
+    const expiry =
+        getDate(
+            student.expiresAt
+        );
+
+
+    const active =
+        isStudentActive(
+            student
+        );
+
+
+    const studentResults =
+        allResults.filter(
+            function (result) {
+
+                return (
+                    result.studentCode ===
+                    studentCode
+                );
+
+            }
+        );
+
+
+    let resultsHtml = "";
+
+
+    if (!studentResults.length) {
+
+        resultsHtml =
+            `<p>📝 لا توجد نتائج حتى الآن.</p>`;
+
+    }
+
+    else {
+
+        resultsHtml = `
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
 
                         <tr>
 
-                            <td colspan="5">
+                            <th>المادة</th>
 
-                                📭 لا توجد إشعارات
+                            <th>Chapter</th>
 
-                            </td>
+                            <th>الدرجة</th>
+
+                            <th>النسبة</th>
+
+                            <th>التاريخ</th>
 
                         </tr>
 
-                    `;
+                    </thead>
 
-                    return;
+                    <tbody>
 
-                }
+                        ${
+                            studentResults
+                                .slice(0, 10)
+                                .map(
+                                    function (result) {
 
+                                        return `
 
-                snapshot.forEach(
-                    function (doc) {
+                                            <tr>
 
-                        const data =
-                            doc.data();
+                                                <td>
+                                                    ${escapeHtml(
+                                                        result.subject || "-"
+                                                    )}
+                                                </td>
 
+                                                <td>
+                                                    ${escapeHtml(
+                                                        result.chapter || "-"
+                                                    )}
+                                                </td>
 
-                        let targetText =
-                            "📢 كل الطلاب";
+                                                <td>
+                                                    ${result.score ?? 0}
+                                                    /
+                                                    ${result.total ?? 0}
+                                                </td>
 
+                                                <td>
+                                                    ${getPercentage(
+                                                        result
+                                                    )}%
+                                                </td>
 
-                        if (
-                            data.targetType ===
-                            "grade"
-                        ) {
+                                                <td>
+                                                    ${formatDateTime(
+                                                        result.createdAt
+                                                    )}
+                                                </td>
 
-                            targetText =
-                                "🎓 " +
-                                (
-                                    data.targetId ||
-                                    "-"
-                                );
+                                            </tr>
 
+                                        `;
+
+                                    }
+                                )
+                                .join("")
                         }
 
+                    </tbody>
 
-                        else if (
-                            data.targetType ===
-                            "student"
-                        ) {
+                </table>
 
-                            targetText =
-                                "👤 " +
-                                (
-                                    data.targetId ||
-                                    "-"
-                                );
+            </div>
 
-                        }
+        `;
+
+    }
 
 
-                        const row =
-                            document.createElement(
-                                "tr"
-                            );
+    details.innerHTML = `
+
+        <div class="student-info-grid">
+
+            <div class="student-info">
+
+                <small>👨‍🎓 الاسم</small>
+
+                <strong>
+                    ${escapeHtml(
+                        student.name || "-"
+                    )}
+                </strong>
+
+            </div>
 
 
-                        row.innerHTML = `
+            <div class="student-info">
 
-                            <td>
-                                ${escapeHtml(
-                                    data.title || "-"
-                                )}
-                            </td>
+                <small>🔑 كود الطالب</small>
 
+                <strong>
+                    ${escapeHtml(
+                        student.id
+                    )}
+                </strong>
 
-                            <td style="
-                                max-width:300px;
-                                white-space:normal;
-                            ">
-
-                                ${escapeHtml(
-                                    data.message || "-"
-                                )}
-
-                            </td>
+            </div>
 
 
-                            <td>
-                                ${escapeHtml(
-                                    targetText
-                                )}
-                            </td>
+            <div class="student-info">
+
+                <small>🎓 الصف</small>
+
+                <strong>
+                    ${escapeHtml(
+                        student.grade || "-"
+                    )}
+                </strong>
+
+            </div>
 
 
-                            <td>
-                                ${formatDate(
-                                    data.createdAt
-                                )}
-                            </td>
+            <div class="student-info">
+
+                <small>📧 البريد الإلكتروني</small>
+
+                <strong>
+                    ${escapeHtml(
+                        student.email || "-"
+                    )}
+                </strong>
+
+            </div>
 
 
-                            <td>
+            <div class="student-info">
 
-                                <button
-                                    class="admin-btn danger-btn"
-                                    title="حذف"
-                                    onclick="
-                                        deleteNotification(
-                                            '${escapeAttribute(doc.id)}'
-                                        )
-                                    ">
+                <small>📅 تاريخ الانتهاء</small>
 
-                                    🗑️
+                <strong>
+                    ${
+                        expiry
+                            ? formatDate(expiry)
+                            : "-"
+                    }
+                </strong>
 
-                                </button>
-
-                            </td>
-
-                        `;
+            </div>
 
 
-                        table.appendChild(
-                            row
+            <div class="student-info">
+
+                <small>📊 الحالة</small>
+
+                <strong>
+                    ${
+                        active
+                            ? "✅ نشط"
+                            : "⛔ منتهي"
+                    }
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <h3 class="student-detail-title">
+
+            📝 آخر نتائج الطالب
+
+        </h3>
+
+
+        ${resultsHtml}
+
+    `;
+
+
+    modal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+// ==========================================================
+// إغلاق تفاصيل الطالب
+// ==========================================================
+
+function closeStudentModal() {
+
+    const modal =
+        document.getElementById(
+            "studentModal"
+        );
+
+
+    if (modal) {
+
+        modal.classList.add(
+            "hidden"
+        );
+
+    }
+
+}
+
+
+// ==========================================================
+// تمديد اشتراك الطالب
+// ==========================================================
+
+function extendStudent(studentCode) {
+
+    const student =
+        allStudents.find(
+            function (item) {
+
+                return item.id === studentCode;
+
+            }
+        );
+
+
+    if (!student) {
+
+        alert("الطالب غير موجود");
+
+        return;
+
+    }
+
+
+    const daysText =
+        prompt(
+            "اكتب عدد الأيام المراد إضافتها:",
+            "30"
+        );
+
+
+    if (daysText === null) {
+
+        return;
+
+    }
+
+
+    const days =
+        Number(daysText);
+
+
+    if (
+        !Number.isFinite(days) ||
+        days <= 0
+    ) {
+
+        alert("❌ عدد الأيام غير صحيح");
+
+        return;
+
+    }
+
+
+    const currentExpiry =
+        getDate(
+            student.expiresAt
+        );
+
+
+    const now =
+        new Date();
+
+
+    let baseDate =
+        currentExpiry &&
+        currentExpiry > now
+            ? currentExpiry
+            : now;
+
+
+    const newExpiry =
+        new Date(baseDate);
+
+
+    newExpiry.setDate(
+        newExpiry.getDate() +
+        days
+    );
+
+
+    db.collection("students")
+        .doc(studentCode)
+        .update({
+
+            expiresAt:
+                firebase.firestore.Timestamp.fromDate(
+                    newExpiry
+                ),
+
+            active: true
+
+        })
+        .then(function () {
+
+            student.expiresAt =
+                firebase.firestore.Timestamp.fromDate(
+                    newExpiry
+                );
+
+            student.active = true;
+
+
+            renderStudents();
+
+
+            updateDashboard();
+
+
+            alert(
+                "✅ تم تمديد اشتراك الطالب"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ حدث خطأ أثناء تمديد الاشتراك"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// حذف طالب
+// ==========================================================
+
+function deleteStudent(studentCode) {
+
+    const student =
+        allStudents.find(
+            function (item) {
+
+                return item.id === studentCode;
+
+            }
+        );
+
+
+    if (!student) {
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "⚠️ هل أنت متأكد من حذف الطالب؟\n\n" +
+            (student.name || studentCode) +
+            "\n\nلا يمكن التراجع عن هذه العملية."
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("students")
+        .doc(studentCode)
+        .delete()
+        .then(function () {
+
+            allStudents =
+                allStudents.filter(
+                    function (item) {
+
+                        return (
+                            item.id !==
+                            studentCode
                         );
 
                     }
                 );
 
-            })
 
-            .catch(function (error) {
+            renderStudents();
 
-                console.error(
-                    "Notifications Error:",
-                    error
-                );
+            updateDashboard();
 
 
-                const table =
-                    document.getElementById(
-                        "notificationsTable"
-                    );
+            alert(
+                "✅ تم حذف الطالب"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر حذف الطالب"
+            );
+
+        });
+
+}
 
 
-                if (table) {
+// ==========================================================
+// تحميل الأكواد
+// ==========================================================
 
-                    table.innerHTML = `
+function loadCodes() {
 
-                        <tr>
+    return db.collection("students")
+        .get()
+        .then(function (snapshot) {
 
-                            <td colspan="5">
+            allCodes = [];
 
-                                ❌ تعذر تحميل الإشعارات
 
-                            </td>
+            snapshot.forEach(
+                function (doc) {
 
-                        </tr>
+                    allCodes.push({
 
-                    `;
+                        id: doc.id,
+
+                        ...doc.data()
+
+                    });
 
                 }
+            );
 
-            });
+
+            return allCodes;
+
+        });
+
+}
+
+
+// ==========================================================
+// إنشاء كود طالب
+// ==========================================================
+
+function createStudentCode() {
+
+    const code =
+        getInputValue(
+            "newCode"
+        );
+
+
+    const password =
+        getInputValue(
+            "newPassword"
+        );
+
+
+    const name =
+        getInputValue(
+            "newName"
+        );
+
+
+    const grade =
+        getInputValue(
+            "newGrade"
+        );
+
+
+    const days =
+        Number(
+            getInputValue(
+                "subscriptionDays"
+            )
+        );
+
+
+    if (!code) {
+
+        alert("❌ اكتب كود الاشتراك");
+
+        return;
 
     }
 
 
-    // ==========================================
-    // حذف إشعار
-    // ==========================================
+    if (!password) {
 
-    window.deleteNotification =
-        function (id) {
+        alert("❌ اكتب كلمة المرور");
+
+        return;
+
+    }
+
+
+    if (!name) {
+
+        alert("❌ اكتب اسم الطالب");
+
+        return;
+
+    }
+
+
+    if (!grade) {
+
+        alert("❌ اختر الصف");
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(days) ||
+        days <= 0
+    ) {
+
+        alert("❌ مدة الاشتراك غير صحيحة");
+
+        return;
+
+    }
+
+
+    const studentRef =
+        db.collection("students")
+            .doc(code);
+
+
+    studentRef.get()
+        .then(function (doc) {
+
+            if (doc.exists) {
+
+                throw new Error(
+                    "EXISTS"
+                );
+
+            }
+
+
+            const expiry =
+                new Date();
+
+
+            expiry.setDate(
+                expiry.getDate() +
+                days
+            );
+
+
+            return studentRef.set({
+
+                name: name,
+
+                password: password,
+
+                grade: grade,
+
+                active: true,
+
+                expiresAt:
+                    firebase.firestore.Timestamp.fromDate(
+                        expiry
+                    ),
+
+                createdAt:
+                    firebase.firestore.FieldValue.serverTimestamp()
+
+            });
+
+        })
+        .then(function () {
+
+            alert(
+                "✅ تم إنشاء كود الطالب بنجاح"
+            );
+
+
+            clearInputs([
+
+                "newCode",
+
+                "newPassword",
+
+                "newName",
+
+                "newGrade"
+
+            ]);
+
+
+            return loadStudents();
+
+        })
+        .then(function () {
+
+            return loadCodes();
+
+        })
+        .then(function () {
+
+            renderStudents();
+
+            renderCodes();
+
+            updateDashboard();
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
 
             if (
-                !confirm(
-                    "⚠️ هل أنت متأكد من حذف هذا الإشعار؟"
-                )
+                error.message ===
+                "EXISTS"
             ) {
+
+                alert(
+                    "⚠️ هذا الكود موجود بالفعل"
+                );
+
+            }
+
+            else {
+
+                alert(
+                    "❌ حدث خطأ أثناء إنشاء الكود"
+                );
+
+            }
+
+        });
+
+}
+
+
+// ==========================================================
+// عرض الأكواد
+// ==========================================================
+
+function renderCodes() {
+
+    const table =
+        document.getElementById(
+            "codesTable"
+        );
+
+
+    if (!table) {
+
+        return;
+
+    }
+
+
+    if (!allCodes.length) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    لا توجد أكواد حاليًا
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    table.innerHTML =
+        allCodes.map(
+            function (student) {
+
+                const expiry =
+                    getDate(
+                        student.expiresAt
+                    );
+
+
+                const active =
+                    isStudentActive(
+                        student
+                    );
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                student.id
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                student.name || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                student.grade || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${
+                                active
+                                    ? "✅ نشط"
+                                    : "⛔ منتهي"
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                expiry
+                                    ? formatDate(
+                                        expiry
+                                    )
+                                    : "-"
+                            }
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="admin-btn success-btn"
+                                onclick="extendStudent('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                ➕
+
+                            </button>
+
+
+                            <button
+                                class="admin-btn danger-btn"
+                                onclick="deleteStudent('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                🗑️
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+// ==========================================================
+// تحميل أولياء الأمور
+// ==========================================================
+
+function loadParents() {
+
+    return db.collection("parents")
+        .get()
+        .then(function (snapshot) {
+
+            allParents = [];
+
+
+            snapshot.forEach(
+                function (doc) {
+
+                    allParents.push({
+
+                        id: doc.id,
+
+                        ...doc.data()
+
+                    });
+
+                }
+            );
+
+
+            return allParents;
+
+        })
+        .catch(function (error) {
+
+            // لو collection غير موجودة
+            // Firestore لا يعتبرها خطأ
+
+            console.error(
+                "Parents loading error:",
+                error
+            );
+
+
+            allParents = [];
+
+
+            return allParents;
+
+        });
+
+}
+
+
+// ==========================================================
+// إنشاء حساب ولي أمر
+// ==========================================================
+
+function createParentCode() {
+
+    const code =
+        getInputValue(
+            "newParentCode"
+        );
+
+
+    const password =
+        getInputValue(
+            "newParentPassword"
+        );
+
+
+    const name =
+        getInputValue(
+            "newParentName"
+        );
+
+
+    const studentCode =
+        getInputValue(
+            "parentStudentCode"
+        );
+
+
+    const days =
+        Number(
+            getInputValue(
+                "parentSubscriptionDays"
+            )
+        );
+
+
+    if (!code) {
+
+        alert(
+            "❌ اكتب كود ولي الأمر"
+        );
+
+        return;
+
+    }
+
+
+    if (!password) {
+
+        alert(
+            "❌ اكتب كلمة المرور"
+        );
+
+        return;
+
+    }
+
+
+    if (!name) {
+
+        alert(
+            "❌ اكتب اسم ولي الأمر"
+        );
+
+        return;
+
+    }
+
+
+    if (!studentCode) {
+
+        alert(
+            "❌ اكتب كود الطالب المرتبط"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(days) ||
+        days <= 0
+    ) {
+
+        alert(
+            "❌ مدة الاشتراك غير صحيحة"
+        );
+
+        return;
+
+    }
+
+
+    const student =
+        allStudents.find(
+            function (item) {
+
+                return item.id === studentCode;
+
+            }
+        );
+
+
+    if (!student) {
+
+        alert(
+            "❌ كود الطالب غير موجود"
+        );
+
+        return;
+
+    }
+
+
+    const parentRef =
+        db.collection("parents")
+            .doc(code);
+
+
+    parentRef.get()
+        .then(function (doc) {
+
+            if (doc.exists) {
+
+                throw new Error(
+                    "PARENT_EXISTS"
+                );
+
+            }
+
+
+            const expiry =
+                new Date();
+
+
+            expiry.setDate(
+                expiry.getDate() +
+                days
+            );
+
+
+            return parentRef.set({
+
+                name: name,
+
+                password: password,
+
+                studentCode: studentCode,
+
+                studentName:
+                    student.name || "",
+
+                studentGrade:
+                    student.grade || "",
+
+                active: true,
+
+                expiresAt:
+                    firebase.firestore.Timestamp.fromDate(
+                        expiry
+                    ),
+
+                createdAt:
+                    firebase.firestore.FieldValue.serverTimestamp()
+
+            });
+
+        })
+        .then(function () {
+
+            alert(
+                "✅ تم إنشاء حساب ولي الأمر"
+            );
+
+
+            clearInputs([
+
+                "newParentCode",
+
+                "newParentPassword",
+
+                "newParentName",
+
+                "parentStudentCode"
+
+            ]);
+
+
+            return loadParents();
+
+        })
+        .then(function () {
+
+            renderParents();
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+
+            if (
+                error.message ===
+                "PARENT_EXISTS"
+            ) {
+
+                alert(
+                    "⚠️ كود ولي الأمر موجود بالفعل"
+                );
+
+            }
+
+            else {
+
+                alert(
+                    "❌ حدث خطأ أثناء إنشاء حساب ولي الأمر"
+                );
+
+            }
+
+        });
+
+}
+
+
+// ==========================================================
+// عرض أولياء الأمور
+// ==========================================================
+
+function renderParents() {
+
+    const table =
+        document.getElementById(
+            "parentsTable"
+        );
+
+
+    if (!table) {
+
+        return;
+
+    }
+
+
+    if (!allParents.length) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="7">
+
+                    لا توجد أكواد أولياء أمور حاليًا
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    table.innerHTML =
+        allParents.map(
+            function (parent) {
+
+                const expiry =
+                    getDate(
+                        parent.expiresAt
+                    );
+
+
+                const active =
+                    isParentActive(
+                        parent
+                    );
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+
+                            ${escapeHtml(
+                                parent.id
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                parent.name || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                parent.studentName || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                parent.studentCode || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                active
+                                    ? "✅ نشط"
+                                    : "⛔ منتهي"
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                expiry
+                                    ? formatDate(
+                                        expiry
+                                    )
+                                    : "-"
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                class="admin-btn success-btn"
+                                onclick="extendParent('${escapeJs(
+                                    parent.id
+                                )}')">
+
+                                ➕
+
+                            </button>
+
+
+                            <button
+                                class="admin-btn danger-btn"
+                                onclick="deleteParent('${escapeJs(
+                                    parent.id
+                                )}')">
+
+                                🗑️
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+// ==========================================================
+// تمديد ولي الأمر
+// ==========================================================
+
+function extendParent(parentCode) {
+
+    const parent =
+        allParents.find(
+            function (item) {
+
+                return item.id === parentCode;
+
+            }
+        );
+
+
+    if (!parent) {
+
+        alert(
+            "❌ ولي الأمر غير موجود"
+        );
+
+        return;
+
+    }
+
+
+    const daysText =
+        prompt(
+            "اكتب عدد الأيام المراد إضافتها:",
+            "30"
+        );
+
+
+    if (daysText === null) {
+
+        return;
+
+    }
+
+
+    const days =
+        Number(daysText);
+
+
+    if (
+        !Number.isFinite(days) ||
+        days <= 0
+    ) {
+
+        alert(
+            "❌ عدد الأيام غير صحيح"
+        );
+
+        return;
+
+    }
+
+
+    const expiry =
+        getDate(
+            parent.expiresAt
+        );
+
+
+    const now =
+        new Date();
+
+
+    const base =
+        expiry &&
+        expiry > now
+            ? expiry
+            : now;
+
+
+    const newExpiry =
+        new Date(base);
+
+
+    newExpiry.setDate(
+        newExpiry.getDate() +
+        days
+    );
+
+
+    db.collection("parents")
+        .doc(parentCode)
+        .update({
+
+            active: true,
+
+            expiresAt:
+                firebase.firestore.Timestamp.fromDate(
+                    newExpiry
+                )
+
+        })
+        .then(function () {
+
+            alert(
+                "✅ تم تمديد اشتراك ولي الأمر"
+            );
+
+
+            return loadParents();
+
+        })
+        .then(function () {
+
+            renderParents();
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تمديد الاشتراك"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// حذف ولي الأمر
+// ==========================================================
+
+function deleteParent(parentCode) {
+
+    const confirmed =
+        confirm(
+            "⚠️ هل تريد حذف حساب ولي الأمر؟"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("parents")
+        .doc(parentCode)
+        .delete()
+        .then(function () {
+
+            allParents =
+                allParents.filter(
+                    function (parent) {
+
+                        return (
+                            parent.id !==
+                            parentCode
+                        );
+
+                    }
+                );
+
+
+            renderParents();
+
+
+            alert(
+                "✅ تم حذف حساب ولي الأمر"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر حذف الحساب"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// تحميل النتائج
+// ==========================================================
+
+function loadResults() {
+
+    return db.collection("results")
+        .get()
+        .then(function (snapshot) {
+
+            allResults = [];
+
+
+            snapshot.forEach(
+                function (doc) {
+
+                    allResults.push({
+
+                        id: doc.id,
+
+                        ...doc.data()
+
+                    });
+
+                }
+            );
+
+
+            allResults.sort(
+                function (a, b) {
+
+                    const dateA =
+                        getDate(
+                            a.createdAt
+                        ) || new Date(0);
+
+
+                    const dateB =
+                        getDate(
+                            b.createdAt
+                        ) || new Date(0);
+
+
+                    return (
+                        dateB.getTime() -
+                        dateA.getTime()
+                    );
+
+                }
+            );
+
+
+            return allResults;
+
+        });
+
+}
+
+
+// ==========================================================
+// عرض النتائج
+// ==========================================================
+
+function renderAdminResults() {
+
+    const container =
+        document.getElementById(
+            "resultsTable"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    if (!allResults.length) {
+
+        container.innerHTML = `
+
+            <div class="loading">
+
+                📝 لا توجد نتائج حتى الآن
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>الطالب</th>
+
+                    <th>المادة</th>
+
+                    <th>Chapter</th>
+
+                    <th>الدرجة</th>
+
+                    <th>النسبة</th>
+
+                    <th>التاريخ</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                ${
+                    allResults
+                        .map(
+                            function (result, index) {
+
+                                const student =
+                                    allStudents.find(
+                                        function (item) {
+
+                                            return (
+                                                item.id ===
+                                                result.studentCode
+                                            );
+
+                                        }
+                                    );
+
+
+                                return `
+
+                                    <tr>
+
+                                        <td>
+                                            ${index + 1}
+                                        </td>
+
+
+                                        <td>
+
+                                            ${escapeHtml(
+                                                student
+                                                    ? student.name
+                                                    : result.studentCode || "-"
+                                            )}
+
+                                            <br>
+
+                                            <small>
+
+                                                ${escapeHtml(
+                                                    result.studentCode || ""
+                                                )}
+
+                                            </small>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${escapeHtml(
+                                                result.subject || "-"
+                                            )}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${escapeHtml(
+                                                result.chapter || "-"
+                                            )}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${result.score ?? 0}
+                                            /
+                                            ${result.total ?? 0}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${getPercentage(
+                                                result
+                                            )}%
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${formatDateTime(
+                                                result.createdAt
+                                            )}
+
+                                        </td>
+
+                                    </tr>
+
+                                `;
+
+                            }
+                        )
+                        .join("")
+                }
+
+            </tbody>
+
+        </table>
+
+    `;
+
+}
+
+
+// ==========================================================
+// Leaderboard
+// ==========================================================
+
+function loadLeaderboard() {
+
+    const scores = {};
+
+
+    allResults.forEach(
+        function (result) {
+
+            const code =
+                result.studentCode;
+
+
+            if (!code) {
 
                 return;
 
             }
 
 
-            db.collection("notifications")
-                .doc(id)
-                .delete()
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم حذف الإشعار"
-                    );
+            const percentage =
+                getPercentage(
+                    result
+                );
 
 
-                    loadNotifications();
+            if (!scores[code]) {
 
-                })
+                scores[code] = {
 
-                .catch(function (error) {
+                    studentCode:
+                        code,
 
-                    console.error(
-                        "Delete Notification Error:",
-                        error
-                    );
+                    totalTests: 0,
 
+                    totalScore: 0,
 
-                    alert(
-                        "❌ فشل حذف الإشعار\n\n" +
-                        error.message
-                    );
+                    average: 0,
 
-                });
+                    bestScore: 0
 
-        };
+                };
+
+            }
 
 
-    // ==========================================
-    // تسجيل الخروج
-    // ==========================================
+            scores[code].totalTests++;
 
-    window.logoutAdmin =
-        function () {
-
-            firebase.auth()
-                .signOut()
-
-                .then(function () {
-
-                    window.location.href =
-                        "admin-login.html";
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(
-                        "Logout Error:",
-                        error
-                    );
-
-                });
-
-        };
+            scores[code].totalScore +=
+                percentage;
 
 
-    // ==========================================
-    // أدوات مساعدة
-    // ==========================================
-
-    function setText(id, value) {
-
-        const element =
-            document.getElementById(id);
-
-
-        if (element) {
-
-            element.textContent =
-                value;
+            scores[code].bestScore =
+                Math.max(
+                    scores[code].bestScore,
+                    percentage
+                );
 
         }
+    );
+
+
+    allLeaderboard =
+        Object.values(scores);
+
+
+    allLeaderboard.forEach(
+        function (item) {
+
+            item.average =
+                Math.round(
+                    item.totalScore /
+                    item.totalTests
+                );
+
+
+            const student =
+                allStudents.find(
+                    function (s) {
+
+                        return (
+                            s.id ===
+                            item.studentCode
+                        );
+
+                    }
+                );
+
+
+            item.name =
+                student
+                    ? student.name
+                    : "طالب";
+
+
+            item.grade =
+                student
+                    ? student.grade
+                    : "-";
+
+        }
+    );
+
+
+    allLeaderboard.sort(
+        function (a, b) {
+
+            if (
+                b.average !==
+                a.average
+            ) {
+
+                return (
+                    b.average -
+                    a.average
+                );
+
+            }
+
+
+            if (
+                b.bestScore !==
+                a.bestScore
+            ) {
+
+                return (
+                    b.bestScore -
+                    a.bestScore
+                );
+
+            }
+
+
+            return (
+                b.totalTests -
+                a.totalTests
+            );
+
+        }
+    );
+
+
+    allLeaderboard.forEach(
+        function (item, index) {
+
+            item.rank =
+                index + 1;
+
+        }
+    );
+
+
+    return allLeaderboard;
+
+}
+
+
+// ==========================================================
+// عرض Leaderboard
+// ==========================================================
+
+function renderLeaderboard() {
+
+    const container =
+        document.getElementById(
+            "leaderboardTable"
+        );
+
+
+    if (!container) {
+
+        return;
 
     }
 
 
-    // ==========================================
-    // تحويل Firebase Timestamp إلى Date
-    // ==========================================
+    if (!allLeaderboard.length) {
 
-    function getDate(value) {
+        container.innerHTML = `
 
-        if (!value) {
+            <div class="loading">
 
-            return null;
+                🏆 لا توجد بيانات للترتيب حتى الآن
 
-        }
+            </div>
 
+        `;
 
-        if (
-            typeof value.toDate ===
-            "function"
-        ) {
-
-            return value.toDate();
-
-        }
-
-
-        const date =
-            new Date(value);
-
-
-        if (
-            isNaN(
-                date.getTime()
-            )
-        ) {
-
-            return null;
-
-        }
-
-
-        return date;
+        return;
 
     }
 
 
-    // ==========================================
-    // تنسيق التاريخ
-    // ==========================================
+    container.innerHTML = `
 
-    function formatDate(value) {
+        <table>
 
-        const date =
-            getDate(value);
+            <thead>
+
+                <tr>
+
+                    <th>المركز</th>
+
+                    <th>الطالب</th>
+
+                    <th>الصف</th>
+
+                    <th>الاختبارات</th>
+
+                    <th>المتوسط</th>
+
+                    <th>أفضل نتيجة</th>
+
+                </tr>
+
+            </thead>
 
 
-        if (!date) {
+            <tbody>
 
-            return "-";
+                ${
+                    allLeaderboard
+                        .map(
+                            function (item) {
 
-        }
+                                let medal = "";
 
 
-        return date.toLocaleDateString(
-            "ar-EG",
-            {
+                                if (
+                                    item.rank === 1
+                                ) {
 
-                year:
-                    "numeric",
+                                    medal = "🥇";
 
-                month:
-                    "2-digit",
+                                }
 
-                day:
-                    "2-digit"
+                                else if (
+                                    item.rank === 2
+                                ) {
+
+                                    medal = "🥈";
+
+                                }
+
+                                else if (
+                                    item.rank === 3
+                                ) {
+
+                                    medal = "🥉";
+
+                                }
+
+
+                                return `
+
+                                    <tr>
+
+                                        <td>
+
+                                            ${medal}
+                                            ${item.rank}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${escapeHtml(
+                                                item.name
+                                            )}
+
+                                            <br>
+
+                                            <small>
+
+                                                ${escapeHtml(
+                                                    item.studentCode
+                                                )}
+
+                                            </small>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${escapeHtml(
+                                                item.grade
+                                            )}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${item.totalTests}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${item.average}%
+
+                                        </td>
+
+
+                                        <td>
+
+                                            ${item.bestScore}%
+
+                                        </td>
+
+                                    </tr>
+
+                                `;
+
+                            }
+                        )
+                        .join("")
+                }
+
+            </tbody>
+
+        </table>
+
+    `;
+
+}
+
+
+// ==========================================================
+// تحميل المحتوى
+// ==========================================================
+
+function loadContent() {
+
+    return db.collection("content")
+        .get()
+        .then(function (snapshot) {
+
+            allContent = [];
+
+
+            snapshot.forEach(
+                function (doc) {
+
+                    allContent.push({
+
+                        id: doc.id,
+
+                        ...doc.data()
+
+                    });
+
+                }
+            );
+
+
+            allContent.sort(
+                function (a, b) {
+
+                    const dateA =
+                        getDate(
+                            a.createdAt
+                        ) || new Date(0);
+
+
+                    const dateB =
+                        getDate(
+                            b.createdAt
+                        ) || new Date(0);
+
+
+                    return (
+                        dateB.getTime() -
+                        dateA.getTime()
+                    );
+
+                }
+            );
+
+
+            return allContent;
+
+        });
+
+}
+
+
+// ==========================================================
+// إنشاء محتوى
+// ==========================================================
+
+function createContent() {
+
+    const grade =
+        getInputValue(
+            "contentGrade"
+        );
+
+
+    const subject =
+        getInputValue(
+            "contentSubject"
+        );
+
+
+    const chapter =
+        getInputValue(
+            "contentChapter"
+        );
+
+
+    const title =
+        getInputValue(
+            "contentTitle"
+        );
+
+
+    const type =
+        getInputValue(
+            "contentType"
+        );
+
+
+    const url =
+        getInputValue(
+            "contentUrl"
+        );
+
+
+    if (!grade) {
+
+        alert("❌ اختر الصف");
+
+        return;
+
+    }
+
+
+    if (!subject) {
+
+        alert("❌ اختر المادة");
+
+        return;
+
+    }
+
+
+    if (!chapter) {
+
+        alert("❌ اكتب الـ Chapter");
+
+        return;
+
+    }
+
+
+    if (!title) {
+
+        alert("❌ اكتب عنوان المحتوى");
+
+        return;
+
+    }
+
+
+    if (!type) {
+
+        alert("❌ اختر نوع المحتوى");
+
+        return;
+
+    }
+
+
+    if (!url) {
+
+        alert("❌ اكتب الرابط");
+
+        return;
+
+    }
+
+
+    db.collection("content")
+        .add({
+
+            grade: grade,
+
+            subject: subject,
+
+            chapter: chapter,
+
+            title: title,
+
+            type: type,
+
+            url: url,
+
+            active: true,
+
+            createdAt:
+                firebase.firestore.FieldValue.serverTimestamp()
+
+        })
+        .then(function () {
+
+            alert(
+                "✅ تم إضافة المحتوى بنجاح"
+            );
+
+
+            clearInputs([
+
+                "contentGrade",
+
+                "contentChapter",
+
+                "contentTitle",
+
+                "contentType",
+
+                "contentUrl"
+
+            ]);
+
+
+            return loadContent();
+
+        })
+        .then(function () {
+
+            renderContent();
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر إضافة المحتوى"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// عرض المحتوى
+// ==========================================================
+
+function renderContent() {
+
+    const table =
+        document.getElementById(
+            "contentTable"
+        );
+
+
+    if (!table) {
+
+        return;
+
+    }
+
+
+    const filterSubject =
+        getInputValue(
+            "filterSubject"
+        );
+
+
+    const filterGrade =
+        getInputValue(
+            "filterGrade"
+        );
+
+
+    let content =
+        [...allContent];
+
+
+    if (filterSubject) {
+
+        content =
+            content.filter(
+                function (item) {
+
+                    return (
+                        item.subject ===
+                        filterSubject
+                    );
+
+                }
+            );
+
+    }
+
+
+    if (filterGrade) {
+
+        content =
+            content.filter(
+                function (item) {
+
+                    return (
+                        item.grade ===
+                        filterGrade
+                    );
+
+                }
+            );
+
+    }
+
+
+    if (!content.length) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="7">
+
+                    لا يوجد محتوى
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    table.innerHTML =
+        content.map(
+            function (item) {
+
+                return `
+
+                    <tr>
+
+                        <td>
+
+                            ${escapeHtml(
+                                item.grade || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                item.subject || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                item.chapter || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                item.title || "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${getContentType(
+                                item.type
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                item.active === false
+                                    ? "⛔ مخفي"
+                                    : "✅ ظاهر"
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                class="admin-btn success-btn"
+                                onclick="toggleContent('${escapeJs(
+                                    item.id
+                                )}')">
+
+                                ${
+                                    item.active === false
+                                        ? "👁️"
+                                        : "🙈"
+                                }
+
+                            </button>
+
+
+                            <button
+                                class="admin-btn danger-btn"
+                                onclick="deleteContent('${escapeJs(
+                                    item.id
+                                )}')">
+
+                                🗑️
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+// ==========================================================
+// تغيير حالة المحتوى
+// ==========================================================
+
+function toggleContent(contentId) {
+
+    const item =
+        allContent.find(
+            function (content) {
+
+                return content.id === contentId;
 
             }
         );
 
+
+    if (!item) {
+
+        return;
+
     }
 
 
-    // ==========================================
-    // الأيام المتبقية
-    // ==========================================
-
-    function getRemainingDays(value) {
-
-        const expiry =
-            getDate(value);
+    const newState =
+        item.active === false;
 
 
-        if (!expiry) {
+    db.collection("content")
+        .doc(contentId)
+        .update({
 
-            return "-";
+            active: newState
 
-        }
+        })
+        .then(function () {
 
-
-        const now =
-            new Date();
-
-
-        const difference =
-            expiry.getTime() -
-            now.getTime();
+            item.active =
+                newState;
 
 
-        if (difference <= 0) {
-
-            return "⛔ منتهي";
-
-        }
+            renderContent();
 
 
-        const days =
-            Math.ceil(
-                difference /
-                (
-                    1000 *
-                    60 *
-                    60 *
-                    24
-                )
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تغيير حالة المحتوى"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// حذف المحتوى
+// ==========================================================
+
+function deleteContent(contentId) {
+
+    const confirmed =
+        confirm(
+            "⚠️ هل تريد حذف هذا المحتوى؟"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("content")
+        .doc(contentId)
+        .delete()
+        .then(function () {
+
+            allContent =
+                allContent.filter(
+                    function (item) {
+
+                        return (
+                            item.id !==
+                            contentId
+                        );
+
+                    }
+                );
+
+
+            renderContent();
+
+
+            alert(
+                "✅ تم حذف المحتوى"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر حذف المحتوى"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// تحميل الإشعارات
+// ==========================================================
+
+function loadNotifications() {
+
+    return db.collection("notifications")
+        .get()
+        .then(function (snapshot) {
+
+            allNotifications = [];
+
+
+            snapshot.forEach(
+                function (doc) {
+
+                    allNotifications.push({
+
+                        id: doc.id,
+
+                        ...doc.data()
+
+                    });
+
+                }
             );
 
 
-        return days + " يوم";
+            allNotifications.sort(
+                function (a, b) {
+
+                    const dateA =
+                        getDate(
+                            a.createdAt
+                        ) || new Date(0);
+
+
+                    const dateB =
+                        getDate(
+                            b.createdAt
+                        ) || new Date(0);
+
+
+                    return (
+                        dateB.getTime() -
+                        dateA.getTime()
+                    );
+
+                }
+            );
+
+
+            return allNotifications;
+
+        });
+
+}
+
+
+// ==========================================================
+// إنشاء إشعار
+// ==========================================================
+
+function createNotification() {
+
+    const targetType =
+        getInputValue(
+            "notificationTargetType"
+        );
+
+
+    const targetId =
+        getInputValue(
+            "notificationTargetId"
+        );
+
+
+    const title =
+        getInputValue(
+            "notificationTitle"
+        );
+
+
+    const message =
+        getInputValue(
+            "notificationMessage"
+        );
+
+
+    if (!targetType) {
+
+        alert(
+            "❌ اختر نوع الإشعار"
+        );
+
+        return;
 
     }
 
 
-    // ==========================================
-    // حماية HTML
-    // ==========================================
+    if (
+        targetType !== "all" &&
+        !targetId
+    ) {
 
-    function escapeHtml(value) {
+        alert(
+            "❌ اكتب الهدف"
+        );
 
-        return String(
-            value ?? ""
+        return;
+
+    }
+
+
+    if (!title) {
+
+        alert(
+            "❌ اكتب عنوان الإشعار"
+        );
+
+        return;
+
+    }
+
+
+    if (!message) {
+
+        alert(
+            "❌ اكتب رسالة الإشعار"
+        );
+
+        return;
+
+    }
+
+
+    db.collection("notifications")
+        .add({
+
+            targetType:
+                targetType,
+
+            targetId:
+                targetType === "all"
+                    ? ""
+                    : targetId,
+
+            title:
+                title,
+
+            message:
+                message,
+
+            createdAt:
+                firebase.firestore.FieldValue.serverTimestamp(),
+
+            createdBy:
+                currentAdmin
+                    ? currentAdmin.uid
+                    : ""
+
+        })
+        .then(function () {
+
+            alert(
+                "✅ تم إرسال الإشعار بنجاح"
+            );
+
+
+            clearInputs([
+
+                "notificationTargetId",
+
+                "notificationTitle",
+
+                "notificationMessage"
+
+            ]);
+
+
+            const targetTypeElement =
+                document.getElementById(
+                    "notificationTargetType"
+                );
+
+
+            if (targetTypeElement) {
+
+                targetTypeElement.value =
+                    "all";
+
+            }
+
+
+            const targetInput =
+                document.getElementById(
+                    "notificationTargetId"
+                );
+
+
+            if (targetInput) {
+
+                targetInput.style.display =
+                    "none";
+
+            }
+
+
+            return loadNotifications();
+
+        })
+        .then(function () {
+
+            renderNotificationsAdmin();
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر إرسال الإشعار"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// عرض الإشعارات
+// ==========================================================
+
+function renderNotificationsAdmin() {
+
+    const table =
+        document.getElementById(
+            "notificationsTable"
+        );
+
+
+    if (!table) {
+
+        return;
+
+    }
+
+
+    if (!allNotifications.length) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="5">
+
+                    🔕 لا توجد إشعارات
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    table.innerHTML =
+        allNotifications.map(
+            function (notification) {
+
+                return `
+
+                    <tr>
+
+                        <td>
+
+                            ${escapeHtml(
+                                notification.title ||
+                                "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                notification.message ||
+                                "-"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${getNotificationTarget(
+                                notification
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatDateTime(
+                                notification.createdAt
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                class="admin-btn danger-btn"
+                                onclick="deleteNotification('${escapeJs(
+                                    notification.id
+                                )}')">
+
+                                🗑️
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
         )
+        .join("");
 
-        .replace(
-            /&/g,
-            "&amp;"
-        )
+}
 
-        .replace(
-            /</g,
-            "&lt;"
-        )
 
-        .replace(
-            />/g,
-            "&gt;"
-        )
+// ==========================================================
+// تحديد هدف الإشعار
+// ==========================================================
 
-        .replace(
-            /"/g,
-            "&quot;"
-        )
+function getNotificationTarget(
+    notification
+) {
 
-        .replace(
-            /'/g,
-            "&#039;"
+    const type =
+        notification.targetType ||
+        "all";
+
+
+    if (type === "all") {
+
+        return "📢 كل الطلاب";
+
+    }
+
+
+    if (type === "grade") {
+
+        return (
+            "🎓 " +
+            escapeHtml(
+                notification.targetId ||
+                "-"
+            )
         );
 
     }
 
 
-    // ==========================================
-    // حماية Attributes
-    // ==========================================
+    if (type === "student") {
 
-    function escapeAttribute(value) {
-
-        return String(
-            value ?? ""
-        )
-
-        .replace(
-            /\\/g,
-            "\\\\"
-        )
-
-        .replace(
-            /'/g,
-            "\\'"
+        return (
+            "👤 " +
+            escapeHtml(
+                notification.targetId ||
+                "-"
+            )
         );
 
     }
 
 
-})();
+    return "-";
+
+}
+
+
+// ==========================================================
+// حذف إشعار
+// ==========================================================
+
+function deleteNotification(
+    notificationId
+) {
+
+    const confirmed =
+        confirm(
+            "⚠️ هل تريد حذف هذا الإشعار؟"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("notifications")
+        .doc(notificationId)
+        .delete()
+        .then(function () {
+
+            allNotifications =
+                allNotifications.filter(
+                    function (item) {
+
+                        return (
+                            item.id !==
+                            notificationId
+                        );
+
+                    }
+                );
+
+
+            renderNotificationsAdmin();
+
+
+            alert(
+                "✅ تم حذف الإشعار"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر حذف الإشعار"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// Dashboard Statistics
+// ==========================================================
+
+function updateDashboard() {
+
+    const totalStudents =
+        allStudents.length;
+
+
+    const activeStudents =
+        allStudents.filter(
+            function (student) {
+
+                return isStudentActive(
+                    student
+                );
+
+            }
+        ).length;
+
+
+    const expiredStudents =
+        totalStudents -
+        activeStudents;
+
+
+    const totalResults =
+        allResults.length;
+
+
+    let average =
+        0;
+
+
+    if (totalResults > 0) {
+
+        let sum = 0;
+
+
+        allResults.forEach(
+            function (result) {
+
+                sum +=
+                    getPercentage(
+                        result
+                    );
+
+            }
+        );
+
+
+        average =
+            Math.round(
+                sum /
+                totalResults
+            );
+
+    }
+
+
+    setText(
+        "totalStudents",
+        totalStudents
+    );
+
+
+    setText(
+        "activeStudents",
+        activeStudents
+    );
+
+
+    setText(
+        "expiredStudents",
+        expiredStudents
+    );
+
+
+    setText(
+        "totalResults",
+        totalResults
+    );
+
+
+    setText(
+        "averageScore",
+        average + "%"
+    );
+
+}
+
+
+// ==========================================================
+// حالة الطالب
+// ==========================================================
+
+function isStudentActive(
+    student
+) {
+
+    if (
+        student.active !== true
+    ) {
+
+        return false;
+
+    }
+
+
+    const expiry =
+        getDate(
+            student.expiresAt
+        );
+
+
+    if (!expiry) {
+
+        return false;
+
+    }
+
+
+    return (
+        new Date() <
+        expiry
+    );
+
+}
+
+
+// ==========================================================
+// حالة ولي الأمر
+// ==========================================================
+
+function isParentActive(
+    parent
+) {
+
+    if (
+        parent.active !== true
+    ) {
+
+        return false;
+
+    }
+
+
+    const expiry =
+        getDate(
+            parent.expiresAt
+        );
+
+
+    if (!expiry) {
+
+        return false;
+
+    }
+
+
+    return (
+        new Date() <
+        expiry
+    );
+
+}
+
+
+// ==========================================================
+// نوع المحتوى
+// ==========================================================
+
+function getContentType(type) {
+
+    switch (type) {
+
+        case "pdf":
+
+            return "📄 PDF";
+
+
+        case "video":
+
+            return "🎬 فيديو";
+
+
+        case "quiz":
+
+            return "📝 اختبار";
+
+
+        case "chapter":
+
+            return "📚 Chapter";
+
+
+        default:
+
+            return escapeHtml(
+                type || "-"
+            );
+
+    }
+
+}
+
+
+// ==========================================================
+// حساب النسبة
+// ==========================================================
+
+function getPercentage(data) {
+
+    if (
+        data.percentage !== undefined &&
+        data.percentage !== null
+    ) {
+
+        const value =
+            Number(
+                data.percentage
+            );
+
+
+        return isNaN(value)
+            ? 0
+            : Math.round(value);
+
+    }
+
+
+    const score =
+        Number(
+            data.score
+        );
+
+
+    const total =
+        Number(
+            data.total
+        );
+
+
+    if (
+        total > 0 &&
+        !isNaN(score)
+    ) {
+
+        return Math.round(
+            (score / total) *
+            100
+        );
+
+    }
+
+
+    return 0;
+
+}
+
+
+// ==========================================================
+// التاريخ
+// ==========================================================
+
+function getDate(value) {
+
+    if (!value) {
+
+        return null;
+
+    }
+
+
+    if (
+        typeof value.toDate ===
+        "function"
+    ) {
+
+        return value.toDate();
+
+    }
+
+
+    if (
+        value.seconds !== undefined
+    ) {
+
+        return new Date(
+            value.seconds * 1000
+        );
+
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return date;
+
+}
+
+
+// ==========================================================
+// تنسيق التاريخ
+// ==========================================================
+
+function formatDate(value) {
+
+    const date =
+        getDate(value);
+
+
+    if (!date) {
+
+        return "-";
+
+    }
+
+
+    return date.toLocaleDateString(
+        "ar-EG",
+        {
+
+            year: "numeric",
+
+            month: "2-digit",
+
+            day: "2-digit"
+
+        }
+    );
+
+}
+
+
+// ==========================================================
+// تنسيق التاريخ والوقت
+// ==========================================================
+
+function formatDateTime(value) {
+
+    const date =
+        getDate(value);
+
+
+    if (!date) {
+
+        return "-";
+
+    }
+
+
+    return date.toLocaleString(
+        "ar-EG",
+        {
+
+            year: "numeric",
+
+            month: "2-digit",
+
+            day: "2-digit",
+
+            hour: "2-digit",
+
+            minute: "2-digit"
+
+        }
+    );
+
+}
+
+
+// ==========================================================
+// قراءة Input
+// ==========================================================
+
+function getInputValue(id) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (!element) {
+
+        return "";
+
+    }
+
+
+    return String(
+        element.value || ""
+    ).trim();
+
+}
+
+
+// ==========================================================
+// مسح Inputs
+// ==========================================================
+
+function clearInputs(ids) {
+
+    ids.forEach(
+        function (id) {
+
+            const element =
+                document.getElementById(id);
+
+
+            if (element) {
+
+                element.value = "";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================================
+// تغيير النص
+// ==========================================================
+
+function setText(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+// ==========================================================
+// حماية HTML
+// ==========================================================
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+
+    .replace(
+        /</g,
+        "&lt;"
+    )
+
+    .replace(
+        />/g,
+        "&gt;"
+    )
+
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+// ==========================================================
+// حماية JavaScript
+// ==========================================================
+
+function escapeJs(value) {
+
+    return String(
+        value ?? ""
+    )
+
+    .replace(
+        /\\/g,
+        "\\\\"
+    )
+
+    .replace(
+        /'/g,
+        "\\'"
+    )
+
+    .replace(
+        /"/g,
+        '\\"'
+    )
+
+    .replace(
+        /\r?\n/g,
+        "\\n"
+    );
+
+}
+
+
+// ==========================================================
+// تسجيل خروج الأدمن
+// ==========================================================
+
+function logoutAdmin() {
+
+    firebase.auth()
+        .signOut()
+        .then(function () {
+
+            window.location.replace(
+                "index.html"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ حدث خطأ أثناء تسجيل الخروج"
+            );
+
+        });
+
+}

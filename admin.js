@@ -260,8 +260,6 @@ function showSection(sectionId) {
     }
 
 
-    // تحميل البيانات عند فتح القسم
-
     if (sectionId === "students") {
 
         renderStudents();
@@ -319,8 +317,6 @@ function showSection(sectionId) {
 
 function setupAdminEvents() {
 
-    // البحث عن الطلاب
-
     const studentSearch =
         document.getElementById(
             "studentSearch"
@@ -342,8 +338,6 @@ function setupAdminEvents() {
 
     }
 
-
-    // فلترة المحتوى
 
     const filterSubject =
         document.getElementById(
@@ -384,8 +378,6 @@ function setupAdminEvents() {
 
     }
 
-
-    // نوع الإشعار
 
     const notificationTargetType =
         document.getElementById(
@@ -452,8 +444,6 @@ function setupAdminEvents() {
 
     }
 
-
-    // إغلاق Modal بالضغط خارجها
 
     const modal =
         document.getElementById(
@@ -629,29 +619,23 @@ function renderStudents(searchText) {
                     <tr>
 
                         <td>
-
                             ${escapeHtml(
                                 student.id
                             )}
-
                         </td>
 
 
                         <td>
-
                             ${escapeHtml(
                                 student.name || "-"
                             )}
-
                         </td>
 
 
                         <td>
-
                             ${escapeHtml(
                                 student.grade || "-"
                             )}
-
                         </td>
 
 
@@ -679,6 +663,8 @@ function renderStudents(searchText) {
 
                         <td>
 
+                            <!-- عرض التفاصيل -->
+
                             <button
                                 class="admin-btn primary-btn"
                                 title="عرض التفاصيل"
@@ -691,6 +677,30 @@ function renderStudents(searchText) {
                             </button>
 
 
+                            <!-- تفعيل / إيقاف -->
+
+                            <button
+                                class="admin-btn warning-btn"
+                                title="${
+                                    student.active === true
+                                        ? "إيقاف الحساب"
+                                        : "تفعيل الحساب"
+                                }"
+                                onclick="toggleStudentStatus('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                ${
+                                    student.active === true
+                                        ? "⏸️"
+                                        : "▶️"
+                                }
+
+                            </button>
+
+
+                            <!-- تمديد الاشتراك -->
+
                             <button
                                 class="admin-btn success-btn"
                                 title="تمديد الاشتراك"
@@ -702,6 +712,22 @@ function renderStudents(searchText) {
 
                             </button>
 
+
+                            <!-- تغيير كلمة المرور -->
+
+                            <button
+                                class="admin-btn primary-btn"
+                                title="تغيير كلمة المرور"
+                                onclick="changeStudentPassword('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                🔑
+
+                            </button>
+
+
+                            <!-- حذف الطالب -->
 
                             <button
                                 class="admin-btn danger-btn"
@@ -973,7 +999,7 @@ function viewStudent(studentCode) {
                     ${
                         active
                             ? "✅ نشط"
-                            : "⛔ منتهي"
+                            : "⛔ غير نشط"
                     }
                 </strong>
 
@@ -1020,6 +1046,207 @@ function closeStudentModal() {
         );
 
     }
+
+}
+
+
+// ==========================================================
+// تفعيل / إيقاف حساب الطالب
+// ==========================================================
+
+function toggleStudentStatus(studentCode) {
+
+    const student =
+        allStudents.find(
+            function (item) {
+
+                return item.id === studentCode;
+
+            }
+        );
+
+
+    if (!student) {
+
+        alert("❌ الطالب غير موجود");
+
+        return;
+
+    }
+
+
+    const newStatus =
+        student.active !== true;
+
+
+    const actionText =
+        newStatus
+            ? "تفعيل"
+            : "إيقاف";
+
+
+    const confirmed =
+        confirm(
+            `⚠️ هل تريد ${actionText} حساب الطالب؟\n\n` +
+            `${student.name || studentCode}`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("students")
+        .doc(studentCode)
+        .update({
+
+            active: newStatus
+
+        })
+        .then(function () {
+
+            student.active =
+                newStatus;
+
+
+            renderStudents();
+
+            renderCodes();
+
+            updateDashboard();
+
+
+            alert(
+                newStatus
+                    ? "✅ تم تفعيل حساب الطالب"
+                    : "⏸️ تم إيقاف حساب الطالب"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تغيير حالة الطالب"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// تغيير كلمة مرور الطالب
+// ==========================================================
+
+function changeStudentPassword(studentCode) {
+
+    const student =
+        allStudents.find(
+            function (item) {
+
+                return item.id === studentCode;
+
+            }
+        );
+
+
+    if (!student) {
+
+        alert("❌ الطالب غير موجود");
+
+        return;
+
+    }
+
+
+    const newPassword =
+        prompt(
+            "🔑 اكتب كلمة المرور الجديدة:",
+            ""
+        );
+
+
+    if (newPassword === null) {
+
+        return;
+
+    }
+
+
+    const password =
+        String(
+            newPassword
+        ).trim();
+
+
+    if (!password) {
+
+        alert(
+            "❌ كلمة المرور لا يمكن أن تكون فارغة"
+        );
+
+        return;
+
+    }
+
+
+    if (password.length < 4) {
+
+        alert(
+            "❌ كلمة المرور يجب ألا تقل عن 4 أحرف"
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "⚠️ هل تريد تغيير كلمة مرور الطالب؟\n\n" +
+            (student.name || studentCode)
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("students")
+        .doc(studentCode)
+        .update({
+
+            password: password
+
+        })
+        .then(function () {
+
+            student.password =
+                password;
+
+
+            alert(
+                "✅ تم تغيير كلمة مرور الطالب بنجاح"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تغيير كلمة المرور"
+            );
+
+        });
 
 }
 
@@ -1179,7 +1406,7 @@ function deleteStudent(studentCode) {
         confirm(
             "⚠️ هل أنت متأكد من حذف الطالب؟\n\n" +
             (student.name || studentCode) +
-            "\n\nلا يمكن التراجع عن هذه العملية."
+            "\n\nسيتم حذف حساب الطالب فقط، ولن يتم حذف نتائج الاختبارات تلقائيًا."
         );
 
 
@@ -1208,7 +1435,22 @@ function deleteStudent(studentCode) {
                 );
 
 
+            allCodes =
+                allCodes.filter(
+                    function (item) {
+
+                        return (
+                            item.id !==
+                            studentCode
+                        );
+
+                    }
+                );
+
+
             renderStudents();
+
+            renderCodes();
 
             updateDashboard();
 
@@ -1631,9 +1873,6 @@ function loadParents() {
         })
         .catch(function (error) {
 
-            // لو collection غير موجودة
-            // Firestore لا يعتبرها خطأ
-
             console.error(
                 "Parents loading error:",
                 error
@@ -1939,38 +2178,30 @@ function renderParents() {
                     <tr>
 
                         <td>
-
                             ${escapeHtml(
                                 parent.id
                             )}
-
                         </td>
 
 
                         <td>
-
                             ${escapeHtml(
                                 parent.name || "-"
                             )}
-
                         </td>
 
 
                         <td>
-
                             ${escapeHtml(
                                 parent.studentName || "-"
                             )}
-
                         </td>
 
 
                         <td>
-
                             ${escapeHtml(
                                 parent.studentCode || "-"
                             )}
-
                         </td>
 
 
@@ -2001,7 +2232,40 @@ function renderParents() {
                         <td>
 
                             <button
+                                class="admin-btn primary-btn"
+                                title="عرض التفاصيل"
+                                onclick="viewParent('${escapeJs(
+                                    parent.id
+                                )}')">
+
+                                👁️
+
+                            </button>
+
+
+                            <button
+                                class="admin-btn warning-btn"
+                                title="${
+                                    parent.active === true
+                                        ? "إيقاف الحساب"
+                                        : "تفعيل الحساب"
+                                }"
+                                onclick="toggleParentStatus('${escapeJs(
+                                    parent.id
+                                )}')">
+
+                                ${
+                                    parent.active === true
+                                        ? "⏸️"
+                                        : "▶️"
+                                }
+
+                            </button>
+
+
+                            <button
                                 class="admin-btn success-btn"
+                                title="تمديد الاشتراك"
                                 onclick="extendParent('${escapeJs(
                                     parent.id
                                 )}')">
@@ -2012,7 +2276,20 @@ function renderParents() {
 
 
                             <button
+                                class="admin-btn primary-btn"
+                                title="تغيير كلمة المرور"
+                                onclick="changeParentPassword('${escapeJs(
+                                    parent.id
+                                )}')">
+
+                                🔑
+
+                            </button>
+
+
+                            <button
                                 class="admin-btn danger-btn"
+                                title="حذف ولي الأمر"
                                 onclick="deleteParent('${escapeJs(
                                     parent.id
                                 )}')">
@@ -2030,6 +2307,309 @@ function renderParents() {
             }
         )
         .join("");
+
+}
+
+
+// ==========================================================
+// عرض تفاصيل ولي الأمر
+// ==========================================================
+
+function viewParent(parentCode) {
+
+    const parent =
+        allParents.find(
+            function (item) {
+
+                return item.id === parentCode;
+
+            }
+        );
+
+
+    if (!parent) {
+
+        alert(
+            "❌ ولي الأمر غير موجود"
+        );
+
+        return;
+
+    }
+
+
+    const student =
+        allStudents.find(
+            function (item) {
+
+                return (
+                    item.id ===
+                    parent.studentCode
+                );
+
+            }
+        );
+
+
+    const expiry =
+        getDate(
+            parent.expiresAt
+        );
+
+
+    const active =
+        isParentActive(
+            parent
+        );
+
+
+    const message =
+        "👨‍👩‍👦 بيانات ولي الأمر\n\n" +
+
+        "الاسم: " +
+        (parent.name || "-") +
+
+        "\nكود ولي الأمر: " +
+        (parent.id || "-") +
+
+        "\n\n👨‍🎓 الطالب المرتبط\n\n" +
+
+        "اسم الطالب: " +
+        (
+            student
+                ? student.name
+                : parent.studentName || "-"
+        ) +
+
+        "\nكود الطالب: " +
+        (
+            parent.studentCode || "-"
+        ) +
+
+        "\nالصف: " +
+        (
+            student
+                ? student.grade
+                : parent.studentGrade || "-"
+        ) +
+
+        "\n\n📅 تاريخ الانتهاء: " +
+        (
+            expiry
+                ? formatDate(expiry)
+                : "-"
+        ) +
+
+        "\n📊 الحالة: " +
+        (
+            active
+                ? "✅ نشط"
+                : "⛔ غير نشط"
+        );
+
+
+    alert(message);
+
+}
+
+
+// ==========================================================
+// تفعيل / إيقاف حساب ولي الأمر
+// ==========================================================
+
+function toggleParentStatus(parentCode) {
+
+    const parent =
+        allParents.find(
+            function (item) {
+
+                return item.id === parentCode;
+
+            }
+        );
+
+
+    if (!parent) {
+
+        alert(
+            "❌ ولي الأمر غير موجود"
+        );
+
+        return;
+
+    }
+
+
+    const newStatus =
+        parent.active !== true;
+
+
+    const actionText =
+        newStatus
+            ? "تفعيل"
+            : "إيقاف";
+
+
+    const confirmed =
+        confirm(
+            `⚠️ هل تريد ${actionText} حساب ولي الأمر؟\n\n` +
+            `${parent.name || parentCode}`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("parents")
+        .doc(parentCode)
+        .update({
+
+            active: newStatus
+
+        })
+        .then(function () {
+
+            parent.active =
+                newStatus;
+
+
+            renderParents();
+
+
+            alert(
+                newStatus
+                    ? "✅ تم تفعيل حساب ولي الأمر"
+                    : "⏸️ تم إيقاف حساب ولي الأمر"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تغيير حالة ولي الأمر"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// تغيير كلمة مرور ولي الأمر
+// ==========================================================
+
+function changeParentPassword(parentCode) {
+
+    const parent =
+        allParents.find(
+            function (item) {
+
+                return item.id === parentCode;
+
+            }
+        );
+
+
+    if (!parent) {
+
+        alert(
+            "❌ ولي الأمر غير موجود"
+        );
+
+        return;
+
+    }
+
+
+    const newPassword =
+        prompt(
+            "🔑 اكتب كلمة المرور الجديدة:",
+            ""
+        );
+
+
+    if (newPassword === null) {
+
+        return;
+
+    }
+
+
+    const password =
+        String(
+            newPassword
+        ).trim();
+
+
+    if (!password) {
+
+        alert(
+            "❌ كلمة المرور لا يمكن أن تكون فارغة"
+        );
+
+        return;
+
+    }
+
+
+    if (password.length < 4) {
+
+        alert(
+            "❌ كلمة المرور يجب ألا تقل عن 4 أحرف"
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "⚠️ هل تريد تغيير كلمة مرور ولي الأمر؟\n\n" +
+            (parent.name || parentCode)
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("parents")
+        .doc(parentCode)
+        .update({
+
+            password: password
+
+        })
+        .then(function () {
+
+            parent.password =
+                password;
+
+
+            alert(
+                "✅ تم تغيير كلمة مرور ولي الأمر بنجاح"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تغيير كلمة المرور"
+            );
+
+        });
 
 }
 
@@ -2166,9 +2746,23 @@ function extendParent(parentCode) {
 
 function deleteParent(parentCode) {
 
+    const parent =
+        allParents.find(
+            function (item) {
+
+                return item.id === parentCode;
+
+            }
+        );
+
+
     const confirmed =
         confirm(
-            "⚠️ هل تريد حذف حساب ولي الأمر؟"
+            "⚠️ هل تريد حذف حساب ولي الأمر؟\n\n" +
+            (parent
+                ? parent.name
+                : parentCode) +
+            "\n\nلن يتم حذف الطالب المرتبط."
         );
 
 

@@ -2,6 +2,7 @@
 // بوابة التمريض
 // Admin Panel
 // إدارة الطلاب والأكواد والنتائج والمحتوى
+// الطلاب + أولياء الأمور
 // ==========================================
 
 (function () {
@@ -13,6 +14,10 @@
     const ADMIN_UID =
         "H4wMJm2ComSSy19ttzb1KxZz7Yu1";
 
+
+    // ==========================================
+    // عناصر الصفحة
+    // ==========================================
 
     const loading =
         document.getElementById("loading");
@@ -64,11 +69,23 @@
             }
 
 
-            loading.classList.add("hidden");
+            if (loading) {
 
-            accessDenied.classList.add("hidden");
+                loading.classList.add("hidden");
 
-            adminPanel.classList.remove("hidden");
+            }
+
+            if (accessDenied) {
+
+                accessDenied.classList.add("hidden");
+
+            }
+
+            if (adminPanel) {
+
+                adminPanel.classList.remove("hidden");
+
+            }
 
 
             loadDashboard();
@@ -83,11 +100,23 @@
 
     function showDenied() {
 
-        loading.classList.add("hidden");
+        if (loading) {
 
-        adminPanel.classList.add("hidden");
+            loading.classList.add("hidden");
 
-        accessDenied.classList.remove("hidden");
+        }
+
+        if (adminPanel) {
+
+            adminPanel.classList.add("hidden");
+
+        }
+
+        if (accessDenied) {
+
+            accessDenied.classList.remove("hidden");
+
+        }
 
     }
 
@@ -159,11 +188,14 @@
                 loadContent();
 
             }
-if (sectionId === "notifications") {
 
-    loadNotifications();
 
-}
+            if (sectionId === "notifications") {
+
+                loadNotifications();
+
+            }
+
         };
 
 
@@ -289,11 +321,8 @@ if (sectionId === "notifications") {
                         );
 
 
-                    if (
-                        !isNaN(score)
-                    ) {
+                    if (!isNaN(score)) {
 
-                        // لو الدرجة من 0 إلى 1
                         if (
                             score > 0 &&
                             score <= 1
@@ -508,13 +537,11 @@ if (sectionId === "notifications") {
                     ${escapeHtml(student.id)}
                 </td>
 
-
                 <td>
                     ${escapeHtml(
                         student.name || "-"
                     )}
                 </td>
-
 
                 <td>
                     ${escapeHtml(
@@ -522,18 +549,15 @@ if (sectionId === "notifications") {
                     )}
                 </td>
 
-
                 <td>
                     ${status}
                 </td>
-
 
                 <td>
                     ${formatDate(
                         student.expiresAt
                     )}
                 </td>
-
 
                 <td>
 
@@ -646,9 +670,7 @@ if (sectionId === "notifications") {
                                 .toLowerCase()
                                 .includes(value)
 
-
                                 ||
-
 
                                 String(
                                     student.name || ""
@@ -656,9 +678,7 @@ if (sectionId === "notifications") {
                                 .toLowerCase()
                                 .includes(value)
 
-
                                 ||
-
 
                                 String(
                                     student.email || ""
@@ -740,7 +760,7 @@ if (sectionId === "notifications") {
 
             const password =
                 prompt(
-                    "كلمة المرور:",
+                    "كلمة مرور الطالب:",
                     student.password || ""
                 );
 
@@ -1050,362 +1070,247 @@ if (sectionId === "notifications") {
 
         };
 
-// ==========================================
-// إضافة كود اشتراك + إنشاء حساب ولي الأمر
-// ==========================================
 
-window.createStudentCode =
-    function () {
+    // ==========================================
+    // إضافة طالب + ولي أمر
+    //
+    // الأكواد يتم إدخالها يدويًا
+    // ==========================================
 
-        const code =
-            document.getElementById(
-                "newCode"
-            )
-            .value
-            .trim();
+    window.createStudentCode =
+        function () {
 
+            // --------------------------------------
+            // بيانات الطالب
+            // --------------------------------------
 
-        const password =
-            document.getElementById(
-                "newPassword"
-            )
-            .value
-            .trim();
+            const codeElement =
+                document.getElementById(
+                    "newCode"
+                );
 
 
-        const name =
-            document.getElementById(
-                "newName"
-            )
-            .value
-            .trim();
+            const passwordElement =
+                document.getElementById(
+                    "newPassword"
+                );
 
 
-        const grade =
-            document.getElementById(
-                "newGrade"
-            ).value;
+            const nameElement =
+                document.getElementById(
+                    "newName"
+                );
 
 
-        const days =
-            Number(
+            const gradeElement =
+                document.getElementById(
+                    "newGrade"
+                );
+
+
+            const daysElement =
                 document.getElementById(
                     "subscriptionDays"
-                ).value
-            );
-
-
-        // ==========================================
-        // التحقق من بيانات الطالب
-        // ==========================================
-
-        if (
-            !code ||
-            !password ||
-            !name ||
-            !grade
-        ) {
-
-            alert(
-                "⚠️ من فضلك أكمل جميع بيانات الطالب"
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !days ||
-            days < 1
-        ) {
-
-            alert(
-                "❌ مدة الاشتراك غير صحيحة"
-            );
-
-            return;
-
-        }
-
-
-        // ==========================================
-        // اسم ولي الأمر
-        // ==========================================
-
-        const parentName =
-            prompt(
-                "👨‍👩‍👦 اكتب اسم ولي الأمر:\n\n" +
-                "يمكنك كتابة الاسم أو الاسم بالكامل"
-            );
-
-
-        if (parentName === null) {
-
-            return;
-
-        }
-
-
-        const cleanParentName =
-            parentName.trim();
-
-
-        if (!cleanParentName) {
-
-            alert(
-                "❌ يجب إدخال اسم ولي الأمر"
-            );
-
-            return;
-
-        }
-
-
-        // ==========================================
-        // توليد كود ولي الأمر
-        // ==========================================
-
-        function generateParentCode() {
-
-            const random =
-                Math.random()
-                    .toString(36)
-                    .substring(2, 8)
-                    .toUpperCase();
-
-
-            return "PT-" + random;
-
-        }
-
-
-        // ==========================================
-        // توليد كلمة مرور ولي الأمر
-        // ==========================================
-
-        function generateParentPassword() {
-
-            return String(
-                Math.floor(
-                    100000 +
-                    Math.random() * 900000
-                )
-            );
-
-        }
-
-
-        const parentCode =
-            generateParentCode();
-
-
-        const parentPassword =
-            generateParentPassword();
-
-
-        // ==========================================
-        // تأكيد قبل الإنشاء
-        // ==========================================
-
-        const confirmCreate =
-            confirm(
-
-                "👨‍🎓 سيتم إنشاء حساب الطالب:\n\n" +
-
-                "الطالب: " +
-                name +
-                "\n" +
-
-                "الكود: " +
-                code +
-                "\n\n" +
-
-                "👨‍👩‍👦 وسيتم إنشاء حساب ولي الأمر:\n\n" +
-
-                "ولي الأمر: " +
-                cleanParentName +
-                "\n" +
-
-                "الكود: " +
-                parentCode +
-                "\n" +
-
-                "الباسورد: " +
-                parentPassword
-
-            );
-
-
-        if (!confirmCreate) {
-
-            return;
-
-        }
-
-
-        // ==========================================
-        // حساب تاريخ انتهاء الاشتراك
-        // ==========================================
-
-        const expiresAt =
-            new Date();
-
-
-        expiresAt.setDate(
-            expiresAt.getDate() +
-            days
-        );
-
-
-        // ==========================================
-        // التأكد من عدم وجود الطالب
-        // ==========================================
-
-        db.collection("students")
-            .doc(code)
-            .get()
-
-            .then(function (existingStudent) {
-
-                if (existingStudent.exists) {
-
-                    throw new Error(
-                        "❌ كود الطالب موجود بالفعل"
-                    );
-
-                }
-
-
-                // ==========================================
-                // التأكد من عدم وجود كود ولي الأمر
-                // ==========================================
-
-                return db.collection("parents")
-                    .doc(parentCode)
-                    .get();
-
-            })
-
-
-            .then(function (existingParent) {
-
-                if (existingParent.exists) {
-
-                    throw new Error(
-                        "❌ حدث تعارض في كود ولي الأمر، حاول مرة أخرى"
-                    );
-
-                }
-
-
-                // ==========================================
-                // Batch
-                // إنشاء الطالب وولي الأمر معًا
-                // ==========================================
-
-                const batch =
-                    db.batch();
-
-
-                // ==========================================
-                // Student Document
-                // ==========================================
-
-                const studentRef =
-                    db.collection("students")
-                        .doc(code);
-
-
-                batch.set(
-                    studentRef,
-                    {
-
-                        name:
-                            name,
-
-                        password:
-                            password,
-
-                        grade:
-                            grade,
-
-                        active:
-                            true,
-
-                        expiresAt:
-                            firebase.firestore
-                                .Timestamp
-                                .fromDate(
-                                    expiresAt
-                                ),
-
-                        deviceId:
-                            "",
-
-                        createdAt:
-                            firebase.firestore
-                                .FieldValue
-                                .serverTimestamp()
-
-                    }
                 );
 
 
-                // ==========================================
-                // Parent Document
-                // ==========================================
+            // --------------------------------------
+            // بيانات ولي الأمر
+            // --------------------------------------
 
-                const parentRef =
-                    db.collection("parents")
-                        .doc(parentCode);
-
-
-                batch.set(
-                    parentRef,
-                    {
-
-                        parentName:
-                            cleanParentName,
-
-                        password:
-                            parentPassword,
-
-                        studentCode:
-                            code,
-
-                        active:
-                            true,
-
-                        createdAt:
-                            firebase.firestore
-                                .FieldValue
-                                .serverTimestamp()
-
-                    }
+            const parentNameElement =
+                document.getElementById(
+                    "newParentName"
                 );
 
 
-                // ==========================================
-                // تنفيذ العمليتين معًا
-                // ==========================================
-
-                return batch.commit();
-
-            })
+            const parentCodeElement =
+                document.getElementById(
+                    "newParentCode"
+                );
 
 
-            // ==========================================
-            // نجاح الإنشاء
-            // ==========================================
+            const parentPasswordElement =
+                document.getElementById(
+                    "newParentPassword"
+                );
 
-            .then(function () {
+
+            // --------------------------------------
+            // التأكد من وجود الحقول
+            // --------------------------------------
+
+            if (
+                !codeElement ||
+                !passwordElement ||
+                !nameElement ||
+                !gradeElement ||
+                !daysElement ||
+                !parentNameElement ||
+                !parentCodeElement ||
+                !parentPasswordElement
+            ) {
 
                 alert(
+                    "❌ يوجد حقل مفقود في HTML.\n\n" +
+                    "تأكد من وجود:\n" +
+                    "newCode\n" +
+                    "newPassword\n" +
+                    "newName\n" +
+                    "newGrade\n" +
+                    "subscriptionDays\n" +
+                    "newParentName\n" +
+                    "newParentCode\n" +
+                    "newParentPassword"
+                );
 
-                    "✅ تم إنشاء الحسابين بنجاح!\n\n" +
+                return;
 
-                    "👨‍🎓 الطالب\n" +
+            }
+
+
+            // --------------------------------------
+            // قراءة بيانات الطالب
+            // --------------------------------------
+
+            const code =
+                codeElement.value.trim();
+
+
+            const password =
+                passwordElement.value.trim();
+
+
+            const name =
+                nameElement.value.trim();
+
+
+            const grade =
+                gradeElement.value.trim();
+
+
+            const days =
+                Number(
+                    daysElement.value
+                );
+
+
+            // --------------------------------------
+            // قراءة بيانات ولي الأمر
+            // --------------------------------------
+
+            const parentName =
+                parentNameElement.value.trim();
+
+
+            const parentCode =
+                parentCodeElement.value.trim();
+
+
+            const parentPassword =
+                parentPasswordElement.value.trim();
+
+
+            // --------------------------------------
+            // التحقق من بيانات الطالب
+            // --------------------------------------
+
+            if (
+                !code ||
+                !password ||
+                !name ||
+                !grade
+            ) {
+
+                alert(
+                    "⚠️ من فضلك أكمل جميع بيانات الطالب"
+                );
+
+                return;
+
+            }
+
+
+            // --------------------------------------
+            // التحقق من مدة الاشتراك
+            // --------------------------------------
+
+            if (
+                !days ||
+                days < 1
+            ) {
+
+                alert(
+                    "❌ مدة الاشتراك غير صحيحة"
+                );
+
+                return;
+
+            }
+
+
+            // --------------------------------------
+            // التحقق من بيانات ولي الأمر
+            // --------------------------------------
+
+            if (
+                !parentName ||
+                !parentCode ||
+                !parentPassword
+            ) {
+
+                alert(
+                    "⚠️ من فضلك أكمل جميع بيانات ولي الأمر"
+                );
+
+                return;
+
+            }
+
+
+            // --------------------------------------
+            // منع استخدام نفس الكود
+            // --------------------------------------
+
+            if (
+                code === parentCode
+            ) {
+
+                alert(
+                    "❌ لا يمكن أن يكون كود الطالب هو نفس كود ولي الأمر"
+                );
+
+                return;
+
+            }
+
+
+            // --------------------------------------
+            // حساب تاريخ انتهاء الاشتراك
+            // --------------------------------------
+
+            const expiresAt =
+                new Date();
+
+
+            expiresAt.setDate(
+                expiresAt.getDate() +
+                days
+            );
+
+
+            // --------------------------------------
+            // تأكيد الإنشاء
+            // --------------------------------------
+
+            const confirmCreate =
+                confirm(
+
+                    "👨‍🎓 بيانات الطالب\n\n" +
+
+                    "الاسم: " +
+                    name +
+                    "\n" +
 
                     "الكود: " +
                     code +
@@ -1413,84 +1318,281 @@ window.createStudentCode =
 
                     "الباسورد: " +
                     password +
-                    "\n\n" +
+                    "\n" +
 
-                    "👨‍👩‍👦 ولي الأمر\n" +
+                    "الصف: " +
+                    grade +
+                    "\n" +
+
+                    "مدة الاشتراك: " +
+                    days +
+                    " يوم\n\n" +
+
+                    "👨‍👩‍👦 بيانات ولي الأمر\n\n" +
+
+                    "الاسم: " +
+                    parentName +
+                    "\n" +
 
                     "الكود: " +
                     parentCode +
                     "\n" +
 
                     "الباسورد: " +
-                    parentPassword
+                    parentPassword +
+                    "\n\n" +
+
+                    "هل تريد إنشاء الحسابين؟"
 
                 );
 
 
-                // ==========================================
-                // تنظيف بيانات الطالب
-                // ==========================================
+            if (!confirmCreate) {
 
-                document.getElementById(
-                    "newCode"
-                ).value = "";
+                return;
+
+            }
 
 
-                document.getElementById(
-                    "newPassword"
-                ).value = "";
+            // --------------------------------------
+            // التأكد من عدم وجود الطالب
+            // --------------------------------------
+
+            db.collection("students")
+                .doc(code)
+                .get()
+
+                .then(function (existingStudent) {
+
+                    if (existingStudent.exists) {
+
+                        throw new Error(
+                            "❌ كود الطالب موجود بالفعل"
+                        );
+
+                    }
 
 
-                document.getElementById(
-                    "newName"
-                ).value = "";
+                    // --------------------------------------
+                    // التأكد من عدم وجود ولي الأمر
+                    // --------------------------------------
+
+                    return db.collection("parents")
+                        .doc(parentCode)
+                        .get();
+
+                })
 
 
-                document.getElementById(
-                    "newGrade"
-                ).value = "";
+                .then(function (existingParent) {
+
+                    if (existingParent.exists) {
+
+                        throw new Error(
+                            "❌ كود ولي الأمر موجود بالفعل"
+                        );
+
+                    }
 
 
-                document.getElementById(
-                    "subscriptionDays"
-                ).value = "30";
+                    // --------------------------------------
+                    // Batch
+                    // إنشاء الطالب وولي الأمر معًا
+                    // --------------------------------------
+
+                    const batch =
+                        db.batch();
 
 
-                // ==========================================
-                // تحديث لوحة الإدارة
-                // ==========================================
+                    // --------------------------------------
+                    // Student Document
+                    // --------------------------------------
 
-                loadCodes();
-
-                loadStudents();
-
-                loadDashboard();
-
-            })
+                    const studentRef =
+                        db.collection("students")
+                            .doc(code);
 
 
-            // ==========================================
-            // الأخطاء
-            // ==========================================
+                    batch.set(
+                        studentRef,
+                        {
 
-            .catch(function (error) {
+                            name:
+                                name,
 
-                console.error(
-                    "Create Student + Parent Error:",
-                    error
-                );
+                            password:
+                                password,
+
+                            grade:
+                                grade,
+
+                            active:
+                                true,
+
+                            expiresAt:
+                                firebase.firestore
+                                    .Timestamp
+                                    .fromDate(
+                                        expiresAt
+                                    ),
+
+                            deviceId:
+                                "",
+
+                            createdAt:
+                                firebase.firestore
+                                    .FieldValue
+                                    .serverTimestamp()
+
+                        }
+                    );
 
 
-                alert(
+                    // --------------------------------------
+                    // Parent Document
+                    // --------------------------------------
 
-                    "❌ فشل إنشاء الحساب\n\n" +
-                    error.message
+                    const parentRef =
+                        db.collection("parents")
+                            .doc(parentCode);
 
-                );
 
-            });
+                    batch.set(
+                        parentRef,
+                        {
 
-    };
+                            parentName:
+                                parentName,
+
+                            password:
+                                parentPassword,
+
+                            studentCode:
+                                code,
+
+                            active:
+                                true,
+
+                            createdAt:
+                                firebase.firestore
+                                    .FieldValue
+                                    .serverTimestamp()
+
+                        }
+                    );
+
+
+                    // --------------------------------------
+                    // تنفيذ العمليتين معًا
+                    // --------------------------------------
+
+                    return batch.commit();
+
+                })
+
+
+                // --------------------------------------
+                // نجاح الإنشاء
+                // --------------------------------------
+
+                .then(function () {
+
+                    alert(
+
+                        "✅ تم إنشاء الحسابين بنجاح!\n\n" +
+
+                        "👨‍🎓 الطالب\n" +
+
+                        "الاسم: " +
+                        name +
+                        "\n" +
+
+                        "الكود: " +
+                        code +
+                        "\n" +
+
+                        "الباسورد: " +
+                        password +
+                        "\n\n" +
+
+                        "👨‍👩‍👦 ولي الأمر\n" +
+
+                        "الاسم: " +
+                        parentName +
+                        "\n" +
+
+                        "الكود: " +
+                        parentCode +
+                        "\n" +
+
+                        "الباسورد: " +
+                        parentPassword
+
+                    );
+
+
+                    // --------------------------------------
+                    // تنظيف بيانات الطالب
+                    // --------------------------------------
+
+                    codeElement.value = "";
+
+                    passwordElement.value = "";
+
+                    nameElement.value = "";
+
+                    gradeElement.value = "";
+
+                    daysElement.value = "30";
+
+
+                    // --------------------------------------
+                    // تنظيف بيانات ولي الأمر
+                    // --------------------------------------
+
+                    parentNameElement.value = "";
+
+                    parentCodeElement.value = "";
+
+                    parentPasswordElement.value = "";
+
+
+                    // --------------------------------------
+                    // تحديث لوحة الإدارة
+                    // --------------------------------------
+
+                    loadCodes();
+
+                    loadStudents();
+
+                    loadDashboard();
+
+                })
+
+
+                // --------------------------------------
+                // الأخطاء
+                // --------------------------------------
+
+                .catch(function (error) {
+
+                    console.error(
+                        "Create Student + Parent Error:",
+                        error
+                    );
+
+
+                    alert(
+
+                        "❌ فشل إنشاء الحساب\n\n" +
+                        error.message
+
+                    );
+
+                });
+
+        };
+
 
     // ==========================================
     // الأكواد
@@ -1594,13 +1696,11 @@ window.createStudentCode =
                             )}
                         </td>
 
-
                         <td>
                             ${escapeHtml(
                                 student.name || "-"
                             )}
                         </td>
-
 
                         <td>
                             ${escapeHtml(
@@ -1608,18 +1708,15 @@ window.createStudentCode =
                             )}
                         </td>
 
-
                         <td>
                             ${status}
                         </td>
-
 
                         <td>
                             ${formatDate(
                                 student.expiresAt
                             )}
                         </td>
-
 
                         <td>
 
@@ -1706,12 +1803,69 @@ window.createStudentCode =
 
             db.collection("students")
                 .doc(code)
-                .delete()
+                .get()
+
+                .then(function (studentDoc) {
+
+                    if (!studentDoc.exists) {
+
+                        throw new Error(
+                            "الطالب غير موجود"
+                        );
+
+                    }
+
+
+                    const student =
+                        studentDoc.data();
+
+
+                    // ----------------------------------
+                    // لو للطالب ولي أمر مرتبط به
+                    // نحاول حذف ولي الأمر أيضًا
+                    // ----------------------------------
+
+                    return db.collection("parents")
+                        .where(
+                            "studentCode",
+                            "==",
+                            code
+                        )
+                        .get()
+
+                        .then(function (parentsSnapshot) {
+
+                            const batch =
+                                db.batch();
+
+
+                            batch.delete(
+                                db.collection("students")
+                                    .doc(code)
+                            );
+
+
+                            parentsSnapshot.forEach(
+                                function (parentDoc) {
+
+                                    batch.delete(
+                                        parentDoc.ref
+                                    );
+
+                                }
+                            );
+
+
+                            return batch.commit();
+
+                        });
+
+                })
 
                 .then(function () {
 
                     alert(
-                        "✅ تم حذف الطالب والكود"
+                        "✅ تم حذف الطالب والكود وحساب ولي الأمر المرتبط به"
                     );
 
 
@@ -1860,7 +2014,6 @@ window.createStudentCode =
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
                                     data.subject ||
@@ -1868,14 +2021,12 @@ window.createStudentCode =
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
                                     data.chapter ||
                                     "-"
                                 )}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
@@ -1886,8 +2037,8 @@ window.createStudentCode =
                                 )}
                             </td>
 
-
                             <td>
+
                                 ${
                                     percentage !== undefined &&
                                     percentage !== null &&
@@ -1902,9 +2053,10 @@ window.createStudentCode =
                                     ) + "%"
 
                                     : "-"
-                                }
-                            </td>
 
+                                }
+
+                            </td>
 
                             <td>
                                 ${formatDate(
@@ -1928,9 +2080,18 @@ window.createStudentCode =
                 `;
 
 
-                document.getElementById(
-                    "resultsTable"
-                ).innerHTML = html;
+                const table =
+                    document.getElementById(
+                        "resultsTable"
+                    );
+
+
+                if (table) {
+
+                    table.innerHTML =
+                        html;
+
+                }
 
             })
 
@@ -1942,13 +2103,21 @@ window.createStudentCode =
                 );
 
 
-                document.getElementById(
-                    "resultsTable"
-                ).innerHTML = `
+                const table =
+                    document.getElementById(
+                        "resultsTable"
+                    );
 
-                    ❌ تعذر تحميل النتائج
 
-                `;
+                if (table) {
+
+                    table.innerHTML = `
+
+                        ❌ تعذر تحميل النتائج
+
+                    `;
+
+                }
 
             });
 
@@ -1983,7 +2152,6 @@ window.createStudentCode =
                 });
 
 
-                // ترتيب من الأعلى للأقل
                 rows.sort(function (a, b) {
 
                     const scoreA =
@@ -2080,7 +2248,6 @@ window.createStudentCode =
 
                                 </td>
 
-
                                 <td>
                                     ${escapeHtml(
                                         data.name ||
@@ -2089,14 +2256,12 @@ window.createStudentCode =
                                     )}
                                 </td>
 
-
                                 <td>
                                     ${escapeHtml(
                                         data.grade ||
                                         "-"
                                     )}
                                 </td>
-
 
                                 <td>
                                     ${escapeHtml(
@@ -2125,9 +2290,18 @@ window.createStudentCode =
                 `;
 
 
-                document.getElementById(
-                    "leaderboardTable"
-                ).innerHTML = html;
+                const table =
+                    document.getElementById(
+                        "leaderboardTable"
+                    );
+
+
+                if (table) {
+
+                    table.innerHTML =
+                        html;
+
+                }
 
             })
 
@@ -2139,13 +2313,21 @@ window.createStudentCode =
                 );
 
 
-                document.getElementById(
-                    "leaderboardTable"
-                ).innerHTML = `
+                const table =
+                    document.getElementById(
+                        "leaderboardTable"
+                    );
 
-                    ❌ تعذر تحميل لوحة الترتيب
 
-                `;
+                if (table) {
+
+                    table.innerHTML = `
+
+                        ❌ تعذر تحميل لوحة الترتيب
+
+                    `;
+
+                }
 
             });
 
@@ -2330,13 +2512,11 @@ window.createStudentCode =
                     )}
                 </td>
 
-
                 <td>
                     ${escapeHtml(
                         content.subject || "-"
                     )}
                 </td>
-
 
                 <td>
                     ${escapeHtml(
@@ -2344,23 +2524,19 @@ window.createStudentCode =
                     )}
                 </td>
 
-
                 <td>
                     ${escapeHtml(
                         content.title || "-"
                     )}
                 </td>
 
-
                 <td>
                     ${typeText}
                 </td>
 
-
                 <td>
                     ${status}
                 </td>
-
 
                 <td>
 
@@ -2474,10 +2650,6 @@ window.createStudentCode =
 
             }
 
-
-            // ----------------------------------
-            // التحقق من الرابط حسب النوع
-            // ----------------------------------
 
             if (
                 (
@@ -3281,491 +3453,474 @@ window.createStudentCode =
         }
     );
 
+
     // ==========================================
-// Notifications
-// إدارة الإشعارات
-// ==========================================
+    // Notifications
+    // إدارة الإشعارات
+    // ==========================================
+
+    const notificationTargetType =
+        document.getElementById(
+            "notificationTargetType"
+        );
 
 
-// ------------------------------------------
-// تغيير نوع المستهدف
-// ------------------------------------------
+    if (notificationTargetType) {
 
-const notificationTargetType =
-    document.getElementById(
-        "notificationTargetType"
-    );
+        notificationTargetType.addEventListener(
+            "change",
+            function () {
+
+                const targetId =
+                    document.getElementById(
+                        "notificationTargetId"
+                    );
 
 
-if (notificationTargetType) {
+                if (!targetId) {
 
-    notificationTargetType.addEventListener(
-        "change",
+                    return;
+
+                }
+
+
+                if (this.value === "all") {
+
+                    targetId.style.display =
+                        "none";
+
+                    targetId.value = "";
+
+                }
+
+                else if (this.value === "grade") {
+
+                    targetId.style.display =
+                        "block";
+
+                    targetId.placeholder =
+                        "مثال: الصف الأول الثانوي التمريض";
+
+                }
+
+                else if (this.value === "student") {
+
+                    targetId.style.display =
+                        "block";
+
+                    targetId.placeholder =
+                        "اكتب كود الطالب";
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ==========================================
+    // إنشاء إشعار
+    // ==========================================
+
+    window.createNotification =
         function () {
+
+            const targetType =
+                document.getElementById(
+                    "notificationTargetType"
+                ).value;
+
 
             const targetId =
                 document.getElementById(
                     "notificationTargetId"
-                );
+                ).value
+                .trim();
 
 
-            if (!targetId) {
-
-                return;
-
-            }
-
-
-            if (this.value === "all") {
-
-                targetId.style.display =
-                    "none";
-
-                targetId.value = "";
-
-            }
-
-            else if (this.value === "grade") {
-
-                targetId.style.display =
-                    "block";
-
-                targetId.placeholder =
-                    "مثال: الصف الأول الثانوي التمريض";
-
-            }
-
-            else if (this.value === "student") {
-
-                targetId.style.display =
-                    "block";
-
-                targetId.placeholder =
-                    "اكتب كود الطالب";
-
-            }
-
-        }
-    );
-
-}
-
-
-// ------------------------------------------
-// إنشاء إشعار
-// ------------------------------------------
-
-window.createNotification =
-    function () {
-
-        const targetType =
-            document.getElementById(
-                "notificationTargetType"
-            ).value;
-
-
-        const targetId =
-            document.getElementById(
-                "notificationTargetId"
-            ).value
-            .trim();
-
-
-        const title =
-            document.getElementById(
-                "notificationTitle"
-            ).value
-            .trim();
-
-
-        const message =
-            document.getElementById(
-                "notificationMessage"
-            ).value
-            .trim();
-
-
-        // ----------------------------------
-        // التحقق
-        // ----------------------------------
-
-        if (!title || !message) {
-
-            alert(
-                "⚠️ من فضلك اكتب عنوان الإشعار والرسالة"
-            );
-
-            return;
-
-        }
-
-
-        if (
-            targetType !== "all" &&
-            !targetId
-        ) {
-
-            alert(
-                "⚠️ من فضلك حدد الطالب أو الصف"
-            );
-
-            return;
-
-        }
-
-
-        // ----------------------------------
-        // منع الضغط المتكرر
-        // ----------------------------------
-
-        const confirmSend =
-            confirm(
-                "🔔 هل تريد إرسال هذا الإشعار؟\n\n" +
-                "العنوان: " +
-                title
-            );
-
-
-        if (!confirmSend) {
-
-            return;
-
-        }
-
-
-        // ----------------------------------
-        // إضافة الإشعار
-        // ----------------------------------
-
-        db.collection("notifications")
-            .add({
-
-                title:
-                    title,
-
-                message:
-                    message,
-
-                targetType:
-                    targetType,
-
-                targetId:
-                    targetType === "all"
-                        ? ""
-                        : targetId,
-
-                createdAt:
-                    firebase.firestore
-                        .FieldValue
-                        .serverTimestamp()
-
-            })
-
-            .then(function () {
-
-                alert(
-                    "✅ تم إرسال الإشعار بنجاح 🔔"
-                );
-
-
-                // تنظيف النموذج
-
+            const title =
                 document.getElementById(
                     "notificationTitle"
-                ).value = "";
+                ).value
+                .trim();
 
 
+            const message =
                 document.getElementById(
                     "notificationMessage"
-                ).value = "";
+                ).value
+                .trim();
 
 
-                document.getElementById(
-                    "notificationTargetId"
-                ).value = "";
-
-
-                document.getElementById(
-                    "notificationTargetType"
-                ).value = "all";
-
-
-                document.getElementById(
-                    "notificationTargetId"
-                ).style.display = "none";
-
-
-                // إعادة تحميل الإشعارات
-
-                loadNotifications();
-
-            })
-
-            .catch(function (error) {
-
-                console.error(
-                    "Create Notification Error:",
-                    error
-                );
-
+            if (!title || !message) {
 
                 alert(
-                    "❌ فشل إرسال الإشعار\n\n" +
-                    error.message
+                    "⚠️ من فضلك اكتب عنوان الإشعار والرسالة"
                 );
-
-            });
-
-    };
-
-
-// ------------------------------------------
-// تحميل الإشعارات
-// ------------------------------------------
-
-function loadNotifications() {
-
-    db.collection("notifications")
-        .orderBy(
-            "createdAt",
-            "desc"
-        )
-        .get()
-
-        .then(function (snapshot) {
-
-            const table =
-                document.getElementById(
-                    "notificationsTable"
-                );
-
-
-            if (!table) {
 
                 return;
 
             }
 
 
-            table.innerHTML = "";
+            if (
+                targetType !== "all" &&
+                !targetId
+            ) {
 
-
-            if (snapshot.empty) {
-
-                table.innerHTML = `
-
-                    <tr>
-
-                        <td colspan="5">
-
-                            📭 لا توجد إشعارات
-
-                        </td>
-
-                    </tr>
-
-                `;
+                alert(
+                    "⚠️ من فضلك حدد الطالب أو الصف"
+                );
 
                 return;
 
             }
 
 
-            snapshot.forEach(
-                function (doc) {
-
-                    const data =
-                        doc.data();
-
-
-                    let targetText =
-                        "📢 كل الطلاب";
+            const confirmSend =
+                confirm(
+                    "🔔 هل تريد إرسال هذا الإشعار؟\n\n" +
+                    "العنوان: " +
+                    title
+                );
 
 
-                    if (
-                        data.targetType ===
-                        "grade"
-                    ) {
+            if (!confirmSend) {
 
-                        targetText =
-                            "🎓 " +
-                            (
-                                data.targetId ||
-                                "-"
-                            );
+                return;
 
-                    }
+            }
 
 
-                    else if (
-                        data.targetType ===
-                        "student"
-                    ) {
+            db.collection("notifications")
+                .add({
 
-                        targetText =
-                            "👤 " +
-                            (
-                                data.targetId ||
-                                "-"
-                            );
+                    title:
+                        title,
 
-                    }
+                    message:
+                        message,
 
+                    targetType:
+                        targetType,
 
-                    const row =
-                        document.createElement(
-                            "tr"
-                        );
+                    targetId:
+                        targetType === "all"
+                            ? ""
+                            : targetId,
 
+                    createdAt:
+                        firebase.firestore
+                            .FieldValue
+                            .serverTimestamp()
 
-                    row.innerHTML = `
+                })
 
-                        <td>
-                            ${escapeHtml(
-                                data.title || "-"
-                            )}
-                        </td>
+                .then(function () {
 
-
-                        <td style="
-                            max-width:300px;
-                            white-space:normal;
-                        ">
-                            ${escapeHtml(
-                                data.message || "-"
-                            )}
-                        </td>
+                    alert(
+                        "✅ تم إرسال الإشعار بنجاح 🔔"
+                    );
 
 
-                        <td>
-                            ${escapeHtml(
-                                targetText
-                            )}
-                        </td>
+                    document.getElementById(
+                        "notificationTitle"
+                    ).value = "";
 
 
-                        <td>
-                            ${formatDate(
-                                data.createdAt
-                            )}
-                        </td>
+                    document.getElementById(
+                        "notificationMessage"
+                    ).value = "";
 
 
-                        <td>
+                    document.getElementById(
+                        "notificationTargetId"
+                    ).value = "";
 
-                            <button
-                                class="admin-btn danger-btn"
-                                title="حذف"
-                                onclick="
-                                    deleteNotification(
-                                        '${escapeAttribute(doc.id)}'
-                                    )
-                                ">
 
-                                🗑️
+                    document.getElementById(
+                        "notificationTargetType"
+                    ).value = "all";
 
-                            </button>
 
-                        </td>
+                    document.getElementById(
+                        "notificationTargetId"
+                    ).style.display = "none";
+
+
+                    loadNotifications();
+
+                })
+
+                .catch(function (error) {
+
+                    console.error(
+                        "Create Notification Error:",
+                        error
+                    );
+
+
+                    alert(
+                        "❌ فشل إرسال الإشعار\n\n" +
+                        error.message
+                    );
+
+                });
+
+        };
+
+
+    // ==========================================
+    // تحميل الإشعارات
+    // ==========================================
+
+    function loadNotifications() {
+
+        db.collection("notifications")
+            .orderBy(
+                "createdAt",
+                "desc"
+            )
+            .get()
+
+            .then(function (snapshot) {
+
+                const table =
+                    document.getElementById(
+                        "notificationsTable"
+                    );
+
+
+                if (!table) {
+
+                    return;
+
+                }
+
+
+                table.innerHTML = "";
+
+
+                if (snapshot.empty) {
+
+                    table.innerHTML = `
+
+                        <tr>
+
+                            <td colspan="5">
+
+                                📭 لا توجد إشعارات
+
+                            </td>
+
+                        </tr>
 
                     `;
 
-
-                    table.appendChild(
-                        row
-                    );
+                    return;
 
                 }
-            );
-
-        })
-
-        .catch(function (error) {
-
-            console.error(
-                "Notifications Error:",
-                error
-            );
 
 
-            const table =
-                document.getElementById(
-                    "notificationsTable"
+                snapshot.forEach(
+                    function (doc) {
+
+                        const data =
+                            doc.data();
+
+
+                        let targetText =
+                            "📢 كل الطلاب";
+
+
+                        if (
+                            data.targetType ===
+                            "grade"
+                        ) {
+
+                            targetText =
+                                "🎓 " +
+                                (
+                                    data.targetId ||
+                                    "-"
+                                );
+
+                        }
+
+
+                        else if (
+                            data.targetType ===
+                            "student"
+                        ) {
+
+                            targetText =
+                                "👤 " +
+                                (
+                                    data.targetId ||
+                                    "-"
+                                );
+
+                        }
+
+
+                        const row =
+                            document.createElement(
+                                "tr"
+                            );
+
+
+                        row.innerHTML = `
+
+                            <td>
+                                ${escapeHtml(
+                                    data.title || "-"
+                                )}
+                            </td>
+
+
+                            <td style="
+                                max-width:300px;
+                                white-space:normal;
+                            ">
+
+                                ${escapeHtml(
+                                    data.message || "-"
+                                )}
+
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    targetText
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${formatDate(
+                                    data.createdAt
+                                )}
+                            </td>
+
+
+                            <td>
+
+                                <button
+                                    class="admin-btn danger-btn"
+                                    title="حذف"
+                                    onclick="
+                                        deleteNotification(
+                                            '${escapeAttribute(doc.id)}'
+                                        )
+                                    ">
+
+                                    🗑️
+
+                                </button>
+
+                            </td>
+
+                        `;
+
+
+                        table.appendChild(
+                            row
+                        );
+
+                    }
                 );
-
-
-            if (table) {
-
-                table.innerHTML = `
-
-                    <tr>
-
-                        <td colspan="5">
-
-                            ❌ تعذر تحميل الإشعارات
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-
-        });
-
-}
-
-
-// ------------------------------------------
-// حذف إشعار
-// ------------------------------------------
-
-window.deleteNotification =
-    function (id) {
-
-        if (
-            !confirm(
-                "⚠️ هل أنت متأكد من حذف هذا الإشعار؟"
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        db.collection("notifications")
-            .doc(id)
-            .delete()
-
-            .then(function () {
-
-                alert(
-                    "✅ تم حذف الإشعار"
-                );
-
-
-                loadNotifications();
 
             })
 
             .catch(function (error) {
 
                 console.error(
-                    "Delete Notification Error:",
+                    "Notifications Error:",
                     error
                 );
 
 
-                alert(
-                    "❌ فشل حذف الإشعار\n\n" +
-                    error.message
-                );
+                const table =
+                    document.getElementById(
+                        "notificationsTable"
+                    );
+
+
+                if (table) {
+
+                    table.innerHTML = `
+
+                        <tr>
+
+                            <td colspan="5">
+
+                                ❌ تعذر تحميل الإشعارات
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
 
             });
 
-    };
+    }
+
+
+    // ==========================================
+    // حذف إشعار
+    // ==========================================
+
+    window.deleteNotification =
+        function (id) {
+
+            if (
+                !confirm(
+                    "⚠️ هل أنت متأكد من حذف هذا الإشعار؟"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            db.collection("notifications")
+                .doc(id)
+                .delete()
+
+                .then(function () {
+
+                    alert(
+                        "✅ تم حذف الإشعار"
+                    );
+
+
+                    loadNotifications();
+
+                })
+
+                .catch(function (error) {
+
+                    console.error(
+                        "Delete Notification Error:",
+                        error
+                    );
+
+
+                    alert(
+                        "❌ فشل حذف الإشعار\n\n" +
+                        error.message
+                    );
+
+                });
+
+        };
+
 
     // ==========================================
     // تسجيل الخروج
@@ -3879,6 +4034,7 @@ window.deleteNotification =
         return date.toLocaleDateString(
             "ar-EG",
             {
+
                 year:
                     "numeric",
 
@@ -3887,6 +4043,7 @@ window.deleteNotification =
 
                 day:
                     "2-digit"
+
             }
         );
 

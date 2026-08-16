@@ -1050,200 +1050,447 @@ if (sectionId === "notifications") {
 
         };
 
+// ==========================================
+// إضافة كود اشتراك + إنشاء حساب ولي الأمر
+// ==========================================
 
-    // ==========================================
-    // إضافة كود اشتراك
-    // ==========================================
+window.createStudentCode =
+    function () {
 
-    window.createStudentCode =
-        function () {
+        const code =
+            document.getElementById(
+                "newCode"
+            )
+            .value
+            .trim();
 
-            const code =
+
+        const password =
+            document.getElementById(
+                "newPassword"
+            )
+            .value
+            .trim();
+
+
+        const name =
+            document.getElementById(
+                "newName"
+            )
+            .value
+            .trim();
+
+
+        const grade =
+            document.getElementById(
+                "newGrade"
+            ).value;
+
+
+        const days =
+            Number(
                 document.getElementById(
-                    "newCode"
+                    "subscriptionDays"
+                ).value
+            );
+
+
+        // ==========================================
+        // التحقق من بيانات الطالب
+        // ==========================================
+
+        if (
+            !code ||
+            !password ||
+            !name ||
+            !grade
+        ) {
+
+            alert(
+                "⚠️ من فضلك أكمل جميع بيانات الطالب"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !days ||
+            days < 1
+        ) {
+
+            alert(
+                "❌ مدة الاشتراك غير صحيحة"
+            );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // اسم ولي الأمر
+        // ==========================================
+
+        const parentName =
+            prompt(
+                "👨‍👩‍👦 اكتب اسم ولي الأمر:\n\n" +
+                "يمكنك كتابة الاسم أو الاسم بالكامل"
+            );
+
+
+        if (parentName === null) {
+
+            return;
+
+        }
+
+
+        const cleanParentName =
+            parentName.trim();
+
+
+        if (!cleanParentName) {
+
+            alert(
+                "❌ يجب إدخال اسم ولي الأمر"
+            );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // توليد كود ولي الأمر
+        // ==========================================
+
+        function generateParentCode() {
+
+            const random =
+                Math.random()
+                    .toString(36)
+                    .substring(2, 8)
+                    .toUpperCase();
+
+
+            return "PT-" + random;
+
+        }
+
+
+        // ==========================================
+        // توليد كلمة مرور ولي الأمر
+        // ==========================================
+
+        function generateParentPassword() {
+
+            return String(
+                Math.floor(
+                    100000 +
+                    Math.random() * 900000
                 )
-                .value
-                .trim();
+            );
+
+        }
 
 
-            const password =
-                document.getElementById(
-                    "newPassword"
-                )
-                .value
-                .trim();
+        const parentCode =
+            generateParentCode();
 
 
-            const name =
-                document.getElementById(
-                    "newName"
-                )
-                .value
-                .trim();
+        const parentPassword =
+            generateParentPassword();
 
 
-            const grade =
-                document.getElementById(
-                    "newGrade"
-                )
-                .value;
+        // ==========================================
+        // تأكيد قبل الإنشاء
+        // ==========================================
+
+        const confirmCreate =
+            confirm(
+
+                "👨‍🎓 سيتم إنشاء حساب الطالب:\n\n" +
+
+                "الطالب: " +
+                name +
+                "\n" +
+
+                "الكود: " +
+                code +
+                "\n\n" +
+
+                "👨‍👩‍👦 وسيتم إنشاء حساب ولي الأمر:\n\n" +
+
+                "ولي الأمر: " +
+                cleanParentName +
+                "\n" +
+
+                "الكود: " +
+                parentCode +
+                "\n" +
+
+                "الباسورد: " +
+                parentPassword
+
+            );
 
 
-            const days =
-                Number(
-                    document.getElementById(
-                        "subscriptionDays"
-                    ).value
-                );
+        if (!confirmCreate) {
+
+            return;
+
+        }
 
 
-            if (
-                !code ||
-                !password ||
-                !name ||
-                !grade
-            ) {
+        // ==========================================
+        // حساب تاريخ انتهاء الاشتراك
+        // ==========================================
 
-                alert(
-                    "⚠️ من فضلك أكمل جميع البيانات"
-                );
-
-                return;
-
-            }
+        const expiresAt =
+            new Date();
 
 
-            if (
-                !days ||
-                days < 1
-            ) {
-
-                alert(
-                    "❌ مدة الاشتراك غير صحيحة"
-                );
-
-                return;
-
-            }
+        expiresAt.setDate(
+            expiresAt.getDate() +
+            days
+        );
 
 
-            db.collection("students")
-                .doc(code)
-                .get()
+        // ==========================================
+        // التأكد من عدم وجود الطالب
+        // ==========================================
 
-                .then(function (existing) {
+        db.collection("students")
+            .doc(code)
+            .get()
 
-                    if (existing.exists) {
+            .then(function (existingStudent) {
 
-                        throw new Error(
-                            "هذا الكود موجود بالفعل"
-                        );
+                if (existingStudent.exists) {
+
+                    throw new Error(
+                        "❌ كود الطالب موجود بالفعل"
+                    );
+
+                }
+
+
+                // ==========================================
+                // التأكد من عدم وجود كود ولي الأمر
+                // ==========================================
+
+                return db.collection("parents")
+                    .doc(parentCode)
+                    .get();
+
+            })
+
+
+            .then(function (existingParent) {
+
+                if (existingParent.exists) {
+
+                    throw new Error(
+                        "❌ حدث تعارض في كود ولي الأمر، حاول مرة أخرى"
+                    );
+
+                }
+
+
+                // ==========================================
+                // Batch
+                // إنشاء الطالب وولي الأمر معًا
+                // ==========================================
+
+                const batch =
+                    db.batch();
+
+
+                // ==========================================
+                // Student Document
+                // ==========================================
+
+                const studentRef =
+                    db.collection("students")
+                        .doc(code);
+
+
+                batch.set(
+                    studentRef,
+                    {
+
+                        name:
+                            name,
+
+                        password:
+                            password,
+
+                        grade:
+                            grade,
+
+                        active:
+                            true,
+
+                        expiresAt:
+                            firebase.firestore
+                                .Timestamp
+                                .fromDate(
+                                    expiresAt
+                                ),
+
+                        deviceId:
+                            "",
+
+                        createdAt:
+                            firebase.firestore
+                                .FieldValue
+                                .serverTimestamp()
 
                     }
+                );
 
 
-                    const expiresAt =
-                        new Date();
+                // ==========================================
+                // Parent Document
+                // ==========================================
+
+                const parentRef =
+                    db.collection("parents")
+                        .doc(parentCode);
 
 
-                    expiresAt.setDate(
-                        expiresAt.getDate() +
-                        days
-                    );
+                batch.set(
+                    parentRef,
+                    {
+
+                        parentName:
+                            cleanParentName,
+
+                        password:
+                            parentPassword,
+
+                        studentCode:
+                            code,
+
+                        active:
+                            true,
+
+                        createdAt:
+                            firebase.firestore
+                                .FieldValue
+                                .serverTimestamp()
+
+                    }
+                );
 
 
-                    return db.collection("students")
-                        .doc(code)
-                        .set({
+                // ==========================================
+                // تنفيذ العمليتين معًا
+                // ==========================================
 
-                            name:
-                                name,
+                return batch.commit();
 
-                            password:
-                                password,
-
-                            grade:
-                                grade,
-
-                            active:
-                                true,
-
-                            expiresAt:
-                                firebase.firestore
-                                    .Timestamp
-                                    .fromDate(
-                                        expiresAt
-                                    ),
-
-                            deviceId:
-                                "",
-
-                            createdAt:
-                                firebase.firestore
-                                    .FieldValue
-                                    .serverTimestamp()
-
-                        });
-
-                })
-
-                .then(function () {
-
-                    alert(
-                        "✅ تم إنشاء كود الاشتراك بنجاح"
-                    );
+            })
 
 
-                    document.getElementById(
-                        "newCode"
-                    ).value = "";
+            // ==========================================
+            // نجاح الإنشاء
+            // ==========================================
+
+            .then(function () {
+
+                alert(
+
+                    "✅ تم إنشاء الحسابين بنجاح!\n\n" +
+
+                    "👨‍🎓 الطالب\n" +
+
+                    "الكود: " +
+                    code +
+                    "\n" +
+
+                    "الباسورد: " +
+                    password +
+                    "\n\n" +
+
+                    "👨‍👩‍👦 ولي الأمر\n" +
+
+                    "الكود: " +
+                    parentCode +
+                    "\n" +
+
+                    "الباسورد: " +
+                    parentPassword
+
+                );
 
 
-                    document.getElementById(
-                        "newPassword"
-                    ).value = "";
+                // ==========================================
+                // تنظيف بيانات الطالب
+                // ==========================================
+
+                document.getElementById(
+                    "newCode"
+                ).value = "";
 
 
-                    document.getElementById(
-                        "newName"
-                    ).value = "";
+                document.getElementById(
+                    "newPassword"
+                ).value = "";
 
 
-                    document.getElementById(
-                        "newGrade"
-                    ).value = "";
+                document.getElementById(
+                    "newName"
+                ).value = "";
 
 
-                    document.getElementById(
-                        "subscriptionDays"
-                    ).value = "30";
+                document.getElementById(
+                    "newGrade"
+                ).value = "";
 
 
-                    loadCodes();
-
-                    loadStudents();
-
-                    loadDashboard();
-
-                })
-
-                .catch(function (error) {
-
-                    console.error(
-                        "Create Code Error:",
-                        error
-                    );
+                document.getElementById(
+                    "subscriptionDays"
+                ).value = "30";
 
 
-                    alert(
-                        "❌ فشل إنشاء الكود\n\n" +
-                        error.message
-                    );
+                // ==========================================
+                // تحديث لوحة الإدارة
+                // ==========================================
 
-                });
+                loadCodes();
 
-        };
+                loadStudents();
 
+                loadDashboard();
+
+            })
+
+
+            // ==========================================
+            // الأخطاء
+            // ==========================================
+
+            .catch(function (error) {
+
+                console.error(
+                    "Create Student + Parent Error:",
+                    error
+                );
+
+
+                alert(
+
+                    "❌ فشل إنشاء الحساب\n\n" +
+                    error.message
+
+                );
+
+            });
+
+    };
 
     // ==========================================
     // الأكواد

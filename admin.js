@@ -713,6 +713,20 @@ function renderStudents(searchText) {
                             </button>
 
 
+                            <!-- فك الجهاز -->
+
+                            <button
+                                class="admin-btn warning-btn"
+                                title="فك الجهاز المرتبط"
+                                onclick="unlinkStudentDevice('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                🔓
+
+                            </button>
+
+
                             <!-- تغيير كلمة المرور -->
 
                             <button
@@ -749,6 +763,83 @@ function renderStudents(searchText) {
             }
         )
         .join("");
+
+}
+
+
+// ==========================================================
+// فك الجهاز المرتبط بالطالب
+// ==========================================================
+
+function unlinkStudentDevice(studentCode) {
+
+    const student =
+        allStudents.find(
+            function (item) {
+
+                return item.id === studentCode;
+
+            }
+        );
+
+
+    if (!student) {
+
+        alert(
+            "❌ الطالب غير موجود"
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "🔓 هل تريد فك الجهاز المرتبط بهذا الطالب؟\n\n" +
+            (student.name || studentCode) +
+            "\n\nسيتمكن الطالب من تسجيل الدخول من جهاز جديد."
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    db.collection("students")
+        .doc(studentCode)
+        .update({
+
+            deviceId: null
+
+        })
+        .then(function () {
+
+            student.deviceId = null;
+
+
+            alert(
+                "✅ تم فك الجهاز بنجاح\n\n" +
+                "يمكن للطالب الآن تسجيل الدخول من جهاز جديد."
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(
+                "Unlink device error:",
+                error
+            );
+
+
+            alert(
+                "❌ تعذر فك الجهاز"
+            );
+
+        });
 
 }
 
@@ -1698,7 +1789,7 @@ function createStudentCode() {
             else {
 
                 alert(
-                    "❌ حدث خطأ أثناء إنشاء الكود"
+                    "❌ حدث خطأ أثناء إنشاء كود الطالب"
                 );
 
             }
@@ -1813,6 +1904,18 @@ function renderCodes() {
                                 )}')">
 
                                 ➕
+
+                            </button>
+
+
+                            <button
+                                class="admin-btn warning-btn"
+                                title="فك الجهاز المرتبط"
+                                onclick="unlinkStudentDevice('${escapeJs(
+                                    student.id
+                                )}')">
+
+                                🔓
 
                             </button>
 
@@ -2289,7 +2392,7 @@ function renderParents() {
 
                             <button
                                 class="admin-btn danger-btn"
-                                title="حذف ولي الأمر"
+                                title="حذف الطالب"
                                 onclick="deleteParent('${escapeJs(
                                     parent.id
                                 )}')">

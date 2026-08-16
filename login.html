@@ -4,73 +4,134 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<title>تسجيل الدخول | بوابة التمريض</title>
+<link rel="icon"
+type="image/x-icon"
+href="favicon.ico">
 
-<link rel="stylesheet" href="style.css">
+<link rel="icon"
+type="image/png"
+sizes="32x32"
+href="favicon-32.png">
+
+<link rel="icon"
+type="image/png"
+sizes="48x48"
+href="favicon-48.png">
+
+<link rel="apple-touch-icon"
+sizes="180x180"
+href="apple-touch-icon.png">
+
+<title>
+تسجيل الدخول | بوابة التمريض
+</title>
+
+<link rel="stylesheet"
+href="style.css">
 
 </head>
 
+
 <body>
+
 
 <div class="card">
 
-<div class="logo">🩺</div>
-
-<h2>بوابة التمريض</h2>
-
-<p>سجل الدخول للمتابعة</p>
+    <div class="logo">
+        🩺
+    </div>
 
 
-<div class="input-box">
+    <h2>
+        بوابة التمريض
+    </h2>
 
-<span class="icon">🔑</span>
 
-<input
-type="text"
-id="code"
-placeholder="كود الاشتراك"
-autocomplete="off">
+    <p>
+        سجل الدخول للمتابعة
+    </p>
+
+
+    <!-- ==========================
+         Code
+    =========================== -->
+
+    <div class="input-box">
+
+        <span class="icon">
+            🔑
+        </span>
+
+        <input
+            type="text"
+            id="code"
+            placeholder="كود الاشتراك"
+            autocomplete="off">
+
+    </div>
+
+
+    <!-- ==========================
+         Password
+    =========================== -->
+
+    <div class="input-box">
+
+        <span class="icon">
+            🔒
+        </span>
+
+        <input
+            type="password"
+            id="password"
+            placeholder="كلمة المرور"
+            autocomplete="current-password">
+
+    </div>
+
+
+    <!-- ==========================
+         Login Button
+    =========================== -->
+
+    <button
+        id="loginBtn"
+        type="button">
+
+        تسجيل الدخول
+
+    </button>
+
+
+    <br>
+    <br>
+
+
+    <p>
+
+        إذا لم يكن لديك كود اشتراك،
+        تواصل مع إدارة بوابة التمريض.
+
+        <br>
+
+        على واتساب
+        01222736904
+
+    </p>
+
+
+    <div class="footer">
+
+        © 2026 بوابة التمريض
+
+    </div>
 
 </div>
 
-
-<div class="input-box">
-
-<span class="icon">🔒</span>
-
-<input
-type="password"
-id="password"
-placeholder="كلمة المرور">
-
-</div>
-
-
-<button id="loginBtn" type="button">
-تسجيل الدخول
-</button>
-
-
-<br><br>
-
-<p>
-إذا لم يكن لديك كود اشتراك، تواصل مع إدارة بوابة التمريض.
-على واتساب 01222736904
-</p>
-
-
-<div class="footer">
-© 2026 بوابة التمريض
-</div>
-
-</div>
 
 
 <!-- ==========================
@@ -86,9 +147,114 @@ placeholder="كلمة المرور">
 <script src="firebase.js"></script>
 
 
+
 <script>
 
+
+// ==========================================
+// حالة تسجيل الدخول
+// ==========================================
+
 let isLoggingIn = false;
+
+
+
+// ==========================================
+// إنشاء / الحصول على Device ID
+// ==========================================
+
+function getDeviceId() {
+
+    let deviceId =
+        localStorage.getItem("deviceId");
+
+
+    // ======================================
+    // الجهاز لديه Device ID بالفعل
+    // ======================================
+
+    if (deviceId) {
+
+        return deviceId;
+
+    }
+
+
+    // ======================================
+    // إنشاء Device ID جديد
+    // ======================================
+
+    try {
+
+        if (
+            window.crypto &&
+            typeof window.crypto.randomUUID ===
+            "function"
+        ) {
+
+            deviceId =
+                "device_" +
+                window.crypto.randomUUID();
+
+        }
+
+        else {
+
+            deviceId =
+                "device_" +
+                Date.now() +
+                "_" +
+                Math.random()
+                    .toString(36)
+                    .substring(2, 12);
+
+        }
+
+    }
+
+    catch (error) {
+
+        deviceId =
+            "device_" +
+            Date.now() +
+            "_" +
+            Math.random()
+                .toString(36)
+                .substring(2, 12);
+
+    }
+
+
+    // ======================================
+    // حفظ Device ID
+    // ======================================
+
+    localStorage.setItem(
+        "deviceId",
+        deviceId
+    );
+
+
+    return deviceId;
+
+}
+
+
+
+// ==========================================
+// التحقق من Device ID
+// ==========================================
+
+function isValidDeviceId(value) {
+
+    return (
+        value &&
+        value !== "null" &&
+        value !== ""
+    );
+
+}
+
 
 
 // ==========================================
@@ -97,30 +263,45 @@ let isLoggingIn = false;
 
 function login() {
 
+
+    // ======================================
+    // منع الضغط المتكرر
+    // ======================================
+
     if (isLoggingIn) {
+
         return;
+
     }
 
 
+    // ======================================
+    // الحصول على البيانات
+    // ======================================
+
     const code =
-        document.getElementById("code")
+        document
+            .getElementById("code")
             .value
             .trim();
 
 
     const password =
-        document.getElementById("password")
+        document
+            .getElementById("password")
             .value
             .trim();
 
 
     const loginBtn =
-        document.getElementById("loginBtn");
+        document.getElementById(
+            "loginBtn"
+        );
 
 
-    // ==========================================
+    // ======================================
     // التحقق من البيانات
-    // ==========================================
+    // ======================================
 
     if (!code || !password) {
 
@@ -133,6 +314,10 @@ function login() {
     }
 
 
+    // ======================================
+    // بدء تسجيل الدخول
+    // ======================================
+
     isLoggingIn = true;
 
     loginBtn.disabled = true;
@@ -141,14 +326,16 @@ function login() {
         "⏳ جاري تسجيل الدخول...";
 
 
-    // ==========================================
+    // ======================================
     // Anonymous Authentication
-    // ==========================================
+    // ======================================
 
     let authPromise;
 
 
-    if (firebase.auth().currentUser) {
+    if (
+        firebase.auth().currentUser
+    ) {
 
         authPromise =
             Promise.resolve(
@@ -166,19 +353,22 @@ function login() {
     }
 
 
-    // ==========================================
+
+    // ======================================
     // بعد Authentication
-    // ==========================================
+    // ======================================
 
     authPromise
 
         .then(function () {
 
+
             // ==================================
             // أولاً نبحث عن الطالب
             // ==================================
 
-            return db.collection("students")
+            return db
+                .collection("students")
                 .doc(code)
                 .get();
 
@@ -191,22 +381,27 @@ function login() {
 
         .then(function (studentDoc) {
 
+
             // ==================================
             // الحساب طالب
             // ==================================
 
-            if (studentDoc.exists) {
+            if (
+                studentDoc.exists
+            ) {
+
 
                 const student =
                     studentDoc.data();
 
 
-                // ----------------------------------
+                // ==================================
                 // كلمة المرور
-                // ----------------------------------
+                // ==================================
 
                 if (
-                    student.password !== password
+                    student.password !==
+                    password
                 ) {
 
                     throw new Error(
@@ -216,9 +411,9 @@ function login() {
                 }
 
 
-                // ----------------------------------
+                // ==================================
                 // حالة الاشتراك
-                // ----------------------------------
+                // ==================================
 
                 if (
                     student.active !== true
@@ -231,17 +426,21 @@ function login() {
                 }
 
 
-                // ----------------------------------
+                // ==================================
                 // تاريخ انتهاء الاشتراك
-                // ----------------------------------
+                // ==================================
 
-                if (student.expiresAt) {
+                if (
+                    student.expiresAt
+                ) {
+
 
                     let expiry;
 
 
                     if (
-                        typeof student.expiresAt.toDate ===
+                        typeof
+                        student.expiresAt.toDate ===
                         "function"
                     ) {
 
@@ -274,7 +473,8 @@ function login() {
 
 
                     if (
-                        new Date() >= expiry
+                        new Date() >=
+                        expiry
                     ) {
 
                         throw new Error(
@@ -286,46 +486,30 @@ function login() {
                 }
 
 
+
                 // ==================================
-                // Device ID للطالب فقط
+                // Device ID
+                // الطالب
                 // ==================================
 
-                let deviceId =
-                    localStorage.getItem(
-                        "deviceId"
-                    );
+                const deviceId =
+                    getDeviceId();
 
-
-                if (!deviceId) {
-
-                    deviceId =
-                        "device_" +
-                        Date.now() +
-                        "_" +
-                        Math.random()
-                            .toString(36)
-                            .substring(2, 10);
-
-
-                    localStorage.setItem(
-                        "deviceId",
-                        deviceId
-                    );
-
-                }
 
 
                 // ==================================
-                // أول جهاز
+                // أول جهاز للطالب
                 // ==================================
 
                 if (
-                    !student.deviceId ||
-                    student.deviceId === "null" ||
-                    student.deviceId === ""
+                    !isValidDeviceId(
+                        student.deviceId
+                    )
                 ) {
 
-                    return db.collection("students")
+
+                    return db
+                        .collection("students")
                         .doc(code)
                         .update({
 
@@ -335,6 +519,12 @@ function login() {
                         })
 
                         .then(function () {
+
+
+                            // تحديث البيانات
+                            student.deviceId =
+                                deviceId;
+
 
                             return {
 
@@ -351,13 +541,16 @@ function login() {
                 }
 
 
+
                 // ==================================
-                // نفس الجهاز
+                // نفس جهاز الطالب
                 // ==================================
 
                 if (
-                    student.deviceId === deviceId
+                    student.deviceId ===
+                    deviceId
                 ) {
+
 
                     return {
 
@@ -372,6 +565,7 @@ function login() {
                 }
 
 
+
                 // ==================================
                 // جهاز آخر
                 // ==================================
@@ -383,18 +577,27 @@ function login() {
             }
 
 
+
             // ==========================================
             // ليس طالبًا
-            // نبحث في parents
+            // نبحث عن ولي الأمر
             // ==========================================
 
-            return db.collection("parents")
+            return db
+                .collection("parents")
                 .doc(code)
                 .get()
 
                 .then(function (parentDoc) {
 
-                    if (!parentDoc.exists) {
+
+                    // ==================================
+                    // الكود غير موجود
+                    // ==================================
+
+                    if (
+                        !parentDoc.exists
+                    ) {
 
                         throw new Error(
                             "❌ كود الاشتراك غير صحيح"
@@ -407,12 +610,14 @@ function login() {
                         parentDoc.data();
 
 
-                    // ----------------------------------
+
+                    // ==================================
                     // كلمة المرور
-                    // ----------------------------------
+                    // ==================================
 
                     if (
-                        parent.password !== password
+                        parent.password !==
+                        password
                     ) {
 
                         throw new Error(
@@ -422,9 +627,10 @@ function login() {
                     }
 
 
-                    // ----------------------------------
+
+                    // ==================================
                     // حالة الحساب
-                    // ----------------------------------
+                    // ==================================
 
                     if (
                         parent.active !== true
@@ -437,9 +643,10 @@ function login() {
                     }
 
 
-                    // ----------------------------------
-                    // التأكد من وجود الطالب
-                    // ----------------------------------
+
+                    // ==================================
+                    // كود الطالب المرتبط
+                    // ==================================
 
                     if (
                         !parent.studentCode
@@ -452,17 +659,22 @@ function login() {
                     }
 
 
-                    // ----------------------------------
-                    // تاريخ انتهاء الحساب
-                    // ----------------------------------
 
-                    if (parent.expiresAt) {
+                    // ==================================
+                    // تاريخ انتهاء الحساب
+                    // ==================================
+
+                    if (
+                        parent.expiresAt
+                    ) {
+
 
                         let expiry;
 
 
                         if (
-                            typeof parent.expiresAt.toDate ===
+                            typeof
+                            parent.expiresAt.toDate ===
                             "function"
                         ) {
 
@@ -495,7 +707,8 @@ function login() {
 
 
                         if (
-                            new Date() >= expiry
+                            new Date() >=
+                            expiry
                         ) {
 
                             throw new Error(
@@ -507,47 +720,163 @@ function login() {
                     }
 
 
+
                     // ==================================
-                    // نتأكد أن الطالب المرتبط موجود
+                    // Device ID
+                    // ولي الأمر
                     // ==================================
 
-                    return db.collection("students")
-                        .doc(parent.studentCode)
-                        .get()
-
-                        .then(function (studentDoc) {
-
-                            if (!studentDoc.exists) {
-
-                                throw new Error(
-                                    "❌ الطالب المرتبط بحساب ولي الأمر غير موجود"
-                                );
-
-                            }
+                    const deviceId =
+                        getDeviceId();
 
 
-                            const student =
-                                studentDoc.data();
+
+                    // ==================================
+                    // أول جهاز لولي الأمر
+                    // ==================================
+
+                    if (
+                        !isValidDeviceId(
+                            parent.deviceId
+                        )
+                    ) {
 
 
-                            return {
+                        return db
+                            .collection("parents")
+                            .doc(code)
+                            .update({
 
-                                type:
-                                    "parent",
+                                deviceId:
+                                    deviceId
 
-                                data:
-                                    parent,
+                            })
 
-                                student:
-                                    student
+                            .then(function () {
 
-                            };
 
-                        });
+                                // تحديث البيانات
+                                parent.deviceId =
+                                    deviceId;
+
+
+                                // نتحقق من الطالب
+                                return db
+                                    .collection("students")
+                                    .doc(
+                                        parent.studentCode
+                                    )
+                                    .get();
+
+                            })
+
+                            .then(function (
+                                studentDoc
+                            ) {
+
+
+                                if (
+                                    !studentDoc.exists
+                                ) {
+
+                                    throw new Error(
+                                        "❌ الطالب المرتبط بحساب ولي الأمر غير موجود"
+                                    );
+
+                                }
+
+
+                                const student =
+                                    studentDoc.data();
+
+
+                                return {
+
+                                    type:
+                                        "parent",
+
+                                    data:
+                                        parent,
+
+                                    student:
+                                        student
+
+                                };
+
+                            });
+
+                    }
+
+
+
+                    // ==================================
+                    // نفس جهاز ولي الأمر
+                    // ==================================
+
+                    if (
+                        parent.deviceId ===
+                        deviceId
+                    ) {
+
+
+                        return db
+                            .collection("students")
+                            .doc(
+                                parent.studentCode
+                            )
+                            .get()
+
+                            .then(function (
+                                studentDoc
+                            ) {
+
+
+                                if (
+                                    !studentDoc.exists
+                                ) {
+
+                                    throw new Error(
+                                        "❌ الطالب المرتبط بحساب ولي الأمر غير موجود"
+                                    );
+
+                                }
+
+
+                                const student =
+                                    studentDoc.data();
+
+
+                                return {
+
+                                    type:
+                                        "parent",
+
+                                    data:
+                                        parent,
+
+                                    student:
+                                        student
+
+                                };
+
+                            });
+
+                    }
+
+
+
+                    // ==================================
+                    // جهاز آخر
+                    // ==================================
+
+                    throw new Error(
+                        "❌ هذا الحساب مستخدم على جهاز آخر"
+                    );
 
                 });
 
         })
+
 
 
         // ==========================================
@@ -556,19 +885,24 @@ function login() {
 
         .then(function (result) {
 
+
             // ==================================
-            // طالب
+            // الطالب
             // ==================================
 
             if (
-                result.type === "student"
+                result.type ===
+                "student"
             ) {
+
 
                 const student =
                     result.data;
 
 
+                // ----------------------------------
                 // نوع الحساب
+                // ----------------------------------
 
                 localStorage.setItem(
                     "accountType",
@@ -576,7 +910,9 @@ function login() {
                 );
 
 
+                // ----------------------------------
                 // كود الطالب
+                // ----------------------------------
 
                 localStorage.setItem(
                     "studentCode",
@@ -584,7 +920,9 @@ function login() {
                 );
 
 
+                // ----------------------------------
                 // اسم الطالب
+                // ----------------------------------
 
                 localStorage.setItem(
                     "studentName",
@@ -592,7 +930,9 @@ function login() {
                 );
 
 
+                // ----------------------------------
                 // الصف
+                // ----------------------------------
 
                 localStorage.setItem(
                     "studentGrade",
@@ -600,14 +940,33 @@ function login() {
                 );
 
 
+                // ----------------------------------
+                // Device ID
+                // ----------------------------------
+
+                localStorage.setItem(
+                    "deviceId",
+                    student.deviceId ||
+                    getDeviceId()
+                );
+
+
+                // ----------------------------------
                 // إزالة بيانات ولي الأمر القديمة
+                // ----------------------------------
 
                 localStorage.removeItem(
                     "parentCode"
                 );
 
+                localStorage.removeItem(
+                    "parentName"
+                );
 
+
+                // ----------------------------------
                 // الدخول للمنصة
+                // ----------------------------------
 
                 window.location.replace(
                     "index.html"
@@ -618,19 +977,24 @@ function login() {
             }
 
 
+
             // ==================================
             // ولي الأمر
             // ==================================
 
             if (
-                result.type === "parent"
+                result.type ===
+                "parent"
             ) {
+
 
                 const parent =
                     result.data;
 
 
+                // ----------------------------------
                 // نوع الحساب
+                // ----------------------------------
 
                 localStorage.setItem(
                     "accountType",
@@ -638,7 +1002,9 @@ function login() {
                 );
 
 
+                // ----------------------------------
                 // كود ولي الأمر
+                // ----------------------------------
 
                 localStorage.setItem(
                     "parentCode",
@@ -646,7 +1012,9 @@ function login() {
                 );
 
 
+                // ----------------------------------
                 // كود الطالب
+                // ----------------------------------
 
                 localStorage.setItem(
                     "studentCode",
@@ -654,7 +1022,9 @@ function login() {
                 );
 
 
+                // ----------------------------------
                 // اسم ولي الأمر
+                // ----------------------------------
 
                 localStorage.setItem(
                     "parentName",
@@ -662,7 +1032,20 @@ function login() {
                 );
 
 
+                // ----------------------------------
+                // Device ID
+                // ----------------------------------
+
+                localStorage.setItem(
+                    "deviceId",
+                    parent.deviceId ||
+                    getDeviceId()
+                );
+
+
+                // ----------------------------------
                 // إزالة بيانات الطالب القديمة
+                // ----------------------------------
 
                 localStorage.removeItem(
                     "studentName"
@@ -673,7 +1056,9 @@ function login() {
                 );
 
 
+                // ----------------------------------
                 // الدخول إلى Dashboard ولي الأمر
+                // ----------------------------------
 
                 window.location.replace(
                     "parent.html"
@@ -684,6 +1069,11 @@ function login() {
             }
 
 
+
+            // ==================================
+            // نوع حساب غير معروف
+            // ==================================
+
             throw new Error(
                 "❌ نوع الحساب غير معروف"
             );
@@ -691,11 +1081,13 @@ function login() {
         })
 
 
+
         // ==========================================
         // معالجة الأخطاء
         // ==========================================
 
         .catch(function (error) {
+
 
             console.error(
                 "Login Error:",
@@ -709,9 +1101,17 @@ function login() {
             );
 
 
-            isLoggingIn = false;
+            // ==================================
+            // إعادة زر الدخول
+            // ==================================
 
-            loginBtn.disabled = false;
+            isLoggingIn =
+                false;
+
+
+            loginBtn.disabled =
+                false;
+
 
             loginBtn.innerHTML =
                 "تسجيل الدخول";
@@ -719,6 +1119,7 @@ function login() {
         });
 
 }
+
 
 
 // ==========================================
@@ -733,6 +1134,7 @@ document
     );
 
 
+
 // ==========================================
 // الضغط على Enter
 // ==========================================
@@ -743,8 +1145,10 @@ document
         "keydown",
         function (event) {
 
+
             if (
-                event.key === "Enter"
+                event.key ===
+                "Enter"
             ) {
 
                 login();
@@ -754,7 +1158,9 @@ document
         }
     );
 
+
 </script>
+
 
 </body>
 

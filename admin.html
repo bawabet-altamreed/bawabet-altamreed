@@ -661,6 +661,10 @@ th {
             👨‍🎓 الطلاب
         </button>
 
+       <button onclick="showSection('parents')">
+    👨‍👩‍👦 أولياء الأمور
+</button>
+       
         <button onclick="showSection('codes')">
             🔑 أكواد الاشتراك
         </button>
@@ -940,7 +944,177 @@ th {
 
     </section>
 
+   <!-- ==========================================
+     Parents Management
+========================================== -->
 
+<section id="parents" class="section">
+
+    <!-- ======================================
+         إنشاء حساب ولي أمر
+    ======================================= -->
+
+    <div class="admin-card">
+
+        <h2>
+            👨‍👩‍👦 إنشاء كود ولي أمر
+        </h2>
+
+        <p style="color:#777;">
+            إنشاء حساب منفصل لولي الأمر وربطه بحساب الطالب.
+        </p>
+
+        <div class="form-grid">
+
+            <!-- كود ولي الأمر -->
+
+            <input
+                id="newParentCode"
+                type="text"
+                placeholder="كود ولي الأمر"
+                autocomplete="off"
+            >
+
+
+            <!-- كلمة المرور -->
+
+            <input
+                id="newParentPassword"
+                type="text"
+                placeholder="كلمة مرور ولي الأمر"
+                autocomplete="off"
+            >
+
+
+            <!-- اسم ولي الأمر -->
+
+            <input
+                id="newParentName"
+                type="text"
+                placeholder="اسم ولي الأمر"
+            >
+
+
+            <!-- كود الطالب -->
+
+            <input
+                id="parentStudentCode"
+                type="text"
+                placeholder="كود الطالب المرتبط"
+                autocomplete="off"
+            >
+
+
+            <!-- مدة الاشتراك -->
+
+            <select id="parentSubscriptionDays">
+
+                <option value="15">
+                    15 يوم
+                </option>
+
+                <option value="30" selected>
+                    شهر
+                </option>
+
+                <option value="90">
+                    3 شهور
+                </option>
+
+                <option value="180">
+                    6 شهور
+                </option>
+
+                <option value="365">
+                    سنة
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <br>
+
+
+        <button
+            class="admin-btn primary-btn"
+            onclick="createParentCode()">
+
+            👨‍👩‍👦 إنشاء حساب ولي الأمر
+
+        </button>
+
+    </div>
+
+
+    <!-- ======================================
+         أكواد أولياء الأمور الحالية
+    ======================================= -->
+
+    <div class="admin-card table-container">
+
+        <h2>
+            📋 أكواد أولياء الأمور
+        </h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        الكود
+                    </th>
+
+                    <th>
+                        ولي الأمر
+                    </th>
+
+                    <th>
+                        الطالب
+                    </th>
+
+                    <th>
+                        كود الطالب
+                    </th>
+
+                    <th>
+                        الحالة
+                    </th>
+
+                    <th>
+                        الانتهاء
+                    </th>
+
+                    <th>
+                        الإجراءات
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="parentsTable">
+
+                <tr>
+
+                    <td colspan="7">
+                        جاري تحميل أكواد أولياء الأمور...
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+   
     <!-- ==========================================
          Results
     ========================================== -->

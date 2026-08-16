@@ -20,6 +20,256 @@ let currentStudent = null;
 let allResults = [];
 
 // ==========================================
+// ⏰ نظام انتهاء الاشتراك التلقائي
+// ==========================================
+
+let subscriptionCheckInterval = null;
+
+
+// ==========================================
+// تحويل قيمة التاريخ إلى Date
+// ==========================================
+
+function getSubscriptionExpiryDate(value) {
+
+    if (!value) {
+        return null;
+    }
+
+    if (
+        typeof value.toDate === "function"
+    ) {
+
+        return value.toDate();
+
+    }
+
+    const date = new Date(value);
+
+    if (
+        isNaN(date.getTime())
+    ) {
+
+        return null;
+
+    }
+
+    return date;
+
+}
+
+
+// ==========================================
+// تسجيل خروج الطالب
+// ==========================================
+
+function forceLogout(reason) {
+
+    console.warn(
+        "Automatic Logout:",
+        reason
+    );
+
+
+    // ======================================
+    // إيقاف التحقق المتكرر
+    // ======================================
+
+    if (
+        subscriptionCheckInterval
+    ) {
+
+        clearInterval(
+            subscriptionCheckInterval
+        );
+
+        subscriptionCheckInterval = null;
+
+    }
+
+
+    // ======================================
+    // مسح بيانات تسجيل الدخول
+    // ======================================
+
+    localStorage.removeItem(
+        "studentCode"
+    );
+
+    localStorage.removeItem(
+        "studentName"
+    );
+
+    localStorage.removeItem(
+        "studentGrade"
+    );
+
+    localStorage.removeItem(
+        "parentCode"
+    );
+
+    localStorage.removeItem(
+        "parentName"
+    );
+
+    localStorage.removeItem(
+        "accountType"
+    );
+
+
+    // ======================================
+    // تسجيل خروج Firebase Anonymous
+    // ======================================
+
+    if (
+        typeof firebase !== "undefined" &&
+        firebase.auth &&
+        firebase.auth().currentUser
+    ) {
+
+        firebase.auth()
+            .signOut()
+            .catch(function(error) {
+
+                console.error(
+                    "Firebase SignOut Error:",
+                    error
+                );
+
+            });
+
+    }
+
+
+    // ======================================
+    // رسالة للطالب
+    // ======================================
+
+    alert(
+        reason ||
+        "⛔ انتهى اشتراكك، يرجى تجديد الاشتراك."
+    );
+
+
+    // ======================================
+    // العودة إلى تسجيل الدخول
+    // ======================================
+
+    window.location.replace(
+        "login.html"
+    );
+
+}
+
+
+// ==========================================
+// التحقق من صلاحية الاشتراك
+// ==========================================
+
+function checkSubscriptionStatus() {
+
+    // ======================================
+    // لا توجد بيانات الطالب
+    // ======================================
+
+    if (!currentStudent) {
+
+        return;
+
+    }
+
+
+    // ======================================
+    // الاشتراك متوقف
+    // ======================================
+
+    if (
+        currentStudent.active !== true
+    ) {
+
+        forceLogout(
+            "⛔ تم إيقاف اشتراكك من الإدارة."
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // تاريخ انتهاء الاشتراك
+    // ======================================
+
+    const expiry =
+        getSubscriptionExpiryDate(
+            currentStudent.expiresAt
+        );
+
+
+    // ======================================
+    // لا يوجد تاريخ انتهاء
+    // ======================================
+
+    if (!expiry) {
+
+        forceLogout(
+            "⚠️ لا يوجد تاريخ انتهاء صالح لاشتراكك."
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // الاشتراك انتهى
+    // ======================================
+
+    if (
+        new Date() >= expiry
+    ) {
+
+        forceLogout(
+            "⛔ انتهى اشتراكك، يرجى تجديد الاشتراك."
+        );
+
+        return;
+
+    }
+
+}
+
+
+// ==========================================
+// بدء التحقق التلقائي
+// ==========================================
+
+function startSubscriptionChecker() {
+
+    // ======================================
+    // تحقق فوري
+    // ======================================
+
+    checkSubscriptionStatus();
+
+
+    // ======================================
+    // تحقق كل دقيقة
+    // ======================================
+
+    subscriptionCheckInterval =
+        setInterval(
+            function() {
+
+                checkSubscriptionStatus();
+
+            },
+            60 * 1000
+        );
+
+}
+
+// ==========================================
 // Notifications
 // نظام الإشعارات
 // ==========================================
@@ -99,6 +349,11 @@ return db.collection("students")
         currentStudent =  
             studentDoc.data();  
 
+// ==========================================
+// التحقق من الاشتراك
+// ==========================================
+
+checkSubscriptionStatus();
 
         renderStudentInfo();  
 
@@ -1844,11 +2099,12 @@ document.addEventListener(
 // ==========================================
 
 document.addEventListener(
-"DOMContentLoaded",
-function () {
+    "DOMContentLoaded",
+    function () {
 
-setupNotificationUI();  
+        setupNotificationUI();
 
-}
+        startSubscriptionChecker();
 
+    }
 );

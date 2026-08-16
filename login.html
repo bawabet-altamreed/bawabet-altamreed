@@ -6,11 +6,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-     <link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-     
+
 <title>تسجيل الدخول | بوابة التمريض</title>
 
 <link rel="stylesheet" href="style.css">
@@ -62,7 +62,7 @@ placeholder="كلمة المرور">
 
 <p>
 إذا لم يكن لديك كود اشتراك، تواصل مع إدارة بوابة التمريض.
-     علي واتساب 01222736904
+على واتساب 01222736904
 </p>
 
 
@@ -103,10 +103,16 @@ function login() {
 
 
     const code =
-        document.getElementById("code").value.trim();
+        document.getElementById("code")
+            .value
+            .trim();
+
 
     const password =
-        document.getElementById("password").value.trim();
+        document.getElementById("password")
+            .value
+            .trim();
+
 
     const loginBtn =
         document.getElementById("loginBtn");
@@ -123,6 +129,7 @@ function login() {
         );
 
         return;
+
     }
 
 
@@ -135,7 +142,7 @@ function login() {
 
 
     // ==========================================
-    // أولاً: Anonymous Authentication
+    // Anonymous Authentication
     // ==========================================
 
     let authPromise;
@@ -148,7 +155,9 @@ function login() {
                 firebase.auth().currentUser
             );
 
-    } else {
+    }
+
+    else {
 
         authPromise =
             firebase.auth()
@@ -158,13 +167,16 @@ function login() {
 
 
     // ==========================================
-    // بعد نجاح Authentication
-    // نقرأ بيانات الطالب
+    // بعد Authentication
     // ==========================================
 
     authPromise
 
-        .then(function() {
+        .then(function () {
+
+            // ==================================
+            // أولاً نبحث عن الطالب
+            // ==================================
 
             return db.collection("students")
                 .doc(code)
@@ -174,196 +186,366 @@ function login() {
 
 
         // ==========================================
-        // التحقق من بيانات الطالب
+        // تحديد نوع الحساب
         // ==========================================
 
-        .then(function(doc) {
-
-            if (!doc.exists) {
-
-                throw new Error(
-                    "❌ كود الاشتراك غير صحيح"
-                );
-
-            }
-
-
-            const student =
-                doc.data();
-
-
-            // كلمة المرور
-
-            if (
-                student.password !== password
-            ) {
-
-                throw new Error(
-                    "❌ كلمة المرور غير صحيحة"
-                );
-
-            }
-
-
-            // حالة الاشتراك
-
-            if (
-                student.active !== true
-            ) {
-
-                throw new Error(
-                    "❌ هذا الاشتراك غير مفعل"
-                );
-
-            }
-
+        .then(function (studentDoc) {
 
             // ==================================
-            // تاريخ انتهاء الاشتراك
+            // الحساب طالب
             // ==================================
 
-            if (student.expiresAt) {
+            if (studentDoc.exists) {
 
-                let expiry;
+                const student =
+                    studentDoc.data();
 
 
-                // Firebase Timestamp
+                // ----------------------------------
+                // كلمة المرور
+                // ----------------------------------
 
                 if (
-                    student.expiresAt &&
-                    typeof student.expiresAt.toDate ===
-                    "function"
+                    student.password !== password
                 ) {
 
-                    expiry =
-                        student.expiresAt.toDate();
+                    throw new Error(
+                        "❌ كلمة المرور غير صحيحة"
+                    );
 
                 }
 
-                // تاريخ نصي
 
-                else {
+                // ----------------------------------
+                // حالة الاشتراك
+                // ----------------------------------
 
-                    expiry =
-                        new Date(
-                            student.expiresAt
+                if (
+                    student.active !== true
+                ) {
+
+                    throw new Error(
+                        "❌ هذا الاشتراك غير مفعل"
+                    );
+
+                }
+
+
+                // ----------------------------------
+                // تاريخ انتهاء الاشتراك
+                // ----------------------------------
+
+                if (student.expiresAt) {
+
+                    let expiry;
+
+
+                    if (
+                        typeof student.expiresAt.toDate ===
+                        "function"
+                    ) {
+
+                        expiry =
+                            student.expiresAt.toDate();
+
+                    }
+
+                    else {
+
+                        expiry =
+                            new Date(
+                                student.expiresAt
+                            );
+
+                    }
+
+
+                    if (
+                        isNaN(
+                            expiry.getTime()
+                        )
+                    ) {
+
+                        throw new Error(
+                            "❌ تاريخ انتهاء الاشتراك غير صحيح"
                         );
 
+                    }
+
+
+                    if (
+                        new Date() >= expiry
+                    ) {
+
+                        throw new Error(
+                            "❌ انتهى اشتراكك، يرجى تجديد الاشتراك"
+                        );
+
+                    }
+
                 }
 
 
-                if (
-                    isNaN(
-                        expiry.getTime()
-                    )
-                ) {
+                // ==================================
+                // Device ID للطالب فقط
+                // ==================================
 
-                    throw new Error(
-                        "❌ تاريخ انتهاء الاشتراك غير صحيح"
+                let deviceId =
+                    localStorage.getItem(
+                        "deviceId"
+                    );
+
+
+                if (!deviceId) {
+
+                    deviceId =
+                        "device_" +
+                        Date.now() +
+                        "_" +
+                        Math.random()
+                            .toString(36)
+                            .substring(2, 10);
+
+
+                    localStorage.setItem(
+                        "deviceId",
+                        deviceId
                     );
 
                 }
 
 
+                // ==================================
+                // أول جهاز
+                // ==================================
+
                 if (
-                    new Date() >= expiry
+                    !student.deviceId ||
+                    student.deviceId === "null" ||
+                    student.deviceId === ""
                 ) {
 
-                    throw new Error(
-                        "❌ انتهى اشتراكك، يرجى تجديد الاشتراك"
-                    );
+                    return db.collection("students")
+                        .doc(code)
+                        .update({
+
+                            deviceId:
+                                deviceId
+
+                        })
+
+                        .then(function () {
+
+                            return {
+
+                                type:
+                                    "student",
+
+                                data:
+                                    student
+
+                            };
+
+                        });
 
                 }
 
-            }
+
+                // ==================================
+                // نفس الجهاز
+                // ==================================
+
+                if (
+                    student.deviceId === deviceId
+                ) {
+
+                    return {
+
+                        type:
+                            "student",
+
+                        data:
+                            student
+
+                    };
+
+                }
 
 
-            // نرجع بيانات الطالب
+                // ==================================
+                // جهاز آخر
+                // ==================================
 
-            return student;
-
-        })
-
-
-        // ==========================================
-        // إنشاء / الحصول على Device ID
-        // ==========================================
-
-        .then(function(student) {
-
-            let deviceId =
-                localStorage.getItem(
-                    "deviceId"
-                );
-
-
-            if (!deviceId) {
-
-                deviceId =
-                    "device_" +
-                    Date.now() +
-                    "_" +
-                    Math.random()
-                        .toString(36)
-                        .substring(2, 10);
-
-
-                localStorage.setItem(
-                    "deviceId",
-                    deviceId
+                throw new Error(
+                    "❌ هذا الاشتراك مستخدم على جهاز آخر"
                 );
 
             }
 
 
-            // ==================================
-            // أول جهاز
-            // ==================================
+            // ==========================================
+            // ليس طالبًا
+            // نبحث في parents
+            // ==========================================
 
-            if (
-                !student.deviceId ||
-                student.deviceId === "null" ||
-                student.deviceId === ""
-            ) {
+            return db.collection("parents")
+                .doc(code)
+                .get()
 
-                return db.collection("students")
-                    .doc(code)
-                    .update({
+                .then(function (parentDoc) {
 
-                        deviceId:
-                            deviceId
+                    if (!parentDoc.exists) {
 
-                    })
+                        throw new Error(
+                            "❌ كود الاشتراك غير صحيح"
+                        );
 
-                    .then(function() {
-
-                        return student;
-
-                    });
-
-            }
+                    }
 
 
-            // ==================================
-            // نفس الجهاز
-            // ==================================
-
-            if (
-                student.deviceId === deviceId
-            ) {
-
-                return student;
-
-            }
+                    const parent =
+                        parentDoc.data();
 
 
-            // ==================================
-            // جهاز آخر
-            // ==================================
+                    // ----------------------------------
+                    // كلمة المرور
+                    // ----------------------------------
 
-            throw new Error(
-                "❌ هذا الاشتراك مستخدم على جهاز آخر"
-            );
+                    if (
+                        parent.password !== password
+                    ) {
+
+                        throw new Error(
+                            "❌ كلمة المرور غير صحيحة"
+                        );
+
+                    }
+
+
+                    // ----------------------------------
+                    // حالة الحساب
+                    // ----------------------------------
+
+                    if (
+                        parent.active !== true
+                    ) {
+
+                        throw new Error(
+                            "❌ حساب ولي الأمر غير مفعل"
+                        );
+
+                    }
+
+
+                    // ----------------------------------
+                    // التأكد من وجود الطالب
+                    // ----------------------------------
+
+                    if (
+                        !parent.studentCode
+                    ) {
+
+                        throw new Error(
+                            "❌ لم يتم ربط حساب ولي الأمر بالطالب"
+                        );
+
+                    }
+
+
+                    // ----------------------------------
+                    // تاريخ انتهاء الحساب
+                    // ----------------------------------
+
+                    if (parent.expiresAt) {
+
+                        let expiry;
+
+
+                        if (
+                            typeof parent.expiresAt.toDate ===
+                            "function"
+                        ) {
+
+                            expiry =
+                                parent.expiresAt.toDate();
+
+                        }
+
+                        else {
+
+                            expiry =
+                                new Date(
+                                    parent.expiresAt
+                                );
+
+                        }
+
+
+                        if (
+                            isNaN(
+                                expiry.getTime()
+                            )
+                        ) {
+
+                            throw new Error(
+                                "❌ تاريخ انتهاء اشتراك ولي الأمر غير صحيح"
+                            );
+
+                        }
+
+
+                        if (
+                            new Date() >= expiry
+                        ) {
+
+                            throw new Error(
+                                "❌ انتهى اشتراك ولي الأمر"
+                            );
+
+                        }
+
+                    }
+
+
+                    // ==================================
+                    // نتأكد أن الطالب المرتبط موجود
+                    // ==================================
+
+                    return db.collection("students")
+                        .doc(parent.studentCode)
+                        .get()
+
+                        .then(function (studentDoc) {
+
+                            if (!studentDoc.exists) {
+
+                                throw new Error(
+                                    "❌ الطالب المرتبط بحساب ولي الأمر غير موجود"
+                                );
+
+                            }
+
+
+                            const student =
+                                studentDoc.data();
+
+
+                            return {
+
+                                type:
+                                    "parent",
+
+                                data:
+                                    parent,
+
+                                student:
+                                    student
+
+                            };
+
+                        });
+
+                });
 
         })
 
@@ -372,28 +554,138 @@ function login() {
         // نجاح تسجيل الدخول
         // ==========================================
 
-        .then(function(student) {
+        .then(function (result) {
 
-            localStorage.setItem(
-                "studentCode",
-                code
-            );
+            // ==================================
+            // طالب
+            // ==================================
 
+            if (
+                result.type === "student"
+            ) {
 
-            localStorage.setItem(
-                "studentName",
-                student.name || ""
-            );
-
-
-            localStorage.setItem(
-                "studentGrade",
-                student.grade || ""
-            );
+                const student =
+                    result.data;
 
 
-            window.location.replace(
-                "index.html"
+                // نوع الحساب
+
+                localStorage.setItem(
+                    "accountType",
+                    "student"
+                );
+
+
+                // كود الطالب
+
+                localStorage.setItem(
+                    "studentCode",
+                    code
+                );
+
+
+                // اسم الطالب
+
+                localStorage.setItem(
+                    "studentName",
+                    student.name || ""
+                );
+
+
+                // الصف
+
+                localStorage.setItem(
+                    "studentGrade",
+                    student.grade || ""
+                );
+
+
+                // إزالة بيانات ولي الأمر القديمة
+
+                localStorage.removeItem(
+                    "parentCode"
+                );
+
+
+                // الدخول للمنصة
+
+                window.location.replace(
+                    "index.html"
+                );
+
+                return;
+
+            }
+
+
+            // ==================================
+            // ولي الأمر
+            // ==================================
+
+            if (
+                result.type === "parent"
+            ) {
+
+                const parent =
+                    result.data;
+
+
+                // نوع الحساب
+
+                localStorage.setItem(
+                    "accountType",
+                    "parent"
+                );
+
+
+                // كود ولي الأمر
+
+                localStorage.setItem(
+                    "parentCode",
+                    code
+                );
+
+
+                // كود الطالب
+
+                localStorage.setItem(
+                    "studentCode",
+                    parent.studentCode
+                );
+
+
+                // اسم ولي الأمر
+
+                localStorage.setItem(
+                    "parentName",
+                    parent.name || ""
+                );
+
+
+                // إزالة بيانات الطالب القديمة
+
+                localStorage.removeItem(
+                    "studentName"
+                );
+
+                localStorage.removeItem(
+                    "studentGrade"
+                );
+
+
+                // الدخول إلى Dashboard ولي الأمر
+
+                window.location.replace(
+                    "parent.html"
+                );
+
+                return;
+
+            }
+
+
+            throw new Error(
+                "❌ نوع الحساب غير معروف"
             );
 
         })
@@ -403,7 +695,7 @@ function login() {
         // معالجة الأخطاء
         // ==========================================
 
-        .catch(function(error) {
+        .catch(function (error) {
 
             console.error(
                 "Login Error:",
@@ -449,9 +741,11 @@ document
     .getElementById("password")
     .addEventListener(
         "keydown",
-        function(event) {
+        function (event) {
 
-            if (event.key === "Enter") {
+            if (
+                event.key === "Enter"
+            ) {
 
                 login();
 

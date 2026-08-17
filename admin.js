@@ -1,257 +1,181 @@
 // ==========================================================
 // بوابة التمريض
-// Admin Panel
-// لوحة إدارة بوابة التمريض
+// ADMIN PANEL V2
 // ==========================================================
 
-
 // ==========================================================
-// إعدادات الأدمن
+// ADMIN SETTINGS
 // ==========================================================
-
-// UID الخاص بحساب الأدمن المسموح له بالدخول
 
 const ADMIN_UIDS = [
-
     "H4wMJm2ComSSy19ttzb1KxZz7Yu1"
-
 ];
 
 
 // ==========================================================
-// متغيرات عامة
+// GLOBAL DATA
 // ==========================================================
 
 let allStudents = [];
-
 let allCodes = [];
-
 let allParents = [];
-
 let allResults = [];
-
 let allContent = [];
-
 let allNotifications = [];
-
 let allLeaderboard = [];
 
 let currentAdmin = null;
+let currentStudent = null;
+let currentParent = null;
 
 
 // ==========================================================
-// تشغيل لوحة الإدارة
+// DOM READY
 // ==========================================================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-        initializeAdmin();
+    initializeAdmin();
 
-        setupAdminEvents();
+    setupAdminEvents();
 
-    }
-);
+    injectAdminModals();
+
+});
 
 
 // ==========================================================
-// التحقق من الأدمن
+// ADMIN AUTH
 // ==========================================================
 
 function initializeAdmin() {
 
-    const loading =
-        document.getElementById("loading");
+    const loading = document.getElementById("loading");
+    const denied = document.getElementById("accessDenied");
+    const panel = document.getElementById("adminPanel");
 
-    const denied =
-        document.getElementById("accessDenied");
+    firebase.auth().onAuthStateChanged(function (user) {
 
-    const panel =
-        document.getElementById("adminPanel");
+        if (!user) {
 
+            showAccessDenied();
 
-    firebase.auth().onAuthStateChanged(
-        function (user) {
-
-            if (!user) {
-
-                showAccessDenied();
-
-                return;
-
-            }
-
-
-            currentAdmin = user;
-
-
-            if (
-                !ADMIN_UIDS.includes(user.uid)
-            ) {
-
-                console.error(
-                    "Unauthorized admin:",
-                    user.uid
-                );
-
-                showAccessDenied();
-
-                return;
-
-            }
-
-
-            if (loading) {
-
-                loading.classList.add("hidden");
-
-            }
-
-
-            if (denied) {
-
-                denied.classList.add("hidden");
-
-            }
-
-
-            if (panel) {
-
-                panel.classList.remove("hidden");
-
-            }
-
-
-            loadAdminData();
+            return;
 
         }
-    );
+
+        currentAdmin = user;
+
+        if (!ADMIN_UIDS.includes(user.uid)) {
+
+            console.error(
+                "Unauthorized admin:",
+                user.uid
+            );
+
+            showAccessDenied();
+
+            return;
+
+        }
+
+        if (loading) {
+            loading.classList.add("hidden");
+        }
+
+        if (denied) {
+            denied.classList.add("hidden");
+        }
+
+        if (panel) {
+            panel.classList.remove("hidden");
+        }
+
+        loadAdminData();
+
+    });
 
 }
 
 
 // ==========================================================
-// رفض الدخول
+// ACCESS DENIED
 // ==========================================================
 
 function showAccessDenied() {
 
-    const loading =
-        document.getElementById("loading");
-
-    const denied =
-        document.getElementById("accessDenied");
-
-    const panel =
-        document.getElementById("adminPanel");
-
+    const loading = document.getElementById("loading");
+    const denied = document.getElementById("accessDenied");
+    const panel = document.getElementById("adminPanel");
 
     if (loading) {
-
         loading.classList.add("hidden");
-
     }
-
 
     if (panel) {
-
         panel.classList.add("hidden");
-
     }
 
-
     if (denied) {
-
         denied.classList.remove("hidden");
-
     }
 
 }
 
 
 // ==========================================================
-// تحميل بيانات لوحة الإدارة
+// LOAD ALL ADMIN DATA
 // ==========================================================
 
 function loadAdminData() {
 
-    loadStudents()
-        .then(function () {
+    Promise.all([
 
-            return loadCodes();
+        loadStudents(),
+        loadParents(),
+        loadResults(),
+        loadContent(),
+        loadNotifications()
 
-        })
-        .then(function () {
+    ])
+    .then(function () {
 
-            return loadParents();
+        loadCodes();
 
-        })
-        .then(function () {
+        calculateLeaderboard();
 
-            return loadResults();
+        updateDashboard();
 
-        })
-        .then(function () {
+    })
+    .catch(function (error) {
 
-            return loadContent();
+        console.error(
+            "Admin loading error:",
+            error
+        );
 
-        })
-        .then(function () {
-
-            return loadNotifications();
-
-        })
-        .then(function () {
-
-            return loadLeaderboard();
-
-        })
-        .then(function () {
-
-            updateDashboard();
-
-        })
-        .catch(function (error) {
-
-            console.error(
-                "Admin loading error:",
-                error
-            );
-
-        });
+    });
 
 }
 
 
 // ==========================================================
-// التنقل بين الأقسام
+// NAVIGATION
 // ==========================================================
 
 function showSection(sectionId) {
 
     const sections =
-        document.querySelectorAll(
-            ".section"
-        );
+        document.querySelectorAll(".section");
 
+    sections.forEach(function (section) {
 
-    sections.forEach(
-        function (section) {
+        section.classList.remove("active");
 
-            section.classList.remove(
-                "active"
-            );
-
-        }
-    );
-
+    });
 
     const target =
-        document.getElementById(
-            sectionId
-        );
-
+        document.getElementById(sectionId);
 
     if (target) {
 
@@ -259,69 +183,45 @@ function showSection(sectionId) {
 
     }
 
-
     if (sectionId === "students") {
-
         renderStudents();
-
     }
-
 
     if (sectionId === "codes") {
-
         renderCodes();
-
     }
-
 
     if (sectionId === "parents") {
-
         renderParents();
-
     }
-
 
     if (sectionId === "results") {
-
         renderAdminResults();
-
     }
-
 
     if (sectionId === "leaderboard") {
-
         renderLeaderboard();
-
     }
-
 
     if (sectionId === "content") {
-
         renderContent();
-
     }
 
-
     if (sectionId === "notifications") {
-
         renderNotificationsAdmin();
-
     }
 
 }
 
 
 // ==========================================================
-// إعداد Events
+// EVENTS
 // ==========================================================
 
 function setupAdminEvents() {
 
     const studentSearch =
-        document.getElementById(
-            "studentSearch"
-        );
-
+        document.getElementById("studentSearch");
 
     if (studentSearch) {
 
@@ -329,9 +229,7 @@ function setupAdminEvents() {
             "input",
             function () {
 
-                renderStudents(
-                    this.value
-                );
+                renderStudents(this.value);
 
             }
         );
@@ -340,16 +238,10 @@ function setupAdminEvents() {
 
 
     const filterSubject =
-        document.getElementById(
-            "filterSubject"
-        );
-
+        document.getElementById("filterSubject");
 
     const filterGrade =
-        document.getElementById(
-            "filterGrade"
-        );
-
+        document.getElementById("filterGrade");
 
     if (filterSubject) {
 
@@ -363,7 +255,6 @@ function setupAdminEvents() {
         );
 
     }
-
 
     if (filterGrade) {
 
@@ -384,7 +275,6 @@ function setupAdminEvents() {
             "notificationTargetType"
         );
 
-
     if (notificationTargetType) {
 
         notificationTargetType.addEventListener(
@@ -396,41 +286,25 @@ function setupAdminEvents() {
                         "notificationTargetId"
                     );
 
-
                 if (!target) {
-
                     return;
-
                 }
 
+                if (this.value === "all") {
 
-                if (
-                    this.value === "all"
-                ) {
-
-                    target.style.display =
-                        "none";
-
+                    target.style.display = "none";
                     target.value = "";
 
-                }
+                } else {
 
-                else {
+                    target.style.display = "block";
 
-                    target.style.display =
-                        "block";
-
-
-                    if (
-                        this.value === "grade"
-                    ) {
+                    if (this.value === "grade") {
 
                         target.placeholder =
                             "اكتب الصف مثل: الصف الأول الثانوي التمريض";
 
-                    }
-
-                    else {
+                    } else {
 
                         target.placeholder =
                             "اكتب كود الطالب";
@@ -444,37 +318,11 @@ function setupAdminEvents() {
 
     }
 
-
-    const modal =
-        document.getElementById(
-            "studentModal"
-        );
-
-
-    if (modal) {
-
-        modal.addEventListener(
-            "click",
-            function (event) {
-
-                if (
-                    event.target === modal
-                ) {
-
-                    closeStudentModal();
-
-                }
-
-            }
-        );
-
-    }
-
 }
 
 
 // ==========================================================
-// تحميل الطلاب
+// STUDENTS
 // ==========================================================
 
 function loadStudents() {
@@ -485,21 +333,14 @@ function loadStudents() {
 
             allStudents = [];
 
+            snapshot.forEach(function (doc) {
 
-            snapshot.forEach(
-                function (doc) {
+                allStudents.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
 
-                    allStudents.push({
-
-                        id: doc.id,
-
-                        ...doc.data()
-
-                    });
-
-                }
-            );
-
+            });
 
             return allStudents;
 
@@ -509,305 +350,824 @@ function loadStudents() {
 
 
 // ==========================================================
-// عرض الطلاب
+// RENDER STUDENTS
 // ==========================================================
 
 function renderStudents(searchText) {
 
     const table =
-        document.getElementById(
-            "studentsTable"
-        );
-
+        document.getElementById("studentsTable");
 
     if (!table) {
-
         return;
-
     }
 
-
-    let students =
-        [...allStudents];
-
+    let students = [...allStudents];
 
     const search =
-        String(
-            searchText || ""
-        )
-        .trim()
-        .toLowerCase();
-
+        String(searchText || "")
+            .trim()
+            .toLowerCase();
 
     if (search) {
 
-        students =
-            students.filter(
-                function (student) {
+        students = students.filter(function (student) {
 
-                    return (
+            return (
 
-                        String(
-                            student.id || ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
+                String(student.id || "")
+                    .toLowerCase()
+                    .includes(search)
 
-                        ||
+                ||
 
-                        String(
-                            student.name || ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
+                String(student.name || "")
+                    .toLowerCase()
+                    .includes(search)
 
-                        ||
+                ||
 
-                        String(
-                            student.email || ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
+                String(student.email || "")
+                    .toLowerCase()
+                    .includes(search)
 
-                    );
+                ||
 
-                }
+                String(student.grade || "")
+                    .toLowerCase()
+                    .includes(search)
+
             );
 
-    }
+        });
 
+    }
 
     if (!students.length) {
 
         table.innerHTML = `
-
             <tr>
-
-                <td colspan="6">
-
+                <td colspan="7">
                     لا يوجد طلاب
-
                 </td>
-
             </tr>
-
         `;
 
         return;
 
     }
 
-
     table.innerHTML =
-        students.map(
-            function (student) {
+        students.map(function (student) {
 
-                const expiry =
-                    getDate(
-                        student.expiresAt
-                    );
+            const active =
+                isStudentActive(student);
 
+            const expiry =
+                getDate(student.expiresAt);
 
-                const active =
-                    isStudentActive(
-                        student
-                    );
+            return `
 
+                <tr>
 
-                return `
+                    <td>
+                        ${escapeHtml(student.id)}
+                    </td>
 
-                    <tr>
+                    <td>
+                        ${escapeHtml(student.name || "-")}
+                    </td>
 
-                        <td>
-                            ${escapeHtml(
-                                student.id
-                            )}
-                        </td>
+                    <td>
+                        ${escapeHtml(student.grade || "-")}
+                    </td>
 
+                    <td>
+                        ${
+                            active
+                                ? "✅ نشط"
+                                : "⛔ منتهي"
+                        }
+                    </td>
 
-                        <td>
-                            ${escapeHtml(
-                                student.name || "-"
-                            )}
-                        </td>
+                    <td>
+                        ${
+                            expiry
+                                ? formatDate(expiry)
+                                : "-"
+                        }
+                    </td>
 
+                    <td>
+                        ${
+                            student.deviceId
+                                ? "📱 مرتبط"
+                                : "📵 غير مرتبط"
+                        }
+                    </td>
 
-                        <td>
-                            ${escapeHtml(
-                                student.grade || "-"
-                            )}
-                        </td>
+                    <td class="admin-actions">
 
+                        <button
+                            class="admin-btn primary-btn"
+                            title="التفاصيل"
+                            onclick="openStudentManager('${escapeJs(student.id)}')">
+                            👁️
+                        </button>
 
-                        <td>
+                        <button
+                            class="admin-btn primary-btn"
+                            title="تعديل"
+                            onclick="editStudent('${escapeJs(student.id)}')">
+                            ✏️
+                        </button>
 
+                        <button
+                            class="admin-btn warning-btn"
+                            title="الجهاز"
+                            onclick="manageStudentDevice('${escapeJs(student.id)}')">
+                            📱
+                        </button>
+
+                        <button
+                            class="admin-btn warning-btn"
+                            title="${
+                                student.active === true
+                                    ? "إيقاف"
+                                    : "تفعيل"
+                            }"
+                            onclick="toggleStudentStatus('${escapeJs(student.id)}')">
                             ${
-                                active
-                                    ? "✅ نشط"
-                                    : "⛔ منتهي"
+                                student.active === true
+                                    ? "⏸️"
+                                    : "▶️"
                             }
+                        </button>
 
-                        </td>
+                        <button
+                            class="admin-btn success-btn"
+                            title="تمديد"
+                            onclick="extendStudent('${escapeJs(student.id)}')">
+                            ➕
+                        </button>
 
+                        <button
+                            class="admin-btn primary-btn"
+                            title="تغيير كلمة المرور"
+                            onclick="changeStudentPassword('${escapeJs(student.id)}')">
+                            🔑
+                        </button>
 
-                        <td>
+                        <button
+                            class="admin-btn danger-btn"
+                            title="حذف"
+                            onclick="deleteStudent('${escapeJs(student.id)}')">
+                            🗑️
+                        </button>
 
-                            ${
-                                expiry
-                                    ? formatDate(expiry)
-                                    : "-"
-                            }
+                    </td>
 
-                        </td>
+                </tr>
 
+            `;
 
-                        <td>
-
-                            <!-- عرض التفاصيل -->
-
-                            <button
-                                class="admin-btn primary-btn"
-                                title="عرض التفاصيل"
-                                onclick="viewStudent('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                👁️
-
-                            </button>
-
-
-                            <!-- تفعيل / إيقاف -->
-
-                            <button
-                                class="admin-btn warning-btn"
-                                title="${
-                                    student.active === true
-                                        ? "إيقاف الحساب"
-                                        : "تفعيل الحساب"
-                                }"
-                                onclick="toggleStudentStatus('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                ${
-                                    student.active === true
-                                        ? "⏸️"
-                                        : "▶️"
-                                }
-
-                            </button>
-
-
-                            <!-- تمديد الاشتراك -->
-
-                            <button
-                                class="admin-btn success-btn"
-                                title="تمديد الاشتراك"
-                                onclick="extendStudent('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                ➕
-
-                            </button>
-
-
-                            <!-- فك الجهاز -->
-
-                            <button
-                                class="admin-btn warning-btn"
-                                title="فك الجهاز المرتبط"
-                                onclick="unlinkStudentDevice('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                🔓
-
-                            </button>
-
-
-                            <!-- تغيير كلمة المرور -->
-
-                            <button
-                                class="admin-btn primary-btn"
-                                title="تغيير كلمة المرور"
-                                onclick="changeStudentPassword('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                🔑
-
-                            </button>
-
-
-                            <!-- حذف الطالب -->
-
-                            <button
-                                class="admin-btn danger-btn"
-                                title="حذف الطالب"
-                                onclick="deleteStudent('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                🗑️
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        )
-        .join("");
+        }).join("");
 
 }
 
 
 // ==========================================================
-// فك الجهاز المرتبط بالطالب
+// STUDENT FULL MANAGEMENT
+// ==========================================================
+
+function openStudentManager(studentCode) {
+
+    const student =
+        allStudents.find(function (item) {
+
+            return item.id === studentCode;
+
+        });
+
+    if (!student) {
+
+        alert("❌ الطالب غير موجود");
+
+        return;
+
+    }
+
+    currentStudent = student;
+
+    const expiry =
+        getDate(student.expiresAt);
+
+    const created =
+        getDate(student.createdAt);
+
+    const results =
+        allResults.filter(function (result) {
+
+            return result.studentCode === studentCode;
+
+        });
+
+    const average =
+        calculateStudentAverage(results);
+
+    const best =
+        calculateBestScore(results);
+
+    const days =
+        getRemainingDays(expiry);
+
+    const modal =
+        document.getElementById("studentManagerModal");
+
+    const body =
+        document.getElementById("studentManagerBody");
+
+    if (!modal || !body) {
+        return;
+    }
+
+    body.innerHTML = `
+
+        <div class="admin-modal-header">
+
+            <div>
+                <h2>👨‍🎓 إدارة الطالب</h2>
+                <p>
+                    ${escapeHtml(student.name || "-")}
+                </p>
+            </div>
+
+            <button
+                class="modal-close"
+                onclick="closeAdminModal('studentManagerModal')">
+                ✕
+            </button>
+
+        </div>
+
+
+        <div class="admin-info-grid">
+
+            ${adminInfo(
+                "👨‍🎓 الاسم",
+                student.name || "-"
+            )}
+
+            ${adminInfo(
+                "🔑 الكود",
+                student.id
+            )}
+
+            ${adminInfo(
+                "🎓 الصف",
+                student.grade || "-"
+            )}
+
+            ${adminInfo(
+                "📧 البريد",
+                student.email || "-"
+            )}
+
+            ${adminInfo(
+                "📅 تاريخ الإنشاء",
+                created ? formatDateTime(created) : "-"
+            )}
+
+            ${adminInfo(
+                "📅 تاريخ الانتهاء",
+                expiry ? formatDate(expiry) : "-"
+            )}
+
+            ${adminInfo(
+                "⏳ الأيام المتبقية",
+                days >= 0
+                    ? days + " يوم"
+                    : "منتهي"
+            )}
+
+            ${adminInfo(
+                "📊 حالة الحساب",
+                isStudentActive(student)
+                    ? "✅ نشط"
+                    : "⛔ غير نشط"
+            )}
+
+            ${adminInfo(
+                "📱 الجهاز المرتبط",
+                student.deviceId
+                    ? "✅ نعم"
+                    : "❌ لا"
+            )}
+
+            ${adminInfo(
+                "Device ID",
+                student.deviceId || "غير مرتبط"
+            )}
+
+            ${adminInfo(
+                "📝 عدد الاختبارات",
+                results.length
+            )}
+
+            ${adminInfo(
+                "📊 المتوسط",
+                average + "%"
+            )}
+
+            ${adminInfo(
+                "🏆 أفضل نتيجة",
+                best + "%"
+            )}
+
+        </div>
+
+
+        <div class="admin-management-actions">
+
+            <button
+                class="admin-btn primary-btn"
+                onclick="editStudent('${escapeJs(student.id)}')">
+                ✏️ تعديل البيانات
+            </button>
+
+            <button
+                class="admin-btn warning-btn"
+                onclick="manageStudentDevice('${escapeJs(student.id)}')">
+                📱 إدارة الجهاز
+            </button>
+
+            <button
+                class="admin-btn ${
+                    student.active === true
+                        ? "warning-btn"
+                        : "success-btn"
+                }"
+                onclick="toggleStudentStatus('${escapeJs(student.id)}')">
+                ${
+                    student.active === true
+                        ? "⏸️ إيقاف"
+                        : "▶️ تفعيل"
+                }
+            </button>
+
+            <button
+                class="admin-btn success-btn"
+                onclick="extendStudent('${escapeJs(student.id)}')">
+                ➕ تمديد
+            </button>
+
+            <button
+                class="admin-btn primary-btn"
+                onclick="changeStudentPassword('${escapeJs(student.id)}')">
+                🔑 تغيير كلمة المرور
+            </button>
+
+            <button
+                class="admin-btn danger-btn"
+                onclick="deleteStudent('${escapeJs(student.id)}')">
+                🗑️ حذف
+            </button>
+
+        </div>
+
+
+        <div class="admin-subsection">
+
+            <h3>📝 آخر النتائج</h3>
+
+            ${
+                renderStudentResultsHtml(
+                    results
+                )
+            }
+
+        </div>
+
+    `;
+
+    modal.classList.remove("hidden");
+
+}
+
+
+// ==========================================================
+// STUDENT RESULTS
+// ==========================================================
+
+function renderStudentResultsHtml(results) {
+
+    if (!results.length) {
+
+        return `
+            <div class="admin-empty">
+                📝 لا توجد نتائج حتى الآن
+            </div>
+        `;
+
+    }
+
+    return `
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>المادة</th>
+                        <th>Chapter</th>
+                        <th>الدرجة</th>
+                        <th>النسبة</th>
+                        <th>التاريخ</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${
+                        results
+                            .slice(0, 10)
+                            .map(function (result) {
+
+                                return `
+
+                                    <tr>
+
+                                        <td>
+                                            ${escapeHtml(
+                                                result.subject || "-"
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            ${escapeHtml(
+                                                result.chapter || "-"
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            ${result.score ?? 0}
+                                            /
+                                            ${result.total ?? 0}
+                                        </td>
+
+                                        <td>
+                                            ${getPercentage(result)}%
+                                        </td>
+
+                                        <td>
+                                            ${formatDateTime(
+                                                result.createdAt
+                                            )}
+                                        </td>
+
+                                    </tr>
+
+                                `;
+
+                            })
+                            .join("")
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================================
+// EDIT STUDENT
+// ==========================================================
+
+function editStudent(studentCode) {
+
+    const student =
+        allStudents.find(function (item) {
+
+            return item.id === studentCode;
+
+        });
+
+    if (!student) {
+        return;
+    }
+
+    const modal =
+        document.getElementById("editStudentModal");
+
+    const body =
+        document.getElementById("editStudentBody");
+
+    if (!modal || !body) {
+        return;
+    }
+
+    body.innerHTML = `
+
+        <div class="admin-modal-header">
+
+            <h2>✏️ تعديل بيانات الطالب</h2>
+
+            <button
+                class="modal-close"
+                onclick="closeAdminModal('editStudentModal')">
+                ✕
+            </button>
+
+        </div>
+
+        <div class="admin-form-grid">
+
+            <div>
+                <label>اسم الطالب</label>
+
+                <input
+                    id="editStudentName"
+                    value="${escapeHtml(student.name || "")}"
+                >
+            </div>
+
+            <div>
+                <label>الصف</label>
+
+                <input
+                    id="editStudentGrade"
+                    value="${escapeHtml(student.grade || "")}"
+                >
+            </div>
+
+            <div>
+                <label>البريد الإلكتروني</label>
+
+                <input
+                    id="editStudentEmail"
+                    value="${escapeHtml(student.email || "")}"
+                >
+            </div>
+
+        </div>
+
+        <div class="admin-modal-actions">
+
+            <button
+                class="admin-btn success-btn"
+                onclick="saveStudentEdit('${escapeJs(student.id)}')">
+                💾 حفظ التعديلات
+            </button>
+
+            <button
+                class="admin-btn secondary-btn"
+                onclick="closeAdminModal('editStudentModal')">
+                إلغاء
+            </button>
+
+        </div>
+
+    `;
+
+    modal.classList.remove("hidden");
+
+}
+
+
+// ==========================================================
+// SAVE STUDENT EDIT
+// ==========================================================
+
+function saveStudentEdit(studentCode) {
+
+    const name =
+        getInputValue("editStudentName");
+
+    const grade =
+        getInputValue("editStudentGrade");
+
+    const email =
+        getInputValue("editStudentEmail");
+
+    if (!name) {
+
+        alert("❌ اسم الطالب مطلوب");
+
+        return;
+
+    }
+
+    if (!grade) {
+
+        alert("❌ الصف مطلوب");
+
+        return;
+
+    }
+
+    db.collection("students")
+        .doc(studentCode)
+        .update({
+
+            name: name,
+            grade: grade,
+            email: email
+
+        })
+        .then(function () {
+
+            const student =
+                allStudents.find(function (item) {
+
+                    return item.id === studentCode;
+
+                });
+
+            if (student) {
+
+                student.name = name;
+                student.grade = grade;
+                student.email = email;
+
+            }
+
+            closeAdminModal("editStudentModal");
+
+            renderStudents();
+
+            updateDashboard();
+
+            if (currentStudent &&
+                currentStudent.id === studentCode) {
+
+                openStudentManager(studentCode);
+
+            }
+
+            alert("✅ تم تعديل بيانات الطالب");
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تعديل بيانات الطالب"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// DEVICE MANAGEMENT
+// ==========================================================
+
+function manageStudentDevice(studentCode) {
+
+    const student =
+        allStudents.find(function (item) {
+
+            return item.id === studentCode;
+
+        });
+
+    if (!student) {
+        return;
+    }
+
+    const device =
+        student.deviceId || "";
+
+    const action =
+        prompt(
+            "📱 إدارة جهاز الطالب\n\n" +
+            "Device ID الحالي:\n" +
+            (device || "غير مرتبط") +
+            "\n\n" +
+            "اكتب Device ID جديد لربطه، أو اكتب REMOVE لفك الجهاز:",
+            ""
+        );
+
+    if (action === null) {
+        return;
+    }
+
+    const value =
+        String(action).trim();
+
+    if (
+        value.toUpperCase() === "REMOVE" ||
+        value === ""
+    ) {
+
+        if (!device) {
+
+            alert("ℹ️ لا يوجد جهاز مرتبط");
+
+            return;
+
+        }
+
+        unlinkStudentDevice(studentCode);
+
+        return;
+
+    }
+
+    db.collection("students")
+        .doc(studentCode)
+        .update({
+
+            deviceId: value
+
+        })
+        .then(function () {
+
+            student.deviceId = value;
+
+            renderStudents();
+
+            if (
+                currentStudent &&
+                currentStudent.id === studentCode
+            ) {
+
+                openStudentManager(studentCode);
+
+            }
+
+            alert(
+                "✅ تم تحديث الجهاز المرتبط"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تحديث الجهاز"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// UNLINK DEVICE
 // ==========================================================
 
 function unlinkStudentDevice(studentCode) {
 
     const student =
-        allStudents.find(
-            function (item) {
+        allStudents.find(function (item) {
 
-                return item.id === studentCode;
+            return item.id === studentCode;
 
-            }
-        );
-
+        });
 
     if (!student) {
 
+        alert("❌ الطالب غير موجود");
+
+        return;
+
+    }
+
+    if (!student.deviceId) {
+
         alert(
-            "❌ الطالب غير موجود"
+            "ℹ️ لا يوجد جهاز مرتبط بهذا الطالب"
         );
 
         return;
 
     }
 
-
     const confirmed =
         confirm(
-            "🔓 هل تريد فك الجهاز المرتبط بهذا الطالب؟\n\n" +
+            "📱 هل تريد فك الجهاز المرتبط؟\n\n" +
+            "الطالب: " +
             (student.name || studentCode) +
             "\n\nسيتمكن الطالب من تسجيل الدخول من جهاز جديد."
         );
 
-
     if (!confirmed) {
-
         return;
-
     }
-
 
     db.collection("students")
         .doc(studentCode)
@@ -820,20 +1180,25 @@ function unlinkStudentDevice(studentCode) {
 
             student.deviceId = null;
 
+            renderStudents();
+
+            if (
+                currentStudent &&
+                currentStudent.id === studentCode
+            ) {
+
+                openStudentManager(studentCode);
+
+            }
 
             alert(
-                "✅ تم فك الجهاز بنجاح\n\n" +
-                "يمكن للطالب الآن تسجيل الدخول من جهاز جديد."
+                "✅ تم فك الجهاز بنجاح"
             );
 
         })
         .catch(function (error) {
 
-            console.error(
-                "Unlink device error:",
-                error
-            );
-
+            console.error(error);
 
             alert(
                 "❌ تعذر فك الجهاز"
@@ -845,350 +1210,38 @@ function unlinkStudentDevice(studentCode) {
 
 
 // ==========================================================
-// عرض تفاصيل الطالب
-// ==========================================================
-
-function viewStudent(studentCode) {
-
-    const student =
-        allStudents.find(
-            function (item) {
-
-                return item.id === studentCode;
-
-            }
-        );
-
-
-    if (!student) {
-
-        alert("❌ الطالب غير موجود");
-
-        return;
-
-    }
-
-
-    const modal =
-        document.getElementById(
-            "studentModal"
-        );
-
-
-    const details =
-        document.getElementById(
-            "studentDetails"
-        );
-
-
-    if (!modal || !details) {
-
-        return;
-
-    }
-
-
-    const expiry =
-        getDate(
-            student.expiresAt
-        );
-
-
-    const active =
-        isStudentActive(
-            student
-        );
-
-
-    const studentResults =
-        allResults.filter(
-            function (result) {
-
-                return (
-                    result.studentCode ===
-                    studentCode
-                );
-
-            }
-        );
-
-
-    let resultsHtml = "";
-
-
-    if (!studentResults.length) {
-
-        resultsHtml =
-            `<p>📝 لا توجد نتائج حتى الآن.</p>`;
-
-    }
-
-    else {
-
-        resultsHtml = `
-
-            <div class="table-container">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>المادة</th>
-
-                            <th>Chapter</th>
-
-                            <th>الدرجة</th>
-
-                            <th>النسبة</th>
-
-                            <th>التاريخ</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        ${
-                            studentResults
-                                .slice(0, 10)
-                                .map(
-                                    function (result) {
-
-                                        return `
-
-                                            <tr>
-
-                                                <td>
-                                                    ${escapeHtml(
-                                                        result.subject || "-"
-                                                    )}
-                                                </td>
-
-                                                <td>
-                                                    ${escapeHtml(
-                                                        result.chapter || "-"
-                                                    )}
-                                                </td>
-
-                                                <td>
-                                                    ${result.score ?? 0}
-                                                    /
-                                                    ${result.total ?? 0}
-                                                </td>
-
-                                                <td>
-                                                    ${getPercentage(
-                                                        result
-                                                    )}%
-                                                </td>
-
-                                                <td>
-                                                    ${formatDateTime(
-                                                        result.createdAt
-                                                    )}
-                                                </td>
-
-                                            </tr>
-
-                                        `;
-
-                                    }
-                                )
-                                .join("")
-                        }
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        `;
-
-    }
-
-
-    details.innerHTML = `
-
-        <div class="student-info-grid">
-
-            <div class="student-info">
-
-                <small>👨‍🎓 الاسم</small>
-
-                <strong>
-                    ${escapeHtml(
-                        student.name || "-"
-                    )}
-                </strong>
-
-            </div>
-
-
-            <div class="student-info">
-
-                <small>🔑 كود الطالب</small>
-
-                <strong>
-                    ${escapeHtml(
-                        student.id
-                    )}
-                </strong>
-
-            </div>
-
-
-            <div class="student-info">
-
-                <small>🎓 الصف</small>
-
-                <strong>
-                    ${escapeHtml(
-                        student.grade || "-"
-                    )}
-                </strong>
-
-            </div>
-
-
-            <div class="student-info">
-
-                <small>📧 البريد الإلكتروني</small>
-
-                <strong>
-                    ${escapeHtml(
-                        student.email || "-"
-                    )}
-                </strong>
-
-            </div>
-
-
-            <div class="student-info">
-
-                <small>📅 تاريخ الانتهاء</small>
-
-                <strong>
-                    ${
-                        expiry
-                            ? formatDate(expiry)
-                            : "-"
-                    }
-                </strong>
-
-            </div>
-
-
-            <div class="student-info">
-
-                <small>📊 الحالة</small>
-
-                <strong>
-                    ${
-                        active
-                            ? "✅ نشط"
-                            : "⛔ غير نشط"
-                    }
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <h3 class="student-detail-title">
-
-            📝 آخر نتائج الطالب
-
-        </h3>
-
-
-        ${resultsHtml}
-
-    `;
-
-
-    modal.classList.remove(
-        "hidden"
-    );
-
-}
-
-
-// ==========================================================
-// إغلاق تفاصيل الطالب
-// ==========================================================
-
-function closeStudentModal() {
-
-    const modal =
-        document.getElementById(
-            "studentModal"
-        );
-
-
-    if (modal) {
-
-        modal.classList.add(
-            "hidden"
-        );
-
-    }
-
-}
-
-
-// ==========================================================
-// تفعيل / إيقاف حساب الطالب
+// STUDENT STATUS
 // ==========================================================
 
 function toggleStudentStatus(studentCode) {
 
     const student =
-        allStudents.find(
-            function (item) {
+        allStudents.find(function (item) {
 
-                return item.id === studentCode;
+            return item.id === studentCode;
 
-            }
-        );
-
+        });
 
     if (!student) {
-
-        alert("❌ الطالب غير موجود");
-
         return;
-
     }
-
 
     const newStatus =
         student.active !== true;
 
-
-    const actionText =
+    const action =
         newStatus
             ? "تفعيل"
             : "إيقاف";
 
-
-    const confirmed =
-        confirm(
-            `⚠️ هل تريد ${actionText} حساب الطالب؟\n\n` +
+    if (
+        !confirm(
+            `⚠️ هل تريد ${action} حساب الطالب؟\n\n` +
             `${student.name || studentCode}`
-        );
-
-
-    if (!confirmed) {
-
+        )
+    ) {
         return;
-
     }
-
 
     db.collection("students")
         .doc(studentCode)
@@ -1199,9 +1252,7 @@ function toggleStudentStatus(studentCode) {
         })
         .then(function () {
 
-            student.active =
-                newStatus;
-
+            student.active = newStatus;
 
             renderStudents();
 
@@ -1209,11 +1260,19 @@ function toggleStudentStatus(studentCode) {
 
             updateDashboard();
 
+            if (
+                currentStudent &&
+                currentStudent.id === studentCode
+            ) {
+
+                openStudentManager(studentCode);
+
+            }
 
             alert(
                 newStatus
-                    ? "✅ تم تفعيل حساب الطالب"
-                    : "⏸️ تم إيقاف حساب الطالب"
+                    ? "✅ تم تفعيل الحساب"
+                    : "⏸️ تم إيقاف الحساب"
             );
 
         })
@@ -1222,7 +1281,7 @@ function toggleStudentStatus(studentCode) {
             console.error(error);
 
             alert(
-                "❌ تعذر تغيير حالة الطالب"
+                "❌ تعذر تغيير حالة الحساب"
             );
 
         });
@@ -1231,159 +1290,34 @@ function toggleStudentStatus(studentCode) {
 
 
 // ==========================================================
-// تغيير كلمة مرور الطالب
-// ==========================================================
-
-function changeStudentPassword(studentCode) {
-
-    const student =
-        allStudents.find(
-            function (item) {
-
-                return item.id === studentCode;
-
-            }
-        );
-
-
-    if (!student) {
-
-        alert("❌ الطالب غير موجود");
-
-        return;
-
-    }
-
-
-    const newPassword =
-        prompt(
-            "🔑 اكتب كلمة المرور الجديدة:",
-            ""
-        );
-
-
-    if (newPassword === null) {
-
-        return;
-
-    }
-
-
-    const password =
-        String(
-            newPassword
-        ).trim();
-
-
-    if (!password) {
-
-        alert(
-            "❌ كلمة المرور لا يمكن أن تكون فارغة"
-        );
-
-        return;
-
-    }
-
-
-    if (password.length < 4) {
-
-        alert(
-            "❌ كلمة المرور يجب ألا تقل عن 4 أحرف"
-        );
-
-        return;
-
-    }
-
-
-    const confirmed =
-        confirm(
-            "⚠️ هل تريد تغيير كلمة مرور الطالب؟\n\n" +
-            (student.name || studentCode)
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    db.collection("students")
-        .doc(studentCode)
-        .update({
-
-            password: password
-
-        })
-        .then(function () {
-
-            student.password =
-                password;
-
-
-            alert(
-                "✅ تم تغيير كلمة مرور الطالب بنجاح"
-            );
-
-        })
-        .catch(function (error) {
-
-            console.error(error);
-
-            alert(
-                "❌ تعذر تغيير كلمة المرور"
-            );
-
-        });
-
-}
-
-
-// ==========================================================
-// تمديد اشتراك الطالب
+// EXTEND STUDENT
 // ==========================================================
 
 function extendStudent(studentCode) {
 
     const student =
-        allStudents.find(
-            function (item) {
+        allStudents.find(function (item) {
 
-                return item.id === studentCode;
+            return item.id === studentCode;
 
-            }
-        );
-
+        });
 
     if (!student) {
-
-        alert("الطالب غير موجود");
-
         return;
-
     }
-
 
     const daysText =
         prompt(
-            "اكتب عدد الأيام المراد إضافتها:",
+            "➕ اكتب عدد الأيام المراد إضافتها:",
             "30"
         );
 
-
     if (daysText === null) {
-
         return;
-
     }
-
 
     const days =
         Number(daysText);
-
 
     if (
         !Number.isFinite(days) ||
@@ -1396,33 +1330,24 @@ function extendStudent(studentCode) {
 
     }
 
-
     const currentExpiry =
-        getDate(
-            student.expiresAt
-        );
-
+        getDate(student.expiresAt);
 
     const now =
         new Date();
 
-
-    let baseDate =
+    const base =
         currentExpiry &&
         currentExpiry > now
             ? currentExpiry
             : now;
 
-
     const newExpiry =
-        new Date(baseDate);
-
+        new Date(base);
 
     newExpiry.setDate(
-        newExpiry.getDate() +
-        days
+        newExpiry.getDate() + days
     );
-
 
     db.collection("students")
         .doc(studentCode)
@@ -1445,547 +1370,32 @@ function extendStudent(studentCode) {
 
             student.active = true;
 
-
             renderStudents();
 
-
             updateDashboard();
-
-
-            alert(
-                "✅ تم تمديد اشتراك الطالب"
-            );
-
-        })
-        .catch(function (error) {
-
-            console.error(error);
-
-            alert(
-                "❌ حدث خطأ أثناء تمديد الاشتراك"
-            );
-
-        });
-
-}
-
-
-// ==========================================================
-// حذف طالب
-// ==========================================================
-
-function deleteStudent(studentCode) {
-
-    const student =
-        allStudents.find(
-            function (item) {
-
-                return item.id === studentCode;
-
-            }
-        );
-
-
-    if (!student) {
-
-        return;
-
-    }
-
-
-    const confirmed =
-        confirm(
-            "⚠️ هل أنت متأكد من حذف الطالب؟\n\n" +
-            (student.name || studentCode) +
-            "\n\nسيتم حذف حساب الطالب فقط، ولن يتم حذف نتائج الاختبارات تلقائيًا."
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    db.collection("students")
-        .doc(studentCode)
-        .delete()
-        .then(function () {
-
-            allStudents =
-                allStudents.filter(
-                    function (item) {
-
-                        return (
-                            item.id !==
-                            studentCode
-                        );
-
-                    }
-                );
-
-
-            allCodes =
-                allCodes.filter(
-                    function (item) {
-
-                        return (
-                            item.id !==
-                            studentCode
-                        );
-
-                    }
-                );
-
-
-            renderStudents();
-
-            renderCodes();
-
-            updateDashboard();
-
-
-            alert(
-                "✅ تم حذف الطالب"
-            );
-
-        })
-        .catch(function (error) {
-
-            console.error(error);
-
-            alert(
-                "❌ تعذر حذف الطالب"
-            );
-
-        });
-
-}
-
-
-// ==========================================================
-// تحميل الأكواد
-// ==========================================================
-
-function loadCodes() {
-
-    return db.collection("students")
-        .get()
-        .then(function (snapshot) {
-
-            allCodes = [];
-
-
-            snapshot.forEach(
-                function (doc) {
-
-                    allCodes.push({
-
-                        id: doc.id,
-
-                        ...doc.data()
-
-                    });
-
-                }
-            );
-
-
-            return allCodes;
-
-        });
-
-}
-
-
-// ==========================================================
-// إنشاء كود طالب
-// ==========================================================
-
-function createStudentCode() {
-
-    const code =
-        getInputValue(
-            "newCode"
-        );
-
-
-    const password =
-        getInputValue(
-            "newPassword"
-        );
-
-
-    const name =
-        getInputValue(
-            "newName"
-        );
-
-
-    const grade =
-        getInputValue(
-            "newGrade"
-        );
-
-
-    const days =
-        Number(
-            getInputValue(
-                "subscriptionDays"
-            )
-        );
-
-
-    if (!code) {
-
-        alert("❌ اكتب كود الاشتراك");
-
-        return;
-
-    }
-
-
-    if (!password) {
-
-        alert("❌ اكتب كلمة المرور");
-
-        return;
-
-    }
-
-
-    if (!name) {
-
-        alert("❌ اكتب اسم الطالب");
-
-        return;
-
-    }
-
-
-    if (!grade) {
-
-        alert("❌ اختر الصف");
-
-        return;
-
-    }
-
-
-    if (
-        !Number.isFinite(days) ||
-        days <= 0
-    ) {
-
-        alert("❌ مدة الاشتراك غير صحيحة");
-
-        return;
-
-    }
-
-
-    const studentRef =
-        db.collection("students")
-            .doc(code);
-
-
-    studentRef.get()
-        .then(function (doc) {
-
-            if (doc.exists) {
-
-                throw new Error(
-                    "EXISTS"
-                );
-
-            }
-
-
-            const expiry =
-                new Date();
-
-
-            expiry.setDate(
-                expiry.getDate() +
-                days
-            );
-
-
-            return studentRef.set({
-
-                name: name,
-
-                password: password,
-
-                grade: grade,
-
-                active: true,
-
-                expiresAt:
-                    firebase.firestore.Timestamp.fromDate(
-                        expiry
-                    ),
-
-                createdAt:
-                    firebase.firestore.FieldValue.serverTimestamp()
-
-            });
-
-        })
-        .then(function () {
-
-            alert(
-                "✅ تم إنشاء كود الطالب بنجاح"
-            );
-
-
-            clearInputs([
-
-                "newCode",
-
-                "newPassword",
-
-                "newName",
-
-                "newGrade"
-
-            ]);
-
-
-            return loadStudents();
-
-        })
-        .then(function () {
-
-            return loadCodes();
-
-        })
-        .then(function () {
-
-            renderStudents();
-
-            renderCodes();
-
-            updateDashboard();
-
-        })
-        .catch(function (error) {
-
-            console.error(error);
-
 
             if (
-                error.message ===
-                "EXISTS"
+                currentStudent &&
+                currentStudent.id === studentCode
             ) {
 
-                alert(
-                    "⚠️ هذا الكود موجود بالفعل"
-                );
+                openStudentManager(studentCode);
 
             }
 
-            else {
-
-                alert(
-                    "❌ حدث خطأ أثناء إنشاء كود الطالب"
-                );
-
-            }
-
-        });
-
-}
-
-
-// ==========================================================
-// عرض الأكواد
-// ==========================================================
-
-function renderCodes() {
-
-    const table =
-        document.getElementById(
-            "codesTable"
-        );
-
-
-    if (!table) {
-
-        return;
-
-    }
-
-
-    if (!allCodes.length) {
-
-        table.innerHTML = `
-
-            <tr>
-
-                <td colspan="6">
-
-                    لا توجد أكواد حاليًا
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
-    }
-
-
-    table.innerHTML =
-        allCodes.map(
-            function (student) {
-
-                const expiry =
-                    getDate(
-                        student.expiresAt
-                    );
-
-
-                const active =
-                    isStudentActive(
-                        student
-                    );
-
-
-                return `
-
-                    <tr>
-
-                        <td>
-                            ${escapeHtml(
-                                student.id
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                student.name || "-"
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                student.grade || "-"
-                            )}
-                        </td>
-
-                        <td>
-                            ${
-                                active
-                                    ? "✅ نشط"
-                                    : "⛔ منتهي"
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                expiry
-                                    ? formatDate(
-                                        expiry
-                                    )
-                                    : "-"
-                            }
-                        </td>
-
-                        <td>
-
-                            <button
-                                class="admin-btn success-btn"
-                                onclick="extendStudent('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                ➕
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn warning-btn"
-                                title="فك الجهاز المرتبط"
-                                onclick="unlinkStudentDevice('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                🔓
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn danger-btn"
-                                onclick="deleteStudent('${escapeJs(
-                                    student.id
-                                )}')">
-
-                                🗑️
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        )
-        .join("");
-
-}
-
-
-// ==========================================================
-// تحميل أولياء الأمور
-// ==========================================================
-
-function loadParents() {
-
-    return db.collection("parents")
-        .get()
-        .then(function (snapshot) {
-
-            allParents = [];
-
-
-            snapshot.forEach(
-                function (doc) {
-
-                    allParents.push({
-
-                        id: doc.id,
-
-                        ...doc.data()
-
-                    });
-
-                }
+            alert(
+                "✅ تم تمديد الاشتراك حتى " +
+                formatDate(newExpiry)
             );
-
-
-            return allParents;
 
         })
         .catch(function (error) {
 
-            console.error(
-                "Parents loading error:",
-                error
+            console.error(error);
+
+            alert(
+                "❌ تعذر تمديد الاشتراك"
             );
-
-
-            allParents = [];
-
-
-            return allParents;
 
         });
 
@@ -1993,664 +1403,36 @@ function loadParents() {
 
 
 // ==========================================================
-// إنشاء حساب ولي أمر
+// CHANGE STUDENT PASSWORD
 // ==========================================================
 
-function createParentCode() {
-
-    const code =
-        getInputValue(
-            "newParentCode"
-        );
-
-
-    const password =
-        getInputValue(
-            "newParentPassword"
-        );
-
-
-    const name =
-        getInputValue(
-            "newParentName"
-        );
-
-
-    const studentCode =
-        getInputValue(
-            "parentStudentCode"
-        );
-
-
-    const days =
-        Number(
-            getInputValue(
-                "parentSubscriptionDays"
-            )
-        );
-
-
-    if (!code) {
-
-        alert(
-            "❌ اكتب كود ولي الأمر"
-        );
-
-        return;
-
-    }
-
-
-    if (!password) {
-
-        alert(
-            "❌ اكتب كلمة المرور"
-        );
-
-        return;
-
-    }
-
-
-    if (!name) {
-
-        alert(
-            "❌ اكتب اسم ولي الأمر"
-        );
-
-        return;
-
-    }
-
-
-    if (!studentCode) {
-
-        alert(
-            "❌ اكتب كود الطالب المرتبط"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        !Number.isFinite(days) ||
-        days <= 0
-    ) {
-
-        alert(
-            "❌ مدة الاشتراك غير صحيحة"
-        );
-
-        return;
-
-    }
-
+function changeStudentPassword(studentCode) {
 
     const student =
-        allStudents.find(
-            function (item) {
+        allStudents.find(function (item) {
 
-                return item.id === studentCode;
+            return item.id === studentCode;
 
-            }
-        );
-
+        });
 
     if (!student) {
-
-        alert(
-            "❌ كود الطالب غير موجود"
-        );
-
         return;
-
     }
 
-
-    const parentRef =
-        db.collection("parents")
-            .doc(code);
-
-
-    parentRef.get()
-        .then(function (doc) {
-
-            if (doc.exists) {
-
-                throw new Error(
-                    "PARENT_EXISTS"
-                );
-
-            }
-
-
-            const expiry =
-                new Date();
-
-
-            expiry.setDate(
-                expiry.getDate() +
-                days
-            );
-
-
-            return parentRef.set({
-
-                name: name,
-
-                password: password,
-
-                studentCode: studentCode,
-
-                studentName:
-                    student.name || "",
-
-                studentGrade:
-                    student.grade || "",
-
-                active: true,
-
-                expiresAt:
-                    firebase.firestore.Timestamp.fromDate(
-                        expiry
-                    ),
-
-                createdAt:
-                    firebase.firestore.FieldValue.serverTimestamp()
-
-            });
-
-        })
-        .then(function () {
-
-            alert(
-                "✅ تم إنشاء حساب ولي الأمر"
-            );
-
-
-            clearInputs([
-
-                "newParentCode",
-
-                "newParentPassword",
-
-                "newParentName",
-
-                "parentStudentCode"
-
-            ]);
-
-
-            return loadParents();
-
-        })
-        .then(function () {
-
-            renderParents();
-
-        })
-        .catch(function (error) {
-
-            console.error(error);
-
-
-            if (
-                error.message ===
-                "PARENT_EXISTS"
-            ) {
-
-                alert(
-                    "⚠️ كود ولي الأمر موجود بالفعل"
-                );
-
-            }
-
-            else {
-
-                alert(
-                    "❌ حدث خطأ أثناء إنشاء حساب ولي الأمر"
-                );
-
-            }
-
-        });
-
-}
-
-
-// ==========================================================
-// عرض أولياء الأمور
-// ==========================================================
-
-function renderParents() {
-
-    const table =
-        document.getElementById(
-            "parentsTable"
-        );
-
-
-    if (!table) {
-
-        return;
-
-    }
-
-
-    if (!allParents.length) {
-
-        table.innerHTML = `
-
-            <tr>
-
-                <td colspan="7">
-
-                    لا توجد أكواد أولياء أمور حاليًا
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
-    }
-
-
-    table.innerHTML =
-        allParents.map(
-            function (parent) {
-
-                const expiry =
-                    getDate(
-                        parent.expiresAt
-                    );
-
-
-                const active =
-                    isParentActive(
-                        parent
-                    );
-
-
-                return `
-
-                    <tr>
-
-                        <td>
-                            ${escapeHtml(
-                                parent.id
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                parent.name || "-"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                parent.studentName || "-"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                parent.studentCode || "-"
-                            )}
-                        </td>
-
-
-                        <td>
-
-                            ${
-                                active
-                                    ? "✅ نشط"
-                                    : "⛔ منتهي"
-                            }
-
-                        </td>
-
-
-                        <td>
-
-                            ${
-                                expiry
-                                    ? formatDate(
-                                        expiry
-                                    )
-                                    : "-"
-                            }
-
-                        </td>
-
-
-                        <td>
-
-                            <button
-                                class="admin-btn primary-btn"
-                                title="عرض التفاصيل"
-                                onclick="viewParent('${escapeJs(
-                                    parent.id
-                                )}')">
-
-                                👁️
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn warning-btn"
-                                title="${
-                                    parent.active === true
-                                        ? "إيقاف الحساب"
-                                        : "تفعيل الحساب"
-                                }"
-                                onclick="toggleParentStatus('${escapeJs(
-                                    parent.id
-                                )}')">
-
-                                ${
-                                    parent.active === true
-                                        ? "⏸️"
-                                        : "▶️"
-                                }
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn success-btn"
-                                title="تمديد الاشتراك"
-                                onclick="extendParent('${escapeJs(
-                                    parent.id
-                                )}')">
-
-                                ➕
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn primary-btn"
-                                title="تغيير كلمة المرور"
-                                onclick="changeParentPassword('${escapeJs(
-                                    parent.id
-                                )}')">
-
-                                🔑
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn danger-btn"
-                                title="حذف الطالب"
-                                onclick="deleteParent('${escapeJs(
-                                    parent.id
-                                )}')">
-
-                                🗑️
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        )
-        .join("");
-
-}
-
-
-// ==========================================================
-// عرض تفاصيل ولي الأمر
-// ==========================================================
-
-function viewParent(parentCode) {
-
-    const parent =
-        allParents.find(
-            function (item) {
-
-                return item.id === parentCode;
-
-            }
-        );
-
-
-    if (!parent) {
-
-        alert(
-            "❌ ولي الأمر غير موجود"
-        );
-
-        return;
-
-    }
-
-
-    const student =
-        allStudents.find(
-            function (item) {
-
-                return (
-                    item.id ===
-                    parent.studentCode
-                );
-
-            }
-        );
-
-
-    const expiry =
-        getDate(
-            parent.expiresAt
-        );
-
-
-    const active =
-        isParentActive(
-            parent
-        );
-
-
-    const message =
-        "👨‍👩‍👦 بيانات ولي الأمر\n\n" +
-
-        "الاسم: " +
-        (parent.name || "-") +
-
-        "\nكود ولي الأمر: " +
-        (parent.id || "-") +
-
-        "\n\n👨‍🎓 الطالب المرتبط\n\n" +
-
-        "اسم الطالب: " +
-        (
-            student
-                ? student.name
-                : parent.studentName || "-"
-        ) +
-
-        "\nكود الطالب: " +
-        (
-            parent.studentCode || "-"
-        ) +
-
-        "\nالصف: " +
-        (
-            student
-                ? student.grade
-                : parent.studentGrade || "-"
-        ) +
-
-        "\n\n📅 تاريخ الانتهاء: " +
-        (
-            expiry
-                ? formatDate(expiry)
-                : "-"
-        ) +
-
-        "\n📊 الحالة: " +
-        (
-            active
-                ? "✅ نشط"
-                : "⛔ غير نشط"
-        );
-
-
-    alert(message);
-
-}
-
-
-// ==========================================================
-// تفعيل / إيقاف حساب ولي الأمر
-// ==========================================================
-
-function toggleParentStatus(parentCode) {
-
-    const parent =
-        allParents.find(
-            function (item) {
-
-                return item.id === parentCode;
-
-            }
-        );
-
-
-    if (!parent) {
-
-        alert(
-            "❌ ولي الأمر غير موجود"
-        );
-
-        return;
-
-    }
-
-
-    const newStatus =
-        parent.active !== true;
-
-
-    const actionText =
-        newStatus
-            ? "تفعيل"
-            : "إيقاف";
-
-
-    const confirmed =
-        confirm(
-            `⚠️ هل تريد ${actionText} حساب ولي الأمر؟\n\n` +
-            `${parent.name || parentCode}`
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    db.collection("parents")
-        .doc(parentCode)
-        .update({
-
-            active: newStatus
-
-        })
-        .then(function () {
-
-            parent.active =
-                newStatus;
-
-
-            renderParents();
-
-
-            alert(
-                newStatus
-                    ? "✅ تم تفعيل حساب ولي الأمر"
-                    : "⏸️ تم إيقاف حساب ولي الأمر"
-            );
-
-        })
-        .catch(function (error) {
-
-            console.error(error);
-
-            alert(
-                "❌ تعذر تغيير حالة ولي الأمر"
-            );
-
-        });
-
-}
-
-
-// ==========================================================
-// تغيير كلمة مرور ولي الأمر
-// ==========================================================
-
-function changeParentPassword(parentCode) {
-
-    const parent =
-        allParents.find(
-            function (item) {
-
-                return item.id === parentCode;
-
-            }
-        );
-
-
-    if (!parent) {
-
-        alert(
-            "❌ ولي الأمر غير موجود"
-        );
-
-        return;
-
-    }
-
-
-    const newPassword =
+    const password =
         prompt(
             "🔑 اكتب كلمة المرور الجديدة:",
             ""
         );
 
-
-    if (newPassword === null) {
-
+    if (password === null) {
         return;
-
     }
 
+    const newPassword =
+        String(password).trim();
 
-    const password =
-        String(
-            newPassword
-        ).trim();
-
-
-    if (!password) {
+    if (!newPassword) {
 
         alert(
             "❌ كلمة المرور لا يمكن أن تكون فارغة"
@@ -2660,8 +1442,7 @@ function changeParentPassword(parentCode) {
 
     }
 
-
-    if (password.length < 4) {
+    if (newPassword.length < 4) {
 
         alert(
             "❌ كلمة المرور يجب ألا تقل عن 4 أحرف"
@@ -2671,36 +1452,28 @@ function changeParentPassword(parentCode) {
 
     }
 
-
-    const confirmed =
-        confirm(
-            "⚠️ هل تريد تغيير كلمة مرور ولي الأمر؟\n\n" +
-            (parent.name || parentCode)
-        );
-
-
-    if (!confirmed) {
-
+    if (
+        !confirm(
+            "⚠️ هل تريد تغيير كلمة مرور الطالب؟"
+        )
+    ) {
         return;
-
     }
 
-
-    db.collection("parents")
-        .doc(parentCode)
+    db.collection("students")
+        .doc(studentCode)
         .update({
 
-            password: password
+            password: newPassword
 
         })
         .then(function () {
 
-            parent.password =
-                password;
-
+            student.password =
+                newPassword;
 
             alert(
-                "✅ تم تغيير كلمة مرور ولي الأمر بنجاح"
+                "✅ تم تغيير كلمة المرور"
             );
 
         })
@@ -2718,20 +1491,675 @@ function changeParentPassword(parentCode) {
 
 
 // ==========================================================
-// تمديد ولي الأمر
+// DELETE STUDENT
 // ==========================================================
 
-function extendParent(parentCode) {
+function deleteStudent(studentCode) {
 
-    const parent =
-        allParents.find(
-            function (item) {
+    const student =
+        allStudents.find(function (item) {
 
-                return item.id === parentCode;
+            return item.id === studentCode;
 
-            }
+        });
+
+    if (!student) {
+        return;
+    }
+
+    if (
+        !confirm(
+            "⚠️ هل أنت متأكد من حذف الطالب؟\n\n" +
+            `${student.name || studentCode}\n\n` +
+            "سيتم حذف حساب الطالب فقط."
+        )
+    ) {
+        return;
+    }
+
+    db.collection("students")
+        .doc(studentCode)
+        .delete()
+        .then(function () {
+
+            allStudents =
+                allStudents.filter(function (item) {
+
+                    return item.id !== studentCode;
+
+                });
+
+            allCodes =
+                allCodes.filter(function (item) {
+
+                    return item.id !== studentCode;
+
+                });
+
+            closeAdminModal(
+                "studentManagerModal"
+            );
+
+            renderStudents();
+
+            renderCodes();
+
+            updateDashboard();
+
+            alert("✅ تم حذف الطالب");
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر حذف الطالب"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// CODES
+// ==========================================================
+
+function loadCodes() {
+
+    allCodes = [...allStudents];
+
+    return allCodes;
+
+}
+
+
+function createStudentCode() {
+
+    const code =
+        getInputValue("newCode");
+
+    const password =
+        getInputValue("newPassword");
+
+    const name =
+        getInputValue("newName");
+
+    const grade =
+        getInputValue("newGrade");
+
+    const days =
+        Number(
+            getInputValue(
+                "subscriptionDays"
+            )
         );
 
+    if (!code) {
+        alert("❌ اكتب كود الاشتراك");
+        return;
+    }
+
+    if (!password) {
+        alert("❌ اكتب كلمة المرور");
+        return;
+    }
+
+    if (!name) {
+        alert("❌ اكتب اسم الطالب");
+        return;
+    }
+
+    if (!grade) {
+        alert("❌ اختر الصف");
+        return;
+    }
+
+    if (
+        !Number.isFinite(days) ||
+        days <= 0
+    ) {
+        alert("❌ مدة الاشتراك غير صحيحة");
+        return;
+    }
+
+    const studentRef =
+        db.collection("students")
+            .doc(code);
+
+    studentRef.get()
+        .then(function (doc) {
+
+            if (doc.exists) {
+
+                throw new Error("EXISTS");
+
+            }
+
+            const expiry =
+                new Date();
+
+            expiry.setDate(
+                expiry.getDate() + days
+            );
+
+            return studentRef.set({
+
+                name: name,
+                password: password,
+                grade: grade,
+                active: true,
+
+                expiresAt:
+                    firebase.firestore.Timestamp.fromDate(
+                        expiry
+                    ),
+
+                createdAt:
+                    firebase.firestore.FieldValue
+                        .serverTimestamp()
+
+            });
+
+        })
+        .then(function () {
+
+            alert(
+                "✅ تم إنشاء كود الطالب"
+            );
+
+            clearInputs([
+                "newCode",
+                "newPassword",
+                "newName",
+                "newGrade"
+            ]);
+
+            return loadStudents();
+
+        })
+        .then(function () {
+
+            loadCodes();
+
+            updateDashboard();
+
+            renderStudents();
+
+            renderCodes();
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            if (
+                error.message === "EXISTS"
+            ) {
+
+                alert(
+                    "⚠️ هذا الكود موجود بالفعل"
+                );
+
+            } else {
+
+                alert(
+                    "❌ حدث خطأ أثناء إنشاء الكود"
+                );
+
+            }
+
+        });
+
+}
+
+
+function renderCodes() {
+
+    const table =
+        document.getElementById("codesTable");
+
+    if (!table) {
+        return;
+    }
+
+    if (!allCodes.length) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    لا توجد أكواد حاليًا
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+    table.innerHTML =
+        allCodes.map(function (student) {
+
+            const active =
+                isStudentActive(student);
+
+            const expiry =
+                getDate(student.expiresAt);
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${escapeHtml(student.id)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(student.name || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(student.grade || "-")}
+                    </td>
+
+                    <td>
+                        ${
+                            active
+                                ? "✅ نشط"
+                                : "⛔ منتهي"
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            expiry
+                                ? formatDate(expiry)
+                                : "-"
+                        }
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="admin-btn success-btn"
+                            onclick="extendStudent('${escapeJs(student.id)}')">
+                            ➕
+                        </button>
+
+                        <button
+                            class="admin-btn warning-btn"
+                            onclick="manageStudentDevice('${escapeJs(student.id)}')">
+                            📱
+                        </button>
+
+                        <button
+                            class="admin-btn danger-btn"
+                            onclick="deleteStudent('${escapeJs(student.id)}')">
+                            🗑️
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+}
+
+
+// ==========================================================
+// PARENTS
+// ==========================================================
+
+function loadParents() {
+
+    return db.collection("parents")
+        .get()
+        .then(function (snapshot) {
+
+            allParents = [];
+
+            snapshot.forEach(function (doc) {
+
+                allParents.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+
+            });
+
+            return allParents;
+
+        })
+        .catch(function (error) {
+
+            console.error(
+                "Parents loading error:",
+                error
+            );
+
+            allParents = [];
+
+            return allParents;
+
+        });
+
+}
+
+
+// ==========================================================
+// CREATE PARENT
+// ==========================================================
+
+function createParentCode() {
+
+    const code =
+        getInputValue("newParentCode");
+
+    const password =
+        getInputValue("newParentPassword");
+
+    const name =
+        getInputValue("newParentName");
+
+    const studentCode =
+        getInputValue("parentStudentCode");
+
+    const days =
+        Number(
+            getInputValue(
+                "parentSubscriptionDays"
+            )
+        );
+
+    if (!code) {
+        alert("❌ اكتب كود ولي الأمر");
+        return;
+    }
+
+    if (!password) {
+        alert("❌ اكتب كلمة المرور");
+        return;
+    }
+
+    if (!name) {
+        alert("❌ اكتب اسم ولي الأمر");
+        return;
+    }
+
+    if (!studentCode) {
+        alert("❌ اكتب كود الطالب المرتبط");
+        return;
+    }
+
+    if (
+        !Number.isFinite(days) ||
+        days <= 0
+    ) {
+        alert("❌ مدة الاشتراك غير صحيحة");
+        return;
+    }
+
+    const student =
+        allStudents.find(function (item) {
+
+            return item.id === studentCode;
+
+        });
+
+    if (!student) {
+
+        alert(
+            "❌ كود الطالب غير موجود"
+        );
+
+        return;
+
+    }
+
+    const parentRef =
+        db.collection("parents")
+            .doc(code);
+
+    parentRef.get()
+        .then(function (doc) {
+
+            if (doc.exists) {
+
+                throw new Error(
+                    "PARENT_EXISTS"
+                );
+
+            }
+
+            const expiry =
+                new Date();
+
+            expiry.setDate(
+                expiry.getDate() + days
+            );
+
+            return parentRef.set({
+
+                name: name,
+                password: password,
+                studentCode: studentCode,
+                studentName: student.name || "",
+                studentGrade: student.grade || "",
+                active: true,
+
+                expiresAt:
+                    firebase.firestore.Timestamp
+                        .fromDate(expiry),
+
+                createdAt:
+                    firebase.firestore.FieldValue
+                        .serverTimestamp()
+
+            });
+
+        })
+        .then(function () {
+
+            alert(
+                "✅ تم إنشاء حساب ولي الأمر"
+            );
+
+            clearInputs([
+                "newParentCode",
+                "newParentPassword",
+                "newParentName",
+                "parentStudentCode"
+            ]);
+
+            return loadParents();
+
+        })
+        .then(function () {
+
+            updateDashboard();
+
+            renderParents();
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            if (
+                error.message ===
+                "PARENT_EXISTS"
+            ) {
+
+                alert(
+                    "⚠️ كود ولي الأمر موجود بالفعل"
+                );
+
+            } else {
+
+                alert(
+                    "❌ حدث خطأ أثناء إنشاء الحساب"
+                );
+
+            }
+
+        });
+
+}
+
+
+// ==========================================================
+// RENDER PARENTS
+// ==========================================================
+
+function renderParents() {
+
+    const table =
+        document.getElementById("parentsTable");
+
+    if (!table) {
+        return;
+    }
+
+    if (!allParents.length) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="8">
+                    لا توجد حسابات أولياء أمور
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+    table.innerHTML =
+        allParents.map(function (parent) {
+
+            const expiry =
+                getDate(parent.expiresAt);
+
+            const active =
+                isParentActive(parent);
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${escapeHtml(parent.id)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(parent.name || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            parent.studentName || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            parent.studentCode || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            parent.studentGrade || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${
+                            active
+                                ? "✅ نشط"
+                                : "⛔ منتهي"
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            expiry
+                                ? formatDate(expiry)
+                                : "-"
+                        }
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="admin-btn primary-btn"
+                            title="التفاصيل"
+                            onclick="openParentManager('${escapeJs(parent.id)}')">
+                            👁️
+                        </button>
+
+                        <button
+                            class="admin-btn primary-btn"
+                            title="تعديل"
+                            onclick="editParent('${escapeJs(parent.id)}')">
+                            ✏️
+                        </button>
+
+                        <button
+                            class="admin-btn warning-btn"
+                            onclick="toggleParentStatus('${escapeJs(parent.id)}')">
+                            ${
+                                parent.active === true
+                                    ? "⏸️"
+                                    : "▶️"
+                            }
+                        </button>
+
+                        <button
+                            class="admin-btn success-btn"
+                            onclick="extendParent('${escapeJs(parent.id)}')">
+                            ➕
+                        </button>
+
+                        <button
+                            class="admin-btn primary-btn"
+                            onclick="changeParentPassword('${escapeJs(parent.id)}')">
+                            🔑
+                        </button>
+
+                        <button
+                            class="admin-btn danger-btn"
+                            onclick="deleteParent('${escapeJs(parent.id)}')">
+                            🗑️
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+}
+
+
+// ==========================================================
+// PARENT FULL MANAGEMENT
+// ==========================================================
+
+function openParentManager(parentCode) {
+
+    const parent =
+        allParents.find(function (item) {
+
+            return item.id === parentCode;
+
+        });
 
     if (!parent) {
 
@@ -2743,24 +2171,478 @@ function extendParent(parentCode) {
 
     }
 
+    currentParent = parent;
 
-    const daysText =
-        prompt(
-            "اكتب عدد الأيام المراد إضافتها:",
-            "30"
+    const student =
+        allStudents.find(function (item) {
+
+            return item.id === parent.studentCode;
+
+        });
+
+    const expiry =
+        getDate(parent.expiresAt);
+
+    const days =
+        getRemainingDays(expiry);
+
+    const modal =
+        document.getElementById(
+            "parentManagerModal"
         );
 
+    const body =
+        document.getElementById(
+            "parentManagerBody"
+        );
 
-    if (daysText === null) {
+    if (!modal || !body) {
+        return;
+    }
+
+    body.innerHTML = `
+
+        <div class="admin-modal-header">
+
+            <div>
+
+                <h2>👨‍👩‍👦 إدارة ولي الأمر</h2>
+
+                <p>
+                    ${escapeHtml(parent.name || "-")}
+                </p>
+
+            </div>
+
+            <button
+                class="modal-close"
+                onclick="closeAdminModal('parentManagerModal')">
+                ✕
+            </button>
+
+        </div>
+
+
+        <div class="admin-info-grid">
+
+            ${adminInfo(
+                "👤 الاسم",
+                parent.name || "-"
+            )}
+
+            ${adminInfo(
+                "🔑 كود ولي الأمر",
+                parent.id
+            )}
+
+            ${adminInfo(
+                "👨‍🎓 الطالب المرتبط",
+                student
+                    ? student.name
+                    : parent.studentName || "-"
+            )}
+
+            ${adminInfo(
+                "🔑 كود الطالب",
+                parent.studentCode || "-"
+            )}
+
+            ${adminInfo(
+                "🎓 الصف",
+                student
+                    ? student.grade
+                    : parent.studentGrade || "-"
+            )}
+
+            ${adminInfo(
+                "📅 تاريخ الانتهاء",
+                expiry
+                    ? formatDate(expiry)
+                    : "-"
+            )}
+
+            ${adminInfo(
+                "⏳ الأيام المتبقية",
+                days >= 0
+                    ? days + " يوم"
+                    : "منتهي"
+            )}
+
+            ${adminInfo(
+                "📊 الحالة",
+                isParentActive(parent)
+                    ? "✅ نشط"
+                    : "⛔ غير نشط"
+            )}
+
+        </div>
+
+
+        <div class="admin-management-actions">
+
+            <button
+                class="admin-btn primary-btn"
+                onclick="editParent('${escapeJs(parent.id)}')">
+                ✏️ تعديل الحساب
+            </button>
+
+            <button
+                class="admin-btn success-btn"
+                onclick="extendParent('${escapeJs(parent.id)}')">
+                ➕ تمديد
+            </button>
+
+            <button
+                class="admin-btn warning-btn"
+                onclick="toggleParentStatus('${escapeJs(parent.id)}')">
+                ${
+                    parent.active === true
+                        ? "⏸️ إيقاف"
+                        : "▶️ تفعيل"
+                }
+            </button>
+
+            <button
+                class="admin-btn primary-btn"
+                onclick="changeParentPassword('${escapeJs(parent.id)}')">
+                🔑 تغيير كلمة المرور
+            </button>
+
+            <button
+                class="admin-btn danger-btn"
+                onclick="deleteParent('${escapeJs(parent.id)}')">
+                🗑️ حذف
+            </button>
+
+        </div>
+
+    `;
+
+    modal.classList.remove("hidden");
+
+}
+
+
+// ==========================================================
+// EDIT PARENT
+// ==========================================================
+
+function editParent(parentCode) {
+
+    const parent =
+        allParents.find(function (item) {
+
+            return item.id === parentCode;
+
+        });
+
+    if (!parent) {
+        return;
+    }
+
+    const modal =
+        document.getElementById(
+            "editParentModal"
+        );
+
+    const body =
+        document.getElementById(
+            "editParentBody"
+        );
+
+    if (!modal || !body) {
+        return;
+    }
+
+    body.innerHTML = `
+
+        <div class="admin-modal-header">
+
+            <h2>✏️ تعديل حساب ولي الأمر</h2>
+
+            <button
+                class="modal-close"
+                onclick="closeAdminModal('editParentModal')">
+                ✕
+            </button>
+
+        </div>
+
+
+        <div class="admin-form-grid">
+
+            <div>
+
+                <label>اسم ولي الأمر</label>
+
+                <input
+                    id="editParentName"
+                    value="${escapeHtml(
+                        parent.name || ""
+                    )}"
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>كود الطالب المرتبط</label>
+
+                <input
+                    id="editParentStudentCode"
+                    value="${escapeHtml(
+                        parent.studentCode || ""
+                    )}"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-modal-actions">
+
+            <button
+                class="admin-btn success-btn"
+                onclick="saveParentEdit('${escapeJs(parent.id)}')">
+                💾 حفظ
+            </button>
+
+            <button
+                class="admin-btn secondary-btn"
+                onclick="closeAdminModal('editParentModal')">
+                إلغاء
+            </button>
+
+        </div>
+
+    `;
+
+    modal.classList.remove("hidden");
+
+}
+
+
+// ==========================================================
+// SAVE PARENT
+// ==========================================================
+
+function saveParentEdit(parentCode) {
+
+    const name =
+        getInputValue("editParentName");
+
+    const studentCode =
+        getInputValue(
+            "editParentStudentCode"
+        );
+
+    if (!name) {
+
+        alert(
+            "❌ اسم ولي الأمر مطلوب"
+        );
 
         return;
 
     }
 
+    const student =
+        allStudents.find(function (item) {
+
+            return item.id === studentCode;
+
+        });
+
+    if (!student) {
+
+        alert(
+            "❌ كود الطالب غير موجود"
+        );
+
+        return;
+
+    }
+
+    db.collection("parents")
+        .doc(parentCode)
+        .update({
+
+            name: name,
+
+            studentCode: studentCode,
+
+            studentName:
+                student.name || "",
+
+            studentGrade:
+                student.grade || ""
+
+        })
+        .then(function () {
+
+            const parent =
+                allParents.find(function (item) {
+
+                    return item.id === parentCode;
+
+                });
+
+            if (parent) {
+
+                parent.name = name;
+
+                parent.studentCode =
+                    studentCode;
+
+                parent.studentName =
+                    student.name || "";
+
+                parent.studentGrade =
+                    student.grade || "";
+
+            }
+
+            closeAdminModal(
+                "editParentModal"
+            );
+
+            renderParents();
+
+            if (
+                currentParent &&
+                currentParent.id === parentCode
+            ) {
+
+                openParentManager(parentCode);
+
+            }
+
+            alert(
+                "✅ تم تعديل حساب ولي الأمر"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تعديل الحساب"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// PARENT STATUS
+// ==========================================================
+
+function toggleParentStatus(parentCode) {
+
+    const parent =
+        allParents.find(function (item) {
+
+            return item.id === parentCode;
+
+        });
+
+    if (!parent) {
+        return;
+    }
+
+    const newStatus =
+        parent.active !== true;
+
+    const action =
+        newStatus
+            ? "تفعيل"
+            : "إيقاف";
+
+    if (
+        !confirm(
+            `⚠️ هل تريد ${action} حساب ولي الأمر؟`
+        )
+    ) {
+        return;
+    }
+
+    db.collection("parents")
+        .doc(parentCode)
+        .update({
+
+            active: newStatus
+
+        })
+        .then(function () {
+
+            parent.active = newStatus;
+
+            renderParents();
+
+            updateDashboard();
+
+            if (
+                currentParent &&
+                currentParent.id === parentCode
+            ) {
+
+                openParentManager(parentCode);
+
+            }
+
+            alert(
+                newStatus
+                    ? "✅ تم تفعيل الحساب"
+                    : "⏸️ تم إيقاف الحساب"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تغيير حالة الحساب"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// EXTEND PARENT
+// ==========================================================
+
+function extendParent(parentCode) {
+
+    const parent =
+        allParents.find(function (item) {
+
+            return item.id === parentCode;
+
+        });
+
+    if (!parent) {
+        return;
+    }
+
+    const text =
+        prompt(
+            "➕ عدد الأيام المراد إضافتها:",
+            "30"
+        );
+
+    if (text === null) {
+        return;
+    }
 
     const days =
-        Number(daysText);
-
+        Number(text);
 
     if (
         !Number.isFinite(days) ||
@@ -2775,33 +2657,23 @@ function extendParent(parentCode) {
 
     }
 
-
     const expiry =
-        getDate(
-            parent.expiresAt
-        );
-
+        getDate(parent.expiresAt);
 
     const now =
         new Date();
 
-
     const base =
-        expiry &&
-        expiry > now
+        expiry && expiry > now
             ? expiry
             : now;
-
 
     const newExpiry =
         new Date(base);
 
-
     newExpiry.setDate(
-        newExpiry.getDate() +
-        days
+        newExpiry.getDate() + days
     );
-
 
     db.collection("parents")
         .doc(parentCode)
@@ -2810,24 +2682,34 @@ function extendParent(parentCode) {
             active: true,
 
             expiresAt:
-                firebase.firestore.Timestamp.fromDate(
-                    newExpiry
-                )
+                firebase.firestore.Timestamp
+                    .fromDate(newExpiry)
 
         })
         .then(function () {
 
-            alert(
-                "✅ تم تمديد اشتراك ولي الأمر"
-            );
+            parent.active = true;
 
-
-            return loadParents();
-
-        })
-        .then(function () {
+            parent.expiresAt =
+                firebase.firestore.Timestamp
+                    .fromDate(newExpiry);
 
             renderParents();
+
+            updateDashboard();
+
+            if (
+                currentParent &&
+                currentParent.id === parentCode
+            ) {
+
+                openParentManager(parentCode);
+
+            }
+
+            alert(
+                "✅ تم تمديد الاشتراك"
+            );
 
         })
         .catch(function (error) {
@@ -2844,37 +2726,103 @@ function extendParent(parentCode) {
 
 
 // ==========================================================
-// حذف ولي الأمر
+// CHANGE PARENT PASSWORD
 // ==========================================================
 
-function deleteParent(parentCode) {
+function changeParentPassword(parentCode) {
 
     const parent =
-        allParents.find(
-            function (item) {
+        allParents.find(function (item) {
 
-                return item.id === parentCode;
+            return item.id === parentCode;
 
-            }
+        });
+
+    if (!parent) {
+        return;
+    }
+
+    const password =
+        prompt(
+            "🔑 كلمة المرور الجديدة:",
+            ""
         );
 
+    if (password === null) {
+        return;
+    }
 
-    const confirmed =
-        confirm(
-            "⚠️ هل تريد حذف حساب ولي الأمر؟\n\n" +
-            (parent
-                ? parent.name
-                : parentCode) +
-            "\n\nلن يتم حذف الطالب المرتبط."
+    const newPassword =
+        String(password).trim();
+
+    if (
+        newPassword.length < 4
+    ) {
+
+        alert(
+            "❌ كلمة المرور يجب ألا تقل عن 4 أحرف"
         );
-
-
-    if (!confirmed) {
 
         return;
 
     }
 
+    db.collection("parents")
+        .doc(parentCode)
+        .update({
+
+            password: newPassword
+
+        })
+        .then(function () {
+
+            parent.password =
+                newPassword;
+
+            alert(
+                "✅ تم تغيير كلمة المرور"
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(error);
+
+            alert(
+                "❌ تعذر تغيير كلمة المرور"
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// DELETE PARENT
+// ==========================================================
+
+function deleteParent(parentCode) {
+
+    const parent =
+        allParents.find(function (item) {
+
+            return item.id === parentCode;
+
+        });
+
+    if (
+        !confirm(
+            "⚠️ هل تريد حذف حساب ولي الأمر؟\n\n" +
+            (
+                parent
+                    ? parent.name
+                    : parentCode
+            ) +
+            "\n\nلن يتم حذف الطالب."
+        )
+    ) {
+        return;
+    }
 
     db.collection("parents")
         .doc(parentCode)
@@ -2882,20 +2830,19 @@ function deleteParent(parentCode) {
         .then(function () {
 
             allParents =
-                allParents.filter(
-                    function (parent) {
+                allParents.filter(function (item) {
 
-                        return (
-                            parent.id !==
-                            parentCode
-                        );
+                    return item.id !== parentCode;
 
-                    }
-                );
+                });
 
+            closeAdminModal(
+                "parentManagerModal"
+            );
 
             renderParents();
 
+            updateDashboard();
 
             alert(
                 "✅ تم حذف حساب ولي الأمر"
@@ -2916,7 +2863,7 @@ function deleteParent(parentCode) {
 
 
 // ==========================================================
-// تحميل النتائج
+// RESULTS
 // ==========================================================
 
 function loadResults() {
@@ -2927,45 +2874,34 @@ function loadResults() {
 
             allResults = [];
 
+            snapshot.forEach(function (doc) {
 
-            snapshot.forEach(
-                function (doc) {
+                allResults.push({
 
-                    allResults.push({
+                    id: doc.id,
 
-                        id: doc.id,
+                    ...doc.data()
 
-                        ...doc.data()
+                });
 
-                    });
+            });
 
-                }
-            );
+            allResults.sort(function (a, b) {
 
+                const dateA =
+                    getDate(a.createdAt)
+                    || new Date(0);
 
-            allResults.sort(
-                function (a, b) {
+                const dateB =
+                    getDate(b.createdAt)
+                    || new Date(0);
 
-                    const dateA =
-                        getDate(
-                            a.createdAt
-                        ) || new Date(0);
+                return (
+                    dateB.getTime() -
+                    dateA.getTime()
+                );
 
-
-                    const dateB =
-                        getDate(
-                            b.createdAt
-                        ) || new Date(0);
-
-
-                    return (
-                        dateB.getTime() -
-                        dateA.getTime()
-                    );
-
-                }
-            );
-
+            });
 
             return allResults;
 
@@ -2975,7 +2911,53 @@ function loadResults() {
 
 
 // ==========================================================
-// عرض النتائج
+// RESULTS STATISTICS
+// ==========================================================
+
+function calculateResultsStatistics() {
+
+    const count =
+        allResults.length;
+
+    let sum = 0;
+
+    let highest = 0;
+
+    allResults.forEach(function (result) {
+
+        const percentage =
+            getPercentage(result);
+
+        sum += percentage;
+
+        highest =
+            Math.max(
+                highest,
+                percentage
+            );
+
+    });
+
+    const average =
+        count
+            ? Math.round(sum / count)
+            : 0;
+
+    return {
+
+        count: count,
+
+        average: average,
+
+        highest: highest
+
+    };
+
+}
+
+
+// ==========================================================
+// RENDER RESULTS
 // ==========================================================
 
 function renderAdminResults() {
@@ -2985,64 +2967,114 @@ function renderAdminResults() {
             "resultsTable"
         );
 
-
     if (!container) {
-
         return;
-
     }
 
+    const stats =
+        calculateResultsStatistics();
 
-    if (!allResults.length) {
+    const studentsWithResults =
+        new Set(
+            allResults.map(function (r) {
 
-        container.innerHTML = `
+                return r.studentCode;
 
-            <div class="loading">
+            })
+        ).size;
 
-                📝 لا توجد نتائج حتى الآن
+    let html = `
+
+        <div class="admin-stat-grid">
+
+            <div class="admin-stat-card">
+
+                <span>📝 عدد الاختبارات</span>
+
+                <strong>
+                    ${stats.count}
+                </strong>
 
             </div>
 
+
+            <div class="admin-stat-card">
+
+                <span>📊 متوسط الدرجات</span>
+
+                <strong>
+                    ${stats.average}%
+                </strong>
+
+            </div>
+
+
+            <div class="admin-stat-card">
+
+                <span>🏆 أعلى نتيجة</span>
+
+                <strong>
+                    ${stats.highest}%
+                </strong>
+
+            </div>
+
+
+            <div class="admin-stat-card">
+
+                <span>👨‍🎓 الطلاب المشاركون</span>
+
+                <strong>
+                    ${studentsWithResults}
+                </strong>
+
+            </div>
+
+        </div>
+
+    `;
+
+    if (!allResults.length) {
+
+        html += `
+            <div class="admin-empty">
+                📝 لا توجد نتائج حتى الآن
+            </div>
         `;
+
+        container.innerHTML = html;
 
         return;
 
     }
 
+    html += `
 
-    container.innerHTML = `
+        <div class="table-container">
 
-        <table>
+            <table>
 
-            <thead>
+                <thead>
 
-                <tr>
+                    <tr>
 
-                    <th>#</th>
+                        <th>#</th>
+                        <th>الطالب</th>
+                        <th>المادة</th>
+                        <th>Chapter</th>
+                        <th>الدرجة</th>
+                        <th>النسبة</th>
+                        <th>التاريخ</th>
 
-                    <th>الطالب</th>
+                    </tr>
 
-                    <th>المادة</th>
+                </thead>
 
-                    <th>Chapter</th>
+                <tbody>
 
-                    <th>الدرجة</th>
-
-                    <th>النسبة</th>
-
-                    <th>التاريخ</th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                ${
-                    allResults
-                        .map(
-                            function (result, index) {
+                    ${
+                        allResults
+                            .map(function (result, index) {
 
                                 const student =
                                     allStudents.find(
@@ -3056,7 +3088,6 @@ function renderAdminResults() {
                                         }
                                     );
 
-
                                 return `
 
                                     <tr>
@@ -3064,7 +3095,6 @@ function renderAdminResults() {
                                         <td>
                                             ${index + 1}
                                         </td>
-
 
                                         <td>
 
@@ -3077,184 +3107,166 @@ function renderAdminResults() {
                                             <br>
 
                                             <small>
-
                                                 ${escapeHtml(
                                                     result.studentCode || ""
                                                 )}
-
                                             </small>
 
                                         </td>
 
-
                                         <td>
-
                                             ${escapeHtml(
                                                 result.subject || "-"
                                             )}
-
                                         </td>
 
-
                                         <td>
-
                                             ${escapeHtml(
                                                 result.chapter || "-"
                                             )}
-
                                         </td>
 
-
                                         <td>
-
                                             ${result.score ?? 0}
                                             /
                                             ${result.total ?? 0}
-
                                         </td>
 
-
                                         <td>
-
-                                            ${getPercentage(
-                                                result
-                                            )}%
-
+                                            ${getPercentage(result)}%
                                         </td>
 
-
                                         <td>
-
                                             ${formatDateTime(
                                                 result.createdAt
                                             )}
-
                                         </td>
 
                                     </tr>
 
                                 `;
 
-                            }
-                        )
-                        .join("")
-                }
+                            })
+                            .join("")
+                    }
 
-            </tbody>
+                </tbody>
 
-        </table>
+            </table>
+
+        </div>
 
     `;
+
+    container.innerHTML = html;
 
 }
 
 
 // ==========================================================
-// Leaderboard
+// LEADERBOARD
 // ==========================================================
 
-function loadLeaderboard() {
+function calculateLeaderboard() {
 
     const scores = {};
 
+    allResults.forEach(function (result) {
 
-    allResults.forEach(
-        function (result) {
+        const code =
+            result.studentCode;
 
-            const code =
-                result.studentCode;
+        if (!code) {
+            return;
+        }
 
+        if (!scores[code]) {
 
-            if (!code) {
+            scores[code] = {
 
-                return;
+                studentCode: code,
 
-            }
+                totalTests: 0,
 
+                totalScore: 0,
 
-            const percentage =
-                getPercentage(
-                    result
-                );
+                average: 0,
 
+                bestScore: 0
 
-            if (!scores[code]) {
-
-                scores[code] = {
-
-                    studentCode:
-                        code,
-
-                    totalTests: 0,
-
-                    totalScore: 0,
-
-                    average: 0,
-
-                    bestScore: 0
-
-                };
-
-            }
-
-
-            scores[code].totalTests++;
-
-            scores[code].totalScore +=
-                percentage;
-
-
-            scores[code].bestScore =
-                Math.max(
-                    scores[code].bestScore,
-                    percentage
-                );
+            };
 
         }
-    );
 
+        const percentage =
+            getPercentage(result);
+
+        scores[code].totalTests++;
+
+        scores[code].totalScore +=
+            percentage;
+
+        scores[code].bestScore =
+            Math.max(
+                scores[code].bestScore,
+                percentage
+            );
+
+    });
 
     allLeaderboard =
         Object.values(scores);
 
+    allLeaderboard.forEach(function (item) {
 
-    allLeaderboard.forEach(
-        function (item) {
-
-            item.average =
-                Math.round(
+        item.average =
+            item.totalTests
+                ? Math.round(
                     item.totalScore /
                     item.totalTests
-                );
+                )
+                : 0;
 
+        const student =
+            allStudents.find(function (s) {
 
-            const student =
-                allStudents.find(
-                    function (s) {
+                return s.id === item.studentCode;
 
-                        return (
-                            s.id ===
-                            item.studentCode
-                        );
+            });
 
-                    }
-                );
+        item.name =
+            student
+                ? student.name
+                : "طالب";
 
+        item.grade =
+            student
+                ? student.grade
+                : "-";
 
-            item.name =
-                student
-                    ? student.name
-                    : "طالب";
+    });
 
+    sortLeaderboard();
 
-            item.grade =
-                student
-                    ? student.grade
-                    : "-";
+    allLeaderboard.forEach(
+        function (item, index) {
+
+            item.rank =
+                index + 1;
 
         }
     );
 
+    return allLeaderboard;
+
+}
+
+
+// ==========================================================
+// SORT LEADERBOARD
+// ==========================================================
+
+function sortLeaderboard() {
 
     allLeaderboard.sort(
         function (a, b) {
@@ -3271,7 +3283,6 @@ function loadLeaderboard() {
 
             }
 
-
             if (
                 b.bestScore !==
                 a.bestScore
@@ -3284,7 +3295,6 @@ function loadLeaderboard() {
 
             }
 
-
             return (
                 b.totalTests -
                 a.totalTests
@@ -3293,6 +3303,181 @@ function loadLeaderboard() {
         }
     );
 
+}
+
+
+// ==========================================================
+// LEADERBOARD FILTER
+// ==========================================================
+
+function filterLeaderboard() {
+
+    const grade =
+        getInputValue(
+            "leaderboardGrade"
+        );
+
+    const subject =
+        getInputValue(
+            "leaderboardSubject"
+        );
+
+    const monthly =
+        getInputValue(
+            "leaderboardPeriod"
+        ) === "monthly";
+
+    let results =
+        [...allResults];
+
+    if (grade) {
+
+        results =
+            results.filter(function (result) {
+
+                const student =
+                    allStudents.find(
+                        function (s) {
+
+                            return (
+                                s.id ===
+                                result.studentCode
+                            );
+
+                        }
+                    );
+
+                return (
+                    student &&
+                    student.grade === grade
+                );
+
+            });
+
+    }
+
+    if (subject) {
+
+        results =
+            results.filter(function (result) {
+
+                return (
+                    result.subject ===
+                    subject
+                );
+
+            });
+
+    }
+
+    if (monthly) {
+
+        const now =
+            new Date();
+
+        const month =
+            now.getMonth();
+
+        const year =
+            now.getFullYear();
+
+        results =
+            results.filter(function (result) {
+
+                const date =
+                    getDate(result.createdAt);
+
+                if (!date) {
+                    return false;
+                }
+
+                return (
+                    date.getMonth() === month &&
+                    date.getFullYear() === year
+                );
+
+            });
+
+    }
+
+    const scores = {};
+
+    results.forEach(function (result) {
+
+        const code =
+            result.studentCode;
+
+        if (!code) {
+            return;
+        }
+
+        if (!scores[code]) {
+
+            scores[code] = {
+
+                studentCode: code,
+
+                totalTests: 0,
+
+                totalScore: 0,
+
+                average: 0,
+
+                bestScore: 0
+
+            };
+
+        }
+
+        const percentage =
+            getPercentage(result);
+
+        scores[code].totalTests++;
+
+        scores[code].totalScore +=
+            percentage;
+
+        scores[code].bestScore =
+            Math.max(
+                scores[code].bestScore,
+                percentage
+            );
+
+    });
+
+    allLeaderboard =
+        Object.values(scores);
+
+    allLeaderboard.forEach(function (item) {
+
+        item.average =
+            item.totalTests
+                ? Math.round(
+                    item.totalScore /
+                    item.totalTests
+                )
+                : 0;
+
+        const student =
+            allStudents.find(function (s) {
+
+                return s.id === item.studentCode;
+
+            });
+
+        item.name =
+            student
+                ? student.name
+                : "طالب";
+
+        item.grade =
+            student
+                ? student.grade
+                : "-";
+
+    });
+
+    sortLeaderboard();
 
     allLeaderboard.forEach(
         function (item, index) {
@@ -3303,14 +3488,13 @@ function loadLeaderboard() {
         }
     );
 
-
-    return allLeaderboard;
+    renderLeaderboard();
 
 }
 
 
 // ==========================================================
-// عرض Leaderboard
+// RENDER LEADERBOARD
 // ==========================================================
 
 function renderLeaderboard() {
@@ -3320,30 +3504,21 @@ function renderLeaderboard() {
             "leaderboardTable"
         );
 
-
     if (!container) {
-
         return;
-
     }
-
 
     if (!allLeaderboard.length) {
 
         container.innerHTML = `
-
-            <div class="loading">
-
-                🏆 لا توجد بيانات للترتيب حتى الآن
-
+            <div class="admin-empty">
+                🏆 لا توجد بيانات للترتيب
             </div>
-
         `;
 
         return;
 
     }
-
 
     container.innerHTML = `
 
@@ -3354,123 +3529,92 @@ function renderLeaderboard() {
                 <tr>
 
                     <th>المركز</th>
-
                     <th>الطالب</th>
-
                     <th>الصف</th>
-
                     <th>الاختبارات</th>
-
                     <th>المتوسط</th>
-
                     <th>أفضل نتيجة</th>
 
                 </tr>
 
             </thead>
 
-
             <tbody>
 
                 ${
                     allLeaderboard
-                        .map(
-                            function (item) {
+                        .map(function (item) {
 
-                                let medal = "";
+                            let medal = "";
 
+                            if (
+                                item.rank === 1
+                            ) {
 
-                                if (
-                                    item.rank === 1
-                                ) {
+                                medal = "🥇";
 
-                                    medal = "🥇";
+                            } else if (
+                                item.rank === 2
+                            ) {
 
-                                }
+                                medal = "🥈";
 
-                                else if (
-                                    item.rank === 2
-                                ) {
+                            } else if (
+                                item.rank === 3
+                            ) {
 
-                                    medal = "🥈";
-
-                                }
-
-                                else if (
-                                    item.rank === 3
-                                ) {
-
-                                    medal = "🥉";
-
-                                }
-
-
-                                return `
-
-                                    <tr>
-
-                                        <td>
-
-                                            ${medal}
-                                            ${item.rank}
-
-                                        </td>
-
-
-                                        <td>
-
-                                            ${escapeHtml(
-                                                item.name
-                                            )}
-
-                                            <br>
-
-                                            <small>
-
-                                                ${escapeHtml(
-                                                    item.studentCode
-                                                )}
-
-                                            </small>
-
-                                        </td>
-
-
-                                        <td>
-
-                                            ${escapeHtml(
-                                                item.grade
-                                            )}
-
-                                        </td>
-
-
-                                        <td>
-
-                                            ${item.totalTests}
-
-                                        </td>
-
-
-                                        <td>
-
-                                            ${item.average}%
-
-                                        </td>
-
-
-                                        <td>
-
-                                            ${item.bestScore}%
-
-                                        </td>
-
-                                    </tr>
-
-                                `;
+                                medal = "🥉";
 
                             }
-                        )
+
+                            return `
+
+                                <tr>
+
+                                    <td>
+                                        ${medal}
+                                        ${item.rank}
+                                    </td>
+
+                                    <td>
+
+                                        ${escapeHtml(
+                                            item.name
+                                        )}
+
+                                        <br>
+
+                                        <small>
+                                            ${escapeHtml(
+                                                item.studentCode
+                                            )}
+                                        </small>
+
+                                    </td>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            item.grade
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${item.totalTests}
+                                    </td>
+
+                                    <td>
+                                        ${item.average}%
+                                    </td>
+
+                                    <td>
+                                        ${item.bestScore}%
+                                    </td>
+
+                                </tr>
+
+                            `;
+
+                        })
                         .join("")
                 }
 
@@ -3484,7 +3628,7 @@ function renderLeaderboard() {
 
 
 // ==========================================================
-// تحميل المحتوى
+// CONTENT
 // ==========================================================
 
 function loadContent() {
@@ -3495,45 +3639,34 @@ function loadContent() {
 
             allContent = [];
 
+            snapshot.forEach(function (doc) {
 
-            snapshot.forEach(
-                function (doc) {
+                allContent.push({
 
-                    allContent.push({
+                    id: doc.id,
 
-                        id: doc.id,
+                    ...doc.data()
 
-                        ...doc.data()
+                });
 
-                    });
+            });
 
-                }
-            );
+            allContent.sort(function (a, b) {
 
+                const dateA =
+                    getDate(a.createdAt)
+                    || new Date(0);
 
-            allContent.sort(
-                function (a, b) {
+                const dateB =
+                    getDate(b.createdAt)
+                    || new Date(0);
 
-                    const dateA =
-                        getDate(
-                            a.createdAt
-                        ) || new Date(0);
+                return (
+                    dateB.getTime() -
+                    dateA.getTime()
+                );
 
-
-                    const dateB =
-                        getDate(
-                            b.createdAt
-                        ) || new Date(0);
-
-
-                    return (
-                        dateB.getTime() -
-                        dateA.getTime()
-                    );
-
-                }
-            );
-
+            });
 
             return allContent;
 
@@ -3543,148 +3676,96 @@ function loadContent() {
 
 
 // ==========================================================
-// إنشاء محتوى
+// CREATE CONTENT
 // ==========================================================
 
 function createContent() {
 
     const grade =
-        getInputValue(
-            "contentGrade"
-        );
-
+        getInputValue("contentGrade");
 
     const subject =
-        getInputValue(
-            "contentSubject"
-        );
-
+        getInputValue("contentSubject");
 
     const chapter =
-        getInputValue(
-            "contentChapter"
-        );
-
+        getInputValue("contentChapter");
 
     const title =
-        getInputValue(
-            "contentTitle"
-        );
-
+        getInputValue("contentTitle");
 
     const type =
-        getInputValue(
-            "contentType"
-        );
-
+        getInputValue("contentType");
 
     const url =
-        getInputValue(
-            "contentUrl"
-        );
-
+        getInputValue("contentUrl");
 
     if (!grade) {
-
         alert("❌ اختر الصف");
-
         return;
-
     }
-
 
     if (!subject) {
-
         alert("❌ اختر المادة");
-
         return;
-
     }
-
 
     if (!chapter) {
-
         alert("❌ اكتب الـ Chapter");
-
         return;
-
     }
-
 
     if (!title) {
-
         alert("❌ اكتب عنوان المحتوى");
-
         return;
-
     }
-
 
     if (!type) {
-
         alert("❌ اختر نوع المحتوى");
-
         return;
-
     }
-
 
     if (!url) {
-
         alert("❌ اكتب الرابط");
-
         return;
-
     }
-
 
     db.collection("content")
         .add({
 
-            grade: grade,
-
-            subject: subject,
-
-            chapter: chapter,
-
-            title: title,
-
-            type: type,
-
-            url: url,
+            grade,
+            subject,
+            chapter,
+            title,
+            type,
+            url,
 
             active: true,
 
             createdAt:
-                firebase.firestore.FieldValue.serverTimestamp()
+                firebase.firestore.FieldValue
+                    .serverTimestamp()
 
         })
         .then(function () {
 
             alert(
-                "✅ تم إضافة المحتوى بنجاح"
+                "✅ تم إضافة المحتوى"
             );
 
-
             clearInputs([
-
                 "contentGrade",
-
                 "contentChapter",
-
                 "contentTitle",
-
                 "contentType",
-
                 "contentUrl"
-
             ]);
-
 
             return loadContent();
 
         })
         .then(function () {
+
+            updateDashboard();
 
             renderContent();
 
@@ -3703,7 +3784,7 @@ function createContent() {
 
 
 // ==========================================================
-// عرض المحتوى
+// RENDER CONTENT
 // ==========================================================
 
 function renderContent() {
@@ -3713,215 +3794,152 @@ function renderContent() {
             "contentTable"
         );
 
-
     if (!table) {
-
         return;
-
     }
 
-
     const filterSubject =
-        getInputValue(
-            "filterSubject"
-        );
-
+        getInputValue("filterSubject");
 
     const filterGrade =
-        getInputValue(
-            "filterGrade"
-        );
-
+        getInputValue("filterGrade");
 
     let content =
         [...allContent];
 
-
     if (filterSubject) {
 
         content =
-            content.filter(
-                function (item) {
+            content.filter(function (item) {
 
-                    return (
-                        item.subject ===
-                        filterSubject
-                    );
+                return (
+                    item.subject ===
+                    filterSubject
+                );
 
-                }
-            );
+            });
 
     }
-
 
     if (filterGrade) {
 
         content =
-            content.filter(
-                function (item) {
+            content.filter(function (item) {
 
-                    return (
-                        item.grade ===
-                        filterGrade
-                    );
+                return (
+                    item.grade ===
+                    filterGrade
+                );
 
-                }
-            );
+            });
 
     }
-
 
     if (!content.length) {
 
         table.innerHTML = `
-
             <tr>
-
                 <td colspan="7">
-
                     لا يوجد محتوى
-
                 </td>
-
             </tr>
-
         `;
 
         return;
 
     }
 
-
     table.innerHTML =
-        content.map(
-            function (item) {
+        content.map(function (item) {
 
-                return `
+            return `
 
-                    <tr>
+                <tr>
 
-                        <td>
+                    <td>
+                        ${escapeHtml(
+                            item.grade || "-"
+                        )}
+                    </td>
 
-                            ${escapeHtml(
-                                item.grade || "-"
-                            )}
+                    <td>
+                        ${escapeHtml(
+                            item.subject || "-"
+                        )}
+                    </td>
 
-                        </td>
+                    <td>
+                        ${escapeHtml(
+                            item.chapter || "-"
+                        )}
+                    </td>
 
+                    <td>
+                        ${escapeHtml(
+                            item.title || "-"
+                        )}
+                    </td>
 
-                        <td>
+                    <td>
+                        ${getContentType(item.type)}
+                    </td>
 
-                            ${escapeHtml(
-                                item.subject || "-"
-                            )}
+                    <td>
+                        ${
+                            item.active === false
+                                ? "⛔ مخفي"
+                                : "✅ ظاهر"
+                        }
+                    </td>
 
-                        </td>
+                    <td>
 
-
-                        <td>
-
-                            ${escapeHtml(
-                                item.chapter || "-"
-                            )}
-
-                        </td>
-
-
-                        <td>
-
-                            ${escapeHtml(
-                                item.title || "-"
-                            )}
-
-                        </td>
-
-
-                        <td>
-
-                            ${getContentType(
-                                item.type
-                            )}
-
-                        </td>
-
-
-                        <td>
-
+                        <button
+                            class="admin-btn success-btn"
+                            onclick="toggleContent('${escapeJs(item.id)}')">
                             ${
                                 item.active === false
-                                    ? "⛔ مخفي"
-                                    : "✅ ظاهر"
+                                    ? "👁️"
+                                    : "🙈"
                             }
+                        </button>
 
-                        </td>
+                        <button
+                            class="admin-btn danger-btn"
+                            onclick="deleteContent('${escapeJs(item.id)}')">
+                            🗑️
+                        </button>
 
+                    </td>
 
-                        <td>
+                </tr>
 
-                            <button
-                                class="admin-btn success-btn"
-                                onclick="toggleContent('${escapeJs(
-                                    item.id
-                                )}')">
+            `;
 
-                                ${
-                                    item.active === false
-                                        ? "👁️"
-                                        : "🙈"
-                                }
-
-                            </button>
-
-
-                            <button
-                                class="admin-btn danger-btn"
-                                onclick="deleteContent('${escapeJs(
-                                    item.id
-                                )}')">
-
-                                🗑️
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        )
-        .join("");
+        }).join("");
 
 }
 
 
 // ==========================================================
-// تغيير حالة المحتوى
+// TOGGLE CONTENT
 // ==========================================================
 
 function toggleContent(contentId) {
 
     const item =
-        allContent.find(
-            function (content) {
+        allContent.find(function (content) {
 
-                return content.id === contentId;
+            return content.id === contentId;
 
-            }
-        );
-
+        });
 
     if (!item) {
-
         return;
-
     }
-
 
     const newState =
         item.active === false;
-
 
     db.collection("content")
         .doc(contentId)
@@ -3932,12 +3950,9 @@ function toggleContent(contentId) {
         })
         .then(function () {
 
-            item.active =
-                newState;
-
+            item.active = newState;
 
             renderContent();
-
 
         })
         .catch(function (error) {
@@ -3954,23 +3969,18 @@ function toggleContent(contentId) {
 
 
 // ==========================================================
-// حذف المحتوى
+// DELETE CONTENT
 // ==========================================================
 
 function deleteContent(contentId) {
 
-    const confirmed =
-        confirm(
+    if (
+        !confirm(
             "⚠️ هل تريد حذف هذا المحتوى؟"
-        );
-
-
-    if (!confirmed) {
-
+        )
+    ) {
         return;
-
     }
-
 
     db.collection("content")
         .doc(contentId)
@@ -3989,9 +3999,9 @@ function deleteContent(contentId) {
                     }
                 );
 
-
             renderContent();
 
+            updateDashboard();
 
             alert(
                 "✅ تم حذف المحتوى"
@@ -4012,7 +4022,7 @@ function deleteContent(contentId) {
 
 
 // ==========================================================
-// تحميل الإشعارات
+// NOTIFICATIONS
 // ==========================================================
 
 function loadNotifications() {
@@ -4023,45 +4033,34 @@ function loadNotifications() {
 
             allNotifications = [];
 
+            snapshot.forEach(function (doc) {
 
-            snapshot.forEach(
-                function (doc) {
+                allNotifications.push({
 
-                    allNotifications.push({
+                    id: doc.id,
 
-                        id: doc.id,
+                    ...doc.data()
 
-                        ...doc.data()
+                });
 
-                    });
+            });
 
-                }
-            );
+            allNotifications.sort(function (a, b) {
 
+                const dateA =
+                    getDate(a.createdAt)
+                    || new Date(0);
 
-            allNotifications.sort(
-                function (a, b) {
+                const dateB =
+                    getDate(b.createdAt)
+                    || new Date(0);
 
-                    const dateA =
-                        getDate(
-                            a.createdAt
-                        ) || new Date(0);
+                return (
+                    dateB.getTime() -
+                    dateA.getTime()
+                );
 
-
-                    const dateB =
-                        getDate(
-                            b.createdAt
-                        ) || new Date(0);
-
-
-                    return (
-                        dateB.getTime() -
-                        dateA.getTime()
-                    );
-
-                }
-            );
-
+            });
 
             return allNotifications;
 
@@ -4071,7 +4070,7 @@ function loadNotifications() {
 
 
 // ==========================================================
-// إنشاء إشعار
+// CREATE NOTIFICATION
 // ==========================================================
 
 function createNotification() {
@@ -4081,24 +4080,20 @@ function createNotification() {
             "notificationTargetType"
         );
 
-
     const targetId =
         getInputValue(
             "notificationTargetId"
         );
-
 
     const title =
         getInputValue(
             "notificationTitle"
         );
 
-
     const message =
         getInputValue(
             "notificationMessage"
         );
-
 
     if (!targetType) {
 
@@ -4109,7 +4104,6 @@ function createNotification() {
         return;
 
     }
-
 
     if (
         targetType !== "all" &&
@@ -4124,7 +4118,6 @@ function createNotification() {
 
     }
 
-
     if (!title) {
 
         alert(
@@ -4134,7 +4127,6 @@ function createNotification() {
         return;
 
     }
-
 
     if (!message) {
 
@@ -4146,26 +4138,23 @@ function createNotification() {
 
     }
 
-
     db.collection("notifications")
         .add({
 
-            targetType:
-                targetType,
+            targetType,
 
             targetId:
                 targetType === "all"
                     ? ""
                     : targetId,
 
-            title:
-                title,
+            title,
 
-            message:
-                message,
+            message,
 
             createdAt:
-                firebase.firestore.FieldValue.serverTimestamp(),
+                firebase.firestore.FieldValue
+                    .serverTimestamp(),
 
             createdBy:
                 currentAdmin
@@ -4176,53 +4165,21 @@ function createNotification() {
         .then(function () {
 
             alert(
-                "✅ تم إرسال الإشعار بنجاح"
+                "✅ تم إرسال الإشعار"
             );
 
-
             clearInputs([
-
                 "notificationTargetId",
-
                 "notificationTitle",
-
                 "notificationMessage"
-
             ]);
-
-
-            const targetTypeElement =
-                document.getElementById(
-                    "notificationTargetType"
-                );
-
-
-            if (targetTypeElement) {
-
-                targetTypeElement.value =
-                    "all";
-
-            }
-
-
-            const targetInput =
-                document.getElementById(
-                    "notificationTargetId"
-                );
-
-
-            if (targetInput) {
-
-                targetInput.style.display =
-                    "none";
-
-            }
-
 
             return loadNotifications();
 
         })
         .then(function () {
+
+            updateDashboard();
 
             renderNotificationsAdmin();
 
@@ -4241,7 +4198,7 @@ function createNotification() {
 
 
 // ==========================================================
-// عرض الإشعارات
+// RENDER NOTIFICATIONS
 // ==========================================================
 
 function renderNotificationsAdmin() {
@@ -4251,34 +4208,23 @@ function renderNotificationsAdmin() {
             "notificationsTable"
         );
 
-
     if (!table) {
-
         return;
-
     }
-
 
     if (!allNotifications.length) {
 
         table.innerHTML = `
-
             <tr>
-
                 <td colspan="5">
-
                     🔕 لا توجد إشعارات
-
                 </td>
-
             </tr>
-
         `;
 
         return;
 
     }
-
 
     table.innerHTML =
         allNotifications.map(
@@ -4289,53 +4235,35 @@ function renderNotificationsAdmin() {
                     <tr>
 
                         <td>
-
                             ${escapeHtml(
-                                notification.title ||
-                                "-"
+                                notification.title || "-"
                             )}
-
                         </td>
 
-
                         <td>
-
                             ${escapeHtml(
-                                notification.message ||
-                                "-"
+                                notification.message || "-"
                             )}
-
                         </td>
 
-
                         <td>
-
                             ${getNotificationTarget(
                                 notification
                             )}
-
                         </td>
 
-
                         <td>
-
                             ${formatDateTime(
                                 notification.createdAt
                             )}
-
                         </td>
-
 
                         <td>
 
                             <button
                                 class="admin-btn danger-btn"
-                                onclick="deleteNotification('${escapeJs(
-                                    notification.id
-                                )}')">
-
+                                onclick="deleteNotification('${escapeJs(notification.id)}')">
                                 🗑️
-
                             </button>
 
                         </td>
@@ -4345,83 +4273,56 @@ function renderNotificationsAdmin() {
                 `;
 
             }
-        )
-        .join("");
+        ).join("");
 
 }
 
 
-// ==========================================================
-// تحديد هدف الإشعار
-// ==========================================================
-
-function getNotificationTarget(
-    notification
-) {
+function getNotificationTarget(notification) {
 
     const type =
-        notification.targetType ||
-        "all";
-
+        notification.targetType || "all";
 
     if (type === "all") {
-
         return "📢 كل الطلاب";
-
     }
-
 
     if (type === "grade") {
 
         return (
             "🎓 " +
             escapeHtml(
-                notification.targetId ||
-                "-"
+                notification.targetId || "-"
             )
         );
 
     }
-
 
     if (type === "student") {
 
         return (
             "👤 " +
             escapeHtml(
-                notification.targetId ||
-                "-"
+                notification.targetId || "-"
             )
         );
 
     }
-
 
     return "-";
 
 }
 
 
-// ==========================================================
-// حذف إشعار
-// ==========================================================
+function deleteNotification(notificationId) {
 
-function deleteNotification(
-    notificationId
-) {
-
-    const confirmed =
-        confirm(
+    if (
+        !confirm(
             "⚠️ هل تريد حذف هذا الإشعار؟"
-        );
-
-
-    if (!confirmed) {
-
+        )
+    ) {
         return;
-
     }
-
 
     db.collection("notifications")
         .doc(notificationId)
@@ -4440,9 +4341,9 @@ function deleteNotification(
                     }
                 );
 
-
             renderNotificationsAdmin();
 
+            updateDashboard();
 
             alert(
                 "✅ تم حذف الإشعار"
@@ -4463,7 +4364,7 @@ function deleteNotification(
 
 
 // ==========================================================
-// Dashboard Statistics
+// DASHBOARD
 // ==========================================================
 
 function updateDashboard() {
@@ -4471,168 +4372,194 @@ function updateDashboard() {
     const totalStudents =
         allStudents.length;
 
-
     const activeStudents =
-        allStudents.filter(
-            function (student) {
+        allStudents.filter(function (student) {
 
-                return isStudentActive(
-                    student
-                );
+            return isStudentActive(student);
 
-            }
-        ).length;
-
+        }).length;
 
     const expiredStudents =
         totalStudents -
         activeStudents;
 
-
     const totalResults =
         allResults.length;
 
+    const resultsStats =
+        calculateResultsStatistics();
 
-    let average =
-        0;
+    const totalParents =
+        allParents.length;
 
+    const totalContent =
+        allContent.length;
 
-    if (totalResults > 0) {
-
-        let sum = 0;
-
-
-        allResults.forEach(
-            function (result) {
-
-                sum +=
-                    getPercentage(
-                        result
-                    );
-
-            }
-        );
-
-
-        average =
-            Math.round(
-                sum /
-                totalResults
-            );
-
-    }
-
+    const totalNotifications =
+        allNotifications.length;
 
     setText(
         "totalStudents",
         totalStudents
     );
 
-
     setText(
         "activeStudents",
         activeStudents
     );
-
 
     setText(
         "expiredStudents",
         expiredStudents
     );
 
-
     setText(
         "totalResults",
         totalResults
     );
 
-
     setText(
         "averageScore",
-        average + "%"
+        resultsStats.average + "%"
+    );
+
+    setText(
+        "totalParents",
+        totalParents
+    );
+
+    setText(
+        "totalContent",
+        totalContent
+    );
+
+    setText(
+        "totalNotifications",
+        totalNotifications
     );
 
 }
 
 
 // ==========================================================
-// حالة الطالب
+// STUDENT HELPERS
 // ==========================================================
 
-function isStudentActive(
-    student
-) {
+function calculateStudentAverage(results) {
+
+    if (!results.length) {
+        return 0;
+    }
+
+    let sum = 0;
+
+    results.forEach(function (result) {
+
+        sum += getPercentage(result);
+
+    });
+
+    return Math.round(
+        sum / results.length
+    );
+
+}
+
+
+function calculateBestScore(results) {
+
+    if (!results.length) {
+        return 0;
+    }
+
+    let best = 0;
+
+    results.forEach(function (result) {
+
+        best =
+            Math.max(
+                best,
+                getPercentage(result)
+            );
+
+    });
+
+    return best;
+
+}
+
+
+function getRemainingDays(date) {
+
+    if (!date) {
+        return -1;
+    }
+
+    const now =
+        new Date();
+
+    const difference =
+        date.getTime() -
+        now.getTime();
+
+    if (difference <= 0) {
+        return 0;
+    }
+
+    return Math.ceil(
+        difference /
+        (1000 * 60 * 60 * 24)
+    );
+
+}
+
+
+// ==========================================================
+// STATUS
+// ==========================================================
+
+function isStudentActive(student) {
 
     if (
         student.active !== true
     ) {
-
         return false;
-
     }
-
 
     const expiry =
-        getDate(
-            student.expiresAt
-        );
-
+        getDate(student.expiresAt);
 
     if (!expiry) {
-
         return false;
-
     }
 
-
-    return (
-        new Date() <
-        expiry
-    );
+    return new Date() < expiry;
 
 }
 
 
-// ==========================================================
-// حالة ولي الأمر
-// ==========================================================
-
-function isParentActive(
-    parent
-) {
+function isParentActive(parent) {
 
     if (
         parent.active !== true
     ) {
-
         return false;
-
     }
-
 
     const expiry =
-        getDate(
-            parent.expiresAt
-        );
-
+        getDate(parent.expiresAt);
 
     if (!expiry) {
-
         return false;
-
     }
 
-
-    return (
-        new Date() <
-        expiry
-    );
+    return new Date() < expiry;
 
 }
 
 
 // ==========================================================
-// نوع المحتوى
+// CONTENT TYPE
 // ==========================================================
 
 function getContentType(type) {
@@ -4640,27 +4567,18 @@ function getContentType(type) {
     switch (type) {
 
         case "pdf":
-
             return "📄 PDF";
 
-
         case "video":
-
             return "🎬 فيديو";
 
-
         case "quiz":
-
             return "📝 اختبار";
 
-
         case "chapter":
-
             return "📚 Chapter";
 
-
         default:
-
             return escapeHtml(
                 type || "-"
             );
@@ -4671,7 +4589,7 @@ function getContentType(type) {
 
 
 // ==========================================================
-// حساب النسبة
+// PERCENTAGE
 // ==========================================================
 
 function getPercentage(data) {
@@ -4682,10 +4600,7 @@ function getPercentage(data) {
     ) {
 
         const value =
-            Number(
-                data.percentage
-            );
-
+            Number(data.percentage);
 
         return isNaN(value)
             ? 0
@@ -4693,18 +4608,11 @@ function getPercentage(data) {
 
     }
 
-
     const score =
-        Number(
-            data.score
-        );
-
+        Number(data.score);
 
     const total =
-        Number(
-            data.total
-        );
-
+        Number(data.total);
 
     if (
         total > 0 &&
@@ -4712,12 +4620,10 @@ function getPercentage(data) {
     ) {
 
         return Math.round(
-            (score / total) *
-            100
+            (score / total) * 100
         );
 
     }
-
 
     return 0;
 
@@ -4725,17 +4631,14 @@ function getPercentage(data) {
 
 
 // ==========================================================
-// التاريخ
+// DATE
 // ==========================================================
 
 function getDate(value) {
 
     if (!value) {
-
         return null;
-
     }
-
 
     if (
         typeof value.toDate ===
@@ -4745,7 +4648,6 @@ function getDate(value) {
         return value.toDate();
 
     }
-
 
     if (
         value.seconds !== undefined
@@ -4757,21 +4659,16 @@ function getDate(value) {
 
     }
 
-
     const date =
         new Date(value);
 
-
     if (
-        isNaN(
-            date.getTime()
-        )
+        isNaN(date.getTime())
     ) {
 
         return null;
 
     }
-
 
     return date;
 
@@ -4779,7 +4676,7 @@ function getDate(value) {
 
 
 // ==========================================================
-// تنسيق التاريخ
+// DATE FORMAT
 // ==========================================================
 
 function formatDate(value) {
@@ -4787,61 +4684,39 @@ function formatDate(value) {
     const date =
         getDate(value);
 
-
     if (!date) {
-
         return "-";
-
     }
-
 
     return date.toLocaleDateString(
         "ar-EG",
         {
-
             year: "numeric",
-
             month: "2-digit",
-
             day: "2-digit"
-
         }
     );
 
 }
 
-
-// ==========================================================
-// تنسيق التاريخ والوقت
-// ==========================================================
 
 function formatDateTime(value) {
 
     const date =
         getDate(value);
 
-
     if (!date) {
-
         return "-";
-
     }
-
 
     return date.toLocaleString(
         "ar-EG",
         {
-
             year: "numeric",
-
             month: "2-digit",
-
             day: "2-digit",
-
             hour: "2-digit",
-
             minute: "2-digit"
-
         }
     );
 
@@ -4849,7 +4724,7 @@ function formatDateTime(value) {
 
 
 // ==========================================================
-// قراءة Input
+// INPUT
 // ==========================================================
 
 function getInputValue(id) {
@@ -4857,13 +4732,9 @@ function getInputValue(id) {
     const element =
         document.getElementById(id);
 
-
     if (!element) {
-
         return "";
-
     }
-
 
     return String(
         element.value || ""
@@ -4872,40 +4743,30 @@ function getInputValue(id) {
 }
 
 
-// ==========================================================
-// مسح Inputs
-// ==========================================================
-
 function clearInputs(ids) {
 
-    ids.forEach(
-        function (id) {
+    ids.forEach(function (id) {
 
-            const element =
-                document.getElementById(id);
+        const element =
+            document.getElementById(id);
 
-
-            if (element) {
-
-                element.value = "";
-
-            }
-
+        if (element) {
+            element.value = "";
         }
-    );
+
+    });
 
 }
 
 
 // ==========================================================
-// تغيير النص
+// TEXT
 // ==========================================================
 
 function setText(id, value) {
 
     const element =
         document.getElementById(id);
-
 
     if (element) {
 
@@ -4918,78 +4779,234 @@ function setText(id, value) {
 
 
 // ==========================================================
-// حماية HTML
+// HTML SECURITY
 // ==========================================================
 
 function escapeHtml(value) {
 
-    return String(
-        value ?? ""
-    )
+    return String(value ?? "")
 
-    .replace(
-        /&/g,
-        "&amp;"
-    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
-    .replace(
-        /</g,
-        "&lt;"
-    )
+        .replace(
+            /</g,
+            "&lt;"
+        )
 
-    .replace(
-        />/g,
-        "&gt;"
-    )
+        .replace(
+            />/g,
+            "&gt;"
+        )
 
-    .replace(
-        /"/g,
-        "&quot;"
-    )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
 
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
 
 // ==========================================================
-// حماية JavaScript
+// JS SECURITY
 // ==========================================================
 
 function escapeJs(value) {
 
-    return String(
-        value ?? ""
-    )
+    return String(value ?? "")
 
-    .replace(
-        /\\/g,
-        "\\\\"
-    )
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
 
-    .replace(
-        /'/g,
-        "\\'"
-    )
+        .replace(
+            /'/g,
+            "\\'"
+        )
 
-    .replace(
-        /"/g,
-        '\\"'
-    )
+        .replace(
+            /"/g,
+            '\\"'
+        )
 
-    .replace(
-        /\r?\n/g,
-        "\\n"
-    );
+        .replace(
+            /\r?\n/g,
+            "\\n"
+        );
 
 }
 
 
 // ==========================================================
-// تسجيل خروج الأدمن
+// ADMIN INFO COMPONENT
+// ==========================================================
+
+function adminInfo(label, value) {
+
+    return `
+
+        <div class="admin-info-card">
+
+            <span>
+                ${escapeHtml(label)}
+            </span>
+
+            <strong>
+                ${escapeHtml(value)}
+            </strong>
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================================
+// ADMIN MODALS
+// ==========================================================
+
+function injectAdminModals() {
+
+    if (
+        document.getElementById(
+            "studentManagerModal"
+        )
+    ) {
+        return;
+    }
+
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        `
+
+        <!-- STUDENT MANAGER -->
+
+        <div
+            id="studentManagerModal"
+            class="admin-modal hidden">
+
+            <div class="admin-modal-content">
+
+                <div
+                    id="studentManagerBody">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EDIT STUDENT -->
+
+        <div
+            id="editStudentModal"
+            class="admin-modal hidden">
+
+            <div class="admin-modal-content">
+
+                <div
+                    id="editStudentBody">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PARENT MANAGER -->
+
+        <div
+            id="parentManagerModal"
+            class="admin-modal hidden">
+
+            <div class="admin-modal-content">
+
+                <div
+                    id="parentManagerBody">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EDIT PARENT -->
+
+        <div
+            id="editParentModal"
+            class="admin-modal hidden">
+
+            <div class="admin-modal-content">
+
+                <div
+                    id="editParentBody">
+                </div>
+
+            </div>
+
+        </div>
+
+        `
+    );
+
+
+    document
+        .querySelectorAll(".admin-modal")
+        .forEach(function (modal) {
+
+            modal.addEventListener(
+                "click",
+                function (event) {
+
+                    if (
+                        event.target === modal
+                    ) {
+
+                        modal.classList.add(
+                            "hidden"
+                        );
+
+                    }
+
+                }
+            );
+
+        });
+
+}
+
+
+// ==========================================================
+// CLOSE MODAL
+// ==========================================================
+
+function closeAdminModal(id) {
+
+    const modal =
+        document.getElementById(id);
+
+    if (modal) {
+
+        modal.classList.add(
+            "hidden"
+        );
+
+    }
+
+}
+
+
+// ==========================================================
+// LOGOUT
 // ==========================================================
 
 function logoutAdmin() {

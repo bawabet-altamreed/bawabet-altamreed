@@ -3,15 +3,18 @@
 // بوابة التمريض
 // ============================================================
 
+
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
 
 import {
     getAuth,
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
 
 import {
     getFirestore,
@@ -24,7 +27,6 @@ import {
     getDocs,
     query,
     orderBy,
-    where,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
@@ -34,12 +36,25 @@ import {
 // ============================================================
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDLVKbfkhFsTGunLWEJmBN2eGg0tdqePyc",
-    authDomain: "bawabet-al-tamreed.firebaseapp.com",
-    projectId: "bawabet-al-tamreed",
-    storageBucket: "bawabet-al-tamreed.firebasestorage.app",
-    messagingSenderId: "668697400713",
-    appId: "1:668697400713:web:ec5611e587dc3d3c237d58"
+
+    apiKey:
+        "AIzaSyDLVKbfkhFsTGunLWEJmBN2eGg0tdqePyc",
+
+    authDomain:
+        "bawabet-al-tamreed.firebaseapp.com",
+
+    projectId:
+        "bawabet-al-tamreed",
+
+    storageBucket:
+        "bawabet-al-tamreed.firebasestorage.app",
+
+    messagingSenderId:
+        "668697400713",
+
+    appId:
+        "1:668697400713:web:ec5611e587dc3d3c237d58"
+
 };
 
 
@@ -47,11 +62,16 @@ const firebaseConfig = {
 // FIREBASE
 // ============================================================
 
-const app = initializeApp(firebaseConfig);
+const app =
+    initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
 
-const db = getFirestore(app);
+const auth =
+    getAuth(app);
+
+
+const db =
+    getFirestore(app);
 
 
 // ============================================================
@@ -59,10 +79,17 @@ const db = getFirestore(app);
 // ============================================================
 
 const revenuesRef =
-    collection(db, "finance_revenues");
+    collection(
+        db,
+        "finance_revenues"
+    );
+
 
 const expensesRef =
-    collection(db, "finance_expenses");
+    collection(
+        db,
+        "finance_expenses"
+    );
 
 
 // ============================================================
@@ -85,65 +112,60 @@ let currentPeriod = "month";
 const sections = {
 
     overview:
-        document.getElementById("overviewSection"),
+        document.getElementById(
+            "overviewSection"
+        ),
 
     revenues:
-        document.getElementById("revenuesSection"),
+        document.getElementById(
+            "revenuesSection"
+        ),
 
     expenses:
-        document.getElementById("expensesSection"),
+        document.getElementById(
+            "expensesSection"
+        ),
 
     reports:
-        document.getElementById("reportsSection"),
+        document.getElementById(
+            "reportsSection"
+        ),
 
     subscriptions:
-        document.getElementById("subscriptionsSection")
+        document.getElementById(
+            "subscriptionsSection"
+        )
 
 };
 
+
 const navItems =
-    document.querySelectorAll(".nav-item");
+    document.querySelectorAll(
+        ".nav-item"
+    );
+
 
 const pageTitle =
-    document.getElementById("pageTitle");
+    document.getElementById(
+        "pageTitle"
+    );
+
 
 const pageSubtitle =
-    document.getElementById("pageSubtitle");
+    document.getElementById(
+        "pageSubtitle"
+    );
 
 
 // ============================================================
 // AUTH
 // ============================================================
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(
+    auth,
+    async (user) => {
 
-    if (!user) {
-
-        window.location.href =
-            "finance-login.html";
-
-        return;
-
-    }
-
-    try {
-
-        const accessRef =
-            doc(
-                db,
-                "finance_users",
-                user.uid
-            );
-
-        const accessSnapshot =
-            await getDoc(accessRef);
-
-        if (
-            !accessSnapshot.exists() ||
-            accessSnapshot.data().enabled !== true
-        ) {
-
-            await signOut(auth);
+        if (!user) {
 
             window.location.href =
                 "finance-login.html";
@@ -152,25 +174,63 @@ onAuthStateChanged(auth, async (user) => {
 
         }
 
-        currentUser = user;
 
-        await initializeFinance();
+        try {
 
-    } catch (error) {
+            const accessRef =
+                doc(
+                    db,
+                    "finance_users",
+                    user.uid
+                );
 
-        console.error(
-            "Finance Auth Error:",
-            error
-        );
 
-        await signOut(auth);
+            const accessSnapshot =
+                await getDoc(
+                    accessRef
+                );
 
-        window.location.href =
-            "finance-login.html";
+
+            if (
+                !accessSnapshot.exists() ||
+                accessSnapshot.data().enabled !== true
+            ) {
+
+                await signOut(auth);
+
+                window.location.href =
+                    "finance-login.html";
+
+                return;
+
+            }
+
+
+            currentUser =
+                user;
+
+
+            await initializeFinance();
+
+
+        } catch (error) {
+
+            console.error(
+                "Finance Auth Error:",
+                error
+            );
+
+
+            await signOut(auth);
+
+
+            window.location.href =
+                "finance-login.html";
+
+        }
 
     }
-
-});
+);
 
 
 // ============================================================
@@ -207,24 +267,32 @@ async function loadRevenues() {
                 )
             );
 
+
         const snapshot =
             await getDocs(q);
 
+
         revenues = [];
 
-        snapshot.forEach((item) => {
 
-            revenues.push({
+        snapshot.forEach(
+            (item) => {
 
-                id: item.id,
+                revenues.push({
 
-                ...item.data()
+                    id:
+                        item.id,
 
-            });
+                    ...item.data()
 
-        });
+                });
+
+            }
+        );
+
 
         renderRevenues();
+
 
     } catch (error) {
 
@@ -232,6 +300,7 @@ async function loadRevenues() {
             "Load revenues:",
             error
         );
+
 
         showToast(
             "تعذر تحميل الإيرادات"
@@ -259,24 +328,32 @@ async function loadExpenses() {
                 )
             );
 
+
         const snapshot =
             await getDocs(q);
 
+
         expenses = [];
 
-        snapshot.forEach((item) => {
 
-            expenses.push({
+        snapshot.forEach(
+            (item) => {
 
-                id: item.id,
+                expenses.push({
 
-                ...item.data()
+                    id:
+                        item.id,
 
-            });
+                    ...item.data()
 
-        });
+                });
+
+            }
+        );
+
 
         renderExpenses();
+
 
     } catch (error) {
 
@@ -284,6 +361,7 @@ async function loadExpenses() {
             "Load expenses:",
             error
         );
+
 
         showToast(
             "تعذر تحميل المصروفات"
@@ -306,6 +384,7 @@ function toDate(value) {
 
     }
 
+
     if (
         typeof value.toDate ===
         "function"
@@ -314,6 +393,7 @@ function toDate(value) {
         return value.toDate();
 
     }
+
 
     return new Date(value);
 
@@ -331,9 +411,14 @@ function isInPeriod(
 
     }
 
-    const now = new Date();
 
-    const d = new Date(date);
+    const now =
+        new Date();
+
+
+    const d =
+        new Date(date);
+
 
     if (period === "all") {
 
@@ -341,47 +426,60 @@ function isInPeriod(
 
     }
 
+
     if (period === "today") {
 
         return (
             d.getFullYear() ===
                 now.getFullYear() &&
+
             d.getMonth() ===
                 now.getMonth() &&
+
             d.getDate() ===
                 now.getDate()
         );
 
     }
 
+
     if (period === "week") {
 
         const start =
             new Date(now);
+
 
         start.setDate(
             now.getDate() -
             now.getDay()
         );
 
+
         start.setHours(
-            0, 0, 0, 0
+            0,
+            0,
+            0,
+            0
         );
+
 
         return d >= start;
 
     }
+
 
     if (period === "month") {
 
         return (
             d.getFullYear() ===
                 now.getFullYear() &&
+
             d.getMonth() ===
                 now.getMonth()
         );
 
     }
+
 
     if (period === "year") {
 
@@ -392,26 +490,33 @@ function isInPeriod(
 
     }
 
+
     return true;
 
 }
 
 
 // ============================================================
-// NUMBER FORMAT
+// MONEY
 // ============================================================
 
 function money(value) {
 
     return (
+
         Number(value || 0)
             .toLocaleString(
                 "ar-EG",
                 {
-                    maximumFractionDigits: 2
+                    maximumFractionDigits:
+                        2
                 }
-            ) +
+            )
+
+        +
+
         " ج"
+
     );
 
 }
@@ -428,12 +533,13 @@ function updateDashboard() {
             item =>
                 isInPeriod(
                     toDate(
-                        item.createdAt ||
-                        item.date
+                        item.date ||
+                        item.createdAt
                     ),
                     currentPeriod
                 )
         );
+
 
     const filteredExpenses =
         expenses.filter(
@@ -507,21 +613,15 @@ function updateDashboard() {
             "netProfit"
         );
 
+
     profitElement.textContent =
         money(netProfit);
 
 
-    if (netProfit < 0) {
-
-        profitElement.style.color =
-            "var(--danger)";
-
-    } else {
-
-        profitElement.style.color =
-            "var(--success)";
-
-    }
+    profitElement.style.color =
+        netProfit < 0
+            ? "var(--danger)"
+            : "var(--success)";
 
 
     document.getElementById(
@@ -530,16 +630,38 @@ function updateDashboard() {
         `${profitMargin.toFixed(1)}%`;
 
 
+    const subscriptionRevenues =
+        filteredRevenues.filter(
+            item =>
+                item.source !==
+                "manual"
+        );
+
+
     document.getElementById(
         "subscriptionCount"
     ).textContent =
-        filteredRevenues.length;
+        subscriptionRevenues.length;
+
+
+    const subscriptionRevenueTotal =
+        subscriptionRevenues.reduce(
+            (
+                total,
+                item
+            ) =>
+                total +
+                Number(
+                    item.amount || 0
+                ),
+            0
+        );
 
 
     const average =
-        filteredRevenues.length > 0
-            ? totalRevenue /
-              filteredRevenues.length
+        subscriptionRevenues.length > 0
+            ? subscriptionRevenueTotal /
+              subscriptionRevenues.length
             : 0;
 
 
@@ -601,41 +723,60 @@ function renderRevenueBreakdown() {
             "revenueBreakdown"
         );
 
+
     if (!container) return;
+
 
     const map = {};
 
+
     revenues
-        .filter(item =>
-            isInPeriod(
-                toDate(
-                    item.createdAt ||
-                    item.date
-                ),
-                currentPeriod
-            )
+        .filter(
+            item =>
+                isInPeriod(
+                    toDate(
+                        item.date ||
+                        item.createdAt
+                    ),
+                    currentPeriod
+                )
         )
-        .forEach(item => {
+        .forEach(
+            item => {
 
-            const plan =
-                item.plan ||
-                "غير محدد";
+                const source =
+                    item.source ===
+                    "manual"
 
-            map[plan] =
-                (
-                    map[plan] || 0
-                ) +
-                Number(
-                    item.amount || 0
-                );
+                        ? (
+                            item.revenueType ===
+                            "subscription"
 
-        });
+                                ? "اشتراك يدوي"
+
+                                : "إيراد آخر"
+                          )
+
+                        : "اشتراكات تلقائية";
+
+
+                map[source] =
+                    (
+                        map[source] ||
+                        0
+                    ) +
+                    Number(
+                        item.amount || 0
+                    );
+
+            }
+        );
 
 
     const entries =
         Object.entries(map)
             .sort(
-                (a, b) =>
+                (a,b) =>
                     b[1] - a[1]
             );
 
@@ -643,9 +784,11 @@ function renderRevenueBreakdown() {
     if (!entries.length) {
 
         container.innerHTML =
-            `<div class="transactions-list">
+            `
+            <div class="transactions-list">
                 لا توجد إيرادات
-             </div>`;
+            </div>
+            `;
 
         return;
 
@@ -658,53 +801,74 @@ function renderRevenueBreakdown() {
                 sum,
                 item
             ) =>
-                sum + item[1],
+                sum +
+                item[1],
             0
         );
 
 
     container.innerHTML =
-        entries.map(
-            ([plan, amount]) => {
+        entries
+            .map(
+                ([source,amount]) => {
 
-                const percentage =
-                    total > 0
-                        ? (
-                            amount /
-                            total
-                        ) * 100
-                        : 0;
+                    const percentage =
+                        total > 0
+                            ? (
+                                amount /
+                                total
+                            ) * 100
+                            : 0;
 
-                return `
 
-                    <div>
+                    return `
 
-                        <div class="breakdown-item">
+                        <div>
 
-                            <span class="breakdown-label">
-                                ${escapeHtml(plan)}
-                            </span>
+                            <div
+                                class="breakdown-item">
 
-                            <strong class="breakdown-value">
-                                ${money(amount)}
-                            </strong>
+                                <span
+                                    class="breakdown-label">
+
+                                    ${escapeHtml(
+                                        source
+                                    )}
+
+                                </span>
+
+
+                                <strong
+                                    class="breakdown-value">
+
+                                    ${money(
+                                        amount
+                                    )}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div
+                                class="breakdown-bar">
+
+                                <span
+                                    style="
+                                        width:${percentage}%;
+                                    ">
+
+                                </span>
+
+                            </div>
 
                         </div>
 
-                        <div class="breakdown-bar">
+                    `;
 
-                            <span
-                                style="width:${percentage}%">
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            }
-        ).join("");
+                }
+            )
+            .join("");
 
 }
 
@@ -720,34 +884,49 @@ function renderRecentTransactions() {
             "recentTransactions"
         );
 
+
+    if (!container) return;
+
+
     const combined = [
 
-        ...revenues.map(item => ({
-            ...item,
-            type: "revenue"
-        })),
+        ...revenues.map(
+            item => ({
+                ...item,
+                type:
+                    "revenue"
+            })
+        ),
 
-        ...expenses.map(item => ({
-            ...item,
-            type: "expense"
-        }))
+        ...expenses.map(
+            item => ({
+                ...item,
+                type:
+                    "expense"
+            })
+        )
 
     ];
 
+
     combined.sort(
-        (a, b) => {
+        (a,b) => {
 
             const dateA =
                 toDate(
-                    a.createdAt ||
-                    a.date
-                ) || new Date(0);
+                    a.date ||
+                    a.createdAt
+                ) ||
+                new Date(0);
+
 
             const dateB =
                 toDate(
-                    b.createdAt ||
-                    b.date
-                ) || new Date(0);
+                    b.date ||
+                    b.createdAt
+                ) ||
+                new Date(0);
+
 
             return dateB - dateA;
 
@@ -756,7 +935,10 @@ function renderRecentTransactions() {
 
 
     const latest =
-        combined.slice(0, 8);
+        combined.slice(
+            0,
+            8
+        );
 
 
     if (!latest.length) {
@@ -770,69 +952,93 @@ function renderRecentTransactions() {
 
 
     container.innerHTML =
-        latest.map(item => {
+        latest
+            .map(
+                item => {
 
-            const amount =
-                Number(
-                    item.amount || 0
-                );
-
-            const date =
-                toDate(
-                    item.createdAt ||
-                    item.date
-                );
+                    const amount =
+                        Number(
+                            item.amount || 0
+                        );
 
 
-            return `
+                    const date =
+                        toDate(
+                            item.date ||
+                            item.createdAt
+                        );
 
-                <div class="transaction-row">
 
-                    <span>
-                        ${
-                            item.type ===
-                            "revenue"
-                                ? "💰"
-                                : "💸"
-                        }
-                    </span>
+                    return `
 
-                    <div>
+                        <div
+                            class="transaction-row">
 
-                        <strong>
-                            ${
-                                item.type ===
-                                "revenue"
-                                    ? "إيراد"
-                                    : "مصروف"
-                            }
-                        </strong>
+                            <span>
 
-                        <small>
-                            ${
-                                formatDate(
-                                    date
-                                )
-                            }
-                        </small>
+                                ${
+                                    item.type ===
+                                    "revenue"
 
-                    </div>
+                                        ? "💰"
 
-                    <strong>
-                        ${
-                            item.type ===
-                            "revenue"
-                                ? "+"
-                                : "-"
-                        }
-                        ${money(amount)}
-                    </strong>
+                                        : "💸"
+                                }
 
-                </div>
+                            </span>
 
-            `;
 
-        }).join("");
+                            <div>
+
+                                <strong>
+
+                                    ${
+                                        item.type ===
+                                        "revenue"
+
+                                            ? "إيراد"
+
+                                            : "مصروف"
+                                    }
+
+                                </strong>
+
+
+                                <small>
+
+                                    ${
+                                        formatDate(
+                                            date
+                                        )
+                                    }
+
+                                </small>
+
+                            </div>
+
+
+                            <strong>
+
+                                ${
+                                    item.type ===
+                                    "revenue"
+                                        ? "+"
+                                        : "-"
+                                }
+
+                                ${money(
+                                    amount
+                                )}
+
+                            </strong>
+
+                        </div>
+
+                    `;
+
+                }
+            )
+            .join("");
 
 }
 
@@ -848,18 +1054,24 @@ function renderRevenues() {
             "revenuesTableBody"
         );
 
+
     if (!tbody) return;
 
 
     if (!revenues.length) {
 
-        tbody.innerHTML = `
+        tbody.innerHTML =
+            `
             <tr>
-                <td colspan="5">
+
+                <td colspan="7">
+
                     لا توجد إيرادات حتى الآن
+
                 </td>
+
             </tr>
-        `;
+            `;
 
         return;
 
@@ -867,62 +1079,161 @@ function renderRevenues() {
 
 
     tbody.innerHTML =
-        revenues.map(item => {
+        revenues
+            .map(
+                item => {
 
-            return `
+                    const isManual =
+                        item.source ===
+                        "manual";
 
-                <tr>
 
-                    <td>
-                        ${formatDate(
-                            toDate(
-                                item.createdAt ||
-                                item.date
-                            )
-                        )}
-                    </td>
+                    const sourceBadge =
+                        isManual
 
-                    <td>
-                        ${
-                            escapeHtml(
-                                item.studentName ||
-                                item.accountName ||
-                                "—"
-                            )
-                        }
-                    </td>
+                            ? `
+                                <span
+                                    class="
+                                        finance-badge
+                                        manual
+                                    ">
 
-                    <td>
-                        ${
-                            escapeHtml(
-                                item.plan ||
-                                "—"
-                            )
-                        }
-                    </td>
+                                    ✏️ يدوي
 
-                    <td>
-                        ${
-                            escapeHtml(
-                                item.paymentMethod ||
-                                "تحويل يدوي"
-                            )
-                        }
-                    </td>
+                                </span>
+                              `
 
-                    <td>
-                        <strong>
-                            ${money(
-                                item.amount
-                            )}
-                        </strong>
-                    </td>
+                            : `
+                                <span
+                                    class="
+                                        finance-badge
+                                        subscription
+                                    ">
 
-                </tr>
+                                    📦 اشتراك
 
-            `;
+                                </span>
+                              `;
 
-        }).join("");
+
+                    return `
+
+                        <tr>
+
+                            <td>
+
+                                ${formatDate(
+                                    toDate(
+                                        item.date ||
+                                        item.createdAt
+                                    )
+                                )}
+
+                            </td>
+
+
+                            <td>
+
+                                ${sourceBadge}
+
+                            </td>
+
+
+                            <td>
+
+                                ${
+                                    escapeHtml(
+                                        item.studentName ||
+                                        item.accountName ||
+                                        "—"
+                                    )
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                ${
+                                    escapeHtml(
+                                        item.plan ||
+                                        "—"
+                                    )
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                ${
+                                    escapeHtml(
+                                        getPaymentMethodName(
+                                            item.paymentMethod
+                                        )
+                                    )
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+
+                                    ${money(
+                                        item.amount
+                                    )}
+
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+                                ${
+                                    isManual
+
+                                        ? `
+                                            <button
+                                                class="
+                                                    small-btn
+                                                    danger-action
+                                                "
+                                                data-delete-revenue="
+                                                    ${item.id}
+                                                ">
+
+                                                حذف
+
+                                            </button>
+                                          `
+
+                                        : `
+                                            <span
+                                                style="
+                                                    color:
+                                                        var(--muted);
+                                                    font-size:
+                                                        11px;
+                                                ">
+
+                                                تلقائي
+
+                                            </span>
+                                          `
+                                }
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            )
+            .join("");
 
 }
 
@@ -938,18 +1249,24 @@ function renderExpenses() {
             "expensesTableBody"
         );
 
+
     if (!tbody) return;
 
 
     if (!expenses.length) {
 
-        tbody.innerHTML = `
+        tbody.innerHTML =
+            `
             <tr>
+
                 <td colspan="5">
+
                     لا توجد مصروفات حتى الآن
+
                 </td>
+
             </tr>
-        `;
+            `;
 
         return;
 
@@ -957,74 +1274,98 @@ function renderExpenses() {
 
 
     tbody.innerHTML =
-        expenses.map(item => {
+        expenses
+            .map(
+                item => {
 
-            return `
+                    return `
 
-                <tr>
+                        <tr>
 
-                    <td>
-                        ${formatDate(
-                            toDate(
-                                item.date
-                            )
-                        )}
-                    </td>
+                            <td>
 
-                    <td>
-                        ${
-                            escapeHtml(
-                                getCategoryName(
-                                    item.category
-                                )
-                            )
-                        }
-                    </td>
+                                ${formatDate(
+                                    toDate(
+                                        item.date
+                                    )
+                                )}
 
-                    <td>
-                        ${
-                            escapeHtml(
-                                item.description ||
-                                "—"
-                            )
-                        }
-                    </td>
+                            </td>
 
-                    <td>
 
-                        <strong>
-                            ${money(
-                                item.amount
-                            )}
-                        </strong>
+                            <td>
 
-                    </td>
+                                ${
+                                    escapeHtml(
+                                        getCategoryName(
+                                            item.category
+                                        )
+                                    )
+                                }
 
-                    <td>
+                            </td>
 
-                        <button
-                            class="small-btn"
-                            data-edit-expense="${item.id}">
 
-                            تعديل
+                            <td>
 
-                        </button>
+                                ${
+                                    escapeHtml(
+                                        item.description ||
+                                        "—"
+                                    )
+                                }
 
-                        <button
-                            class="small-btn danger-action"
-                            data-delete-expense="${item.id}">
+                            </td>
 
-                            حذف
 
-                        </button>
+                            <td>
 
-                    </td>
+                                <strong>
 
-                </tr>
+                                    ${money(
+                                        item.amount
+                                    )}
 
-            `;
+                                </strong>
 
-        }).join("");
+                            </td>
+
+
+                            <td>
+
+                                <button
+                                    class="small-btn"
+                                    data-edit-expense="
+                                        ${item.id}
+                                    ">
+
+                                    تعديل
+
+                                </button>
+
+
+                                <button
+                                    class="
+                                        small-btn
+                                        danger-action
+                                    "
+                                    data-delete-expense="
+                                        ${item.id}
+                                    ">
+
+                                    حذف
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            )
+            .join("");
 
 }
 
@@ -1039,9 +1380,10 @@ document
     )
     .addEventListener(
         "submit",
-        async (event) => {
+        async event => {
 
             event.preventDefault();
+
 
             if (!currentUser) return;
 
@@ -1069,7 +1411,8 @@ document
             const description =
                 document.getElementById(
                     "expenseDescription"
-                ).value.trim();
+                ).value
+                .trim();
 
 
             if (
@@ -1114,6 +1457,7 @@ document
 
                 closeExpenseModal();
 
+
                 showToast(
                     "تم إضافة المصروف بنجاح ✅"
                 );
@@ -1131,6 +1475,7 @@ document
                     error
                 );
 
+
                 showToast(
                     "حدث خطأ أثناء حفظ المصروف"
                 );
@@ -1147,27 +1492,31 @@ document
 
 document.addEventListener(
     "click",
-    async (event) => {
+    async event => {
 
         const button =
             event.target.closest(
                 "[data-delete-expense]"
             );
 
+
         if (!button) return;
 
 
         const id =
-            button.dataset.deleteExpense;
+            button.dataset
+                .deleteExpense;
 
 
-        const confirmed =
-            confirm(
+        if (
+            !confirm(
                 "هل أنت متأكد من حذف هذا المصروف؟"
-            );
+            )
+        ) {
 
+            return;
 
-        if (!confirmed) return;
+        }
 
 
         try {
@@ -1197,6 +1546,7 @@ document.addEventListener(
                 error
             );
 
+
             showToast(
                 "تعذر حذف المصروف"
             );
@@ -1208,7 +1558,7 @@ document.addEventListener(
 
 
 // ============================================================
-// MODAL
+// EXPENSE MODAL
 // ============================================================
 
 const expenseModal =
@@ -1231,6 +1581,7 @@ document
                 )
                 .reset();
 
+
             document
                 .getElementById(
                     "expenseDate"
@@ -1238,9 +1589,12 @@ document
                 .value =
                 getTodayString();
 
+
             expenseModal
                 .classList
-                .remove("hidden");
+                .remove(
+                    "hidden"
+                );
 
         }
     );
@@ -1270,9 +1624,323 @@ function closeExpenseModal() {
 
     expenseModal
         .classList
-        .add("hidden");
+        .add(
+            "hidden"
+        );
 
 }
+
+
+// ============================================================
+// ADD MANUAL REVENUE
+// ============================================================
+
+document
+    .getElementById(
+        "revenueForm"
+    )
+    .addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            if (!currentUser) return;
+
+
+            const amount =
+                Number(
+                    document.getElementById(
+                        "revenueAmount"
+                    ).value
+                );
+
+
+            const type =
+                document.getElementById(
+                    "revenueType"
+                ).value;
+
+
+            const date =
+                document.getElementById(
+                    "revenueDate"
+                ).value;
+
+
+            const paymentMethod =
+                document.getElementById(
+                    "revenuePaymentMethod"
+                ).value;
+
+
+            const studentName =
+                document.getElementById(
+                    "revenueStudentName"
+                ).value
+                .trim();
+
+
+            const plan =
+                document.getElementById(
+                    "revenuePlan"
+                ).value
+                .trim();
+
+
+            const description =
+                document.getElementById(
+                    "revenueDescription"
+                ).value
+                .trim();
+
+
+            if (
+                !amount ||
+                amount <= 0 ||
+                !date ||
+                !paymentMethod
+            ) {
+
+                showToast(
+                    "أكمل بيانات الإيراد"
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                await addDoc(
+                    revenuesRef,
+                    {
+
+                        amount,
+
+                        source:
+                            "manual",
+
+                        revenueType:
+                            type,
+
+                        studentName:
+                            studentName ||
+                            null,
+
+                        plan:
+                            plan ||
+                            (
+                                type ===
+                                "subscription"
+
+                                    ? "اشتراك"
+
+                                    : "إيراد آخر"
+                            ),
+
+                        paymentMethod,
+
+                        description:
+                            description ||
+                            null,
+
+                        date,
+
+                        createdBy:
+                            currentUser.uid,
+
+                        createdAt:
+                            serverTimestamp()
+
+                    }
+                );
+
+
+                closeRevenueModal();
+
+
+                showToast(
+                    "تم إضافة الإيراد بنجاح 💰"
+                );
+
+
+                await loadRevenues();
+
+                updateDashboard();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Add Manual Revenue:",
+                    error
+                );
+
+
+                showToast(
+                    "حدث خطأ أثناء حفظ الإيراد"
+                );
+
+            }
+
+        }
+    );
+
+
+// ============================================================
+// REVENUE MODAL
+// ============================================================
+
+const revenueModal =
+    document.getElementById(
+        "revenueModal"
+    );
+
+
+document
+    .getElementById(
+        "addRevenueBtn"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "revenueForm"
+                )
+                .reset();
+
+
+            document
+                .getElementById(
+                    "revenueDate"
+                )
+                .value =
+                getTodayString();
+
+
+            document
+                .getElementById(
+                    "revenueType"
+                ).value =
+                "other";
+
+
+            revenueModal
+                .classList
+                .remove(
+                    "hidden"
+                );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "closeRevenueModal"
+    )
+    .addEventListener(
+        "click",
+        closeRevenueModal
+    );
+
+
+document
+    .getElementById(
+        "cancelRevenueBtn"
+    )
+    .addEventListener(
+        "click",
+        closeRevenueModal
+    );
+
+
+function closeRevenueModal() {
+
+    revenueModal
+        .classList
+        .add(
+            "hidden"
+        );
+
+}
+
+
+// ============================================================
+// DELETE MANUAL REVENUE
+// ============================================================
+
+document.addEventListener(
+    "click",
+    async event => {
+
+        const button =
+            event.target.closest(
+                "[data-delete-revenue]"
+            );
+
+
+        if (!button) return;
+
+
+        const id =
+            button.dataset
+                .deleteRevenue;
+
+
+        if (
+            !confirm(
+                "هل أنت متأكد من حذف هذا الإيراد اليدوي؟"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        try {
+
+            await deleteDoc(
+                doc(
+                    db,
+                    "finance_revenues",
+                    id
+                )
+            );
+
+
+            showToast(
+                "تم حذف الإيراد"
+            );
+
+
+            await loadRevenues();
+
+            updateDashboard();
+
+
+        } catch (error) {
+
+            console.error(
+                "Delete Revenue:",
+                error
+            );
+
+
+            showToast(
+                "تعذر حذف الإيراد"
+            );
+
+        }
+
+    }
+);
 
 
 // ============================================================
@@ -1285,7 +1953,7 @@ document
     )
     .addEventListener(
         "change",
-        (event) => {
+        event => {
 
             currentPeriod =
                 event.target.value;
@@ -1300,23 +1968,22 @@ document
 // NAVIGATION
 // ============================================================
 
-navItems.forEach(item => {
+navItems.forEach(
+    item => {
 
-    item.addEventListener(
-        "click",
-        () => {
+        item.addEventListener(
+            "click",
+            () => {
 
-            const section =
-                item.dataset.section;
+                switchSection(
+                    item.dataset.section
+                );
 
-            switchSection(
-                section
-            );
+            }
+        );
 
-        }
-    );
-
-});
+    }
+);
 
 
 document.addEventListener(
@@ -1327,6 +1994,7 @@ document.addEventListener(
             event.target.closest(
                 "[data-section]"
             );
+
 
         if (
             button &&
@@ -1369,7 +2037,9 @@ function switchSection(
 
             sectionElement
                 .classList
-                .remove("active");
+                .remove(
+                    "active"
+                );
 
         }
     );
@@ -1381,7 +2051,9 @@ function switchSection(
 
         sections[section]
             .classList
-            .add("active");
+            .add(
+                "active"
+            );
 
     }
 
@@ -1389,38 +2061,62 @@ function switchSection(
     const titles = {
 
         overview: [
+
             "نظرة عامة",
+
             "ملخص الوضع المالي للمنصة"
+
         ],
+
 
         revenues: [
+
             "الإيرادات",
-            "جميع الاشتراكات والمدفوعات المؤكدة"
+
+            "جميع الاشتراكات والإيرادات الأخرى"
+
         ],
+
 
         expenses: [
+
             "المصروفات",
+
             "إدارة مصروفات المنصة"
+
         ],
+
 
         reports: [
+
             "التقارير المالية",
+
             "تحليل شامل لأداء المنصة المالي"
+
         ],
 
+
         subscriptions: [
+
             "تحليل الاشتراكات",
+
             "أداء كل باقة اشتراك"
+
         ]
 
     };
 
 
-    pageTitle.textContent =
-        titles[section][0];
+    if (titles[section]) {
 
-    pageSubtitle.textContent =
-        titles[section][1];
+        pageTitle.textContent =
+            titles[section][0];
+
+
+        pageSubtitle.textContent =
+            titles[section][1];
+
+    }
 
 }
 
@@ -1442,6 +2138,7 @@ document
             await loadExpenses();
 
             updateDashboard();
+
 
             showToast(
                 "تم تحديث البيانات 🔄"
@@ -1465,14 +2162,19 @@ document
 
             try {
 
-                await signOut(auth);
+                await signOut(
+                    auth
+                );
+
 
                 sessionStorage.removeItem(
                     "finance_authenticated"
                 );
 
+
                 window.location.href =
                     "finance-login.html";
+
 
             } catch (error) {
 
@@ -1537,47 +2239,53 @@ function updateReports() {
         "allTimeLoss"
     ).textContent =
         result < 0
-            ? money(Math.abs(result))
+            ? money(
+                Math.abs(result)
+              )
             : money(0);
 
-
-    // Best revenue month
 
     const months = {};
 
 
-    revenues.forEach(item => {
+    revenues.forEach(
+        item => {
 
-        const date =
-            toDate(
-                item.createdAt ||
-                item.date
-            );
-
-        if (!date) return;
-
-
-        const key =
-            `${date.getFullYear()}-${date.getMonth()}`;
+            const date =
+                toDate(
+                    item.date ||
+                    item.createdAt
+                );
 
 
-        months[key] =
-            (
-                months[key] || 0
-            ) +
-            Number(
-                item.amount || 0
-            );
+            if (!date) return;
 
-    });
+
+            const key =
+                `${date.getFullYear()}-${date.getMonth()}`;
+
+
+            months[key] =
+                (
+                    months[key] ||
+                    0
+                ) +
+                Number(
+                    item.amount || 0
+                );
+
+        }
+    );
 
 
     const best =
-        Object.entries(months)
-            .sort(
-                (a, b) =>
-                    b[1] - a[1]
-            )[0];
+        Object.entries(
+            months
+        )
+        .sort(
+            (a,b) =>
+                b[1] - a[1]
+        )[0];
 
 
     if (best) {
@@ -1608,44 +2316,51 @@ function updateReports() {
             `${date.toLocaleDateString(
                 "ar-EG",
                 {
-                    month: "long",
-                    year: "numeric"
+                    month:
+                        "long",
+
+                    year:
+                        "numeric"
                 }
-            )} — ${money(amount)}`;
+            )} — ${money(
+                amount
+            )}`;
 
     }
 
 
-    // Top expense category
-
     const categories = {};
 
 
-    expenses.forEach(item => {
+    expenses.forEach(
+        item => {
 
-        const category =
-            item.category ||
-            "other";
+            const category =
+                item.category ||
+                "other";
 
 
-        categories[category] =
-            (
-                categories[category] ||
-                0
-            ) +
-            Number(
-                item.amount || 0
-            );
+            categories[category] =
+                (
+                    categories[category] ||
+                    0
+                ) +
+                Number(
+                    item.amount || 0
+                );
 
-    });
+        }
+    );
 
 
     const topCategory =
-        Object.entries(categories)
-            .sort(
-                (a, b) =>
-                    b[1] - a[1]
-            )[0];
+        Object.entries(
+            categories
+        )
+        .sort(
+            (a,b) =>
+                b[1] - a[1]
+        )[0];
 
 
     if (topCategory) {
@@ -1675,52 +2390,69 @@ function renderSubscriptionAnalytics() {
             "subscriptionAnalytics"
         );
 
+
     if (!container) return;
 
 
     const map = {};
 
 
-    revenues.forEach(item => {
+    revenues
+        .filter(
+            item =>
+                item.source !==
+                "manual" ||
+                item.revenueType ===
+                "subscription"
+        )
+        .forEach(
+            item => {
 
-        const plan =
-            item.plan ||
-            "غير محدد";
-
-
-        if (!map[plan]) {
-
-            map[plan] = {
-
-                count: 0,
-
-                revenue: 0
-
-            };
-
-        }
+                const plan =
+                    item.plan ||
+                    "غير محدد";
 
 
-        map[plan].count++;
+                if (!map[plan]) {
 
-        map[plan].revenue +=
-            Number(
-                item.amount || 0
-            );
+                    map[plan] = {
 
-    });
+                        count:
+                            0,
+
+                        revenue:
+                            0
+
+                    };
+
+                }
+
+
+                map[plan].count++;
+
+                map[plan].revenue +=
+                    Number(
+                        item.amount || 0
+                    );
+
+            }
+        );
 
 
     const entries =
-        Object.entries(map);
+        Object.entries(
+            map
+        );
 
 
     if (!entries.length) {
 
         container.innerHTML =
-            `<div class="transactions-list">
+            `
+            <div class="transactions-list">
                 لا توجد بيانات اشتراكات
-             </div>`;
+            </div>
+            `;
 
         return;
 
@@ -1728,42 +2460,52 @@ function renderSubscriptionAnalytics() {
 
 
     container.innerHTML =
-        entries.map(
-            ([plan, data]) => `
+        entries
+            .map(
+                ([plan,data]) => `
 
-                <div class="report-card">
+                    <div
+                        class="report-card">
 
-                    <span>
-                        ${escapeHtml(plan)}
-                    </span>
+                        <span>
+                            ${escapeHtml(
+                                plan
+                            )}
+                        </span>
 
-                    <strong>
-                        ${data.count}
-                        اشتراك
-                    </strong>
 
-                    <div style="
-                        margin-top:10px;
-                        color:var(--success);
-                        font-weight:700;
-                    ">
+                        <strong>
 
-                        ${money(
-                            data.revenue
-                        )}
+                            ${data.count}
+
+                            اشتراك
+
+                        </strong>
+
+
+                        <div style="
+                            margin-top:10px;
+                            color:var(--success);
+                            font-weight:700;
+                        ">
+
+                            ${money(
+                                data.revenue
+                            )}
+
+                        </div>
 
                     </div>
 
-                </div>
-
-            `
-        ).join("");
+                `
+            )
+            .join("");
 
 }
 
 
 // ============================================================
-// MONTHLY CHART PLACEHOLDER
+// MONTHLY CHART
 // ============================================================
 
 function renderMonthlyChart() {
@@ -1772,6 +2514,7 @@ function renderMonthlyChart() {
         document.getElementById(
             "monthlyChart"
         );
+
 
     if (!container) return;
 
@@ -1800,25 +2543,31 @@ function renderMonthlyChart() {
         const year =
             date.getFullYear();
 
+
         const month =
             date.getMonth();
 
 
         const revenue =
             revenues
-                .filter(item => {
+                .filter(
+                    item => {
 
-                    const d =
-                        toDate(
-                            item.createdAt ||
-                            item.date
-                        );
+                        const d =
+                            toDate(
+                                item.date ||
+                                item.createdAt
+                            );
 
-                    return d &&
-                        d.getFullYear() === year &&
-                        d.getMonth() === month;
 
-                })
+                        return d &&
+                            d.getFullYear() ===
+                                year &&
+                            d.getMonth() ===
+                                month;
+
+                    }
+                )
                 .reduce(
                     (
                         sum,
@@ -1834,19 +2583,24 @@ function renderMonthlyChart() {
 
         const expense =
             expenses
-                .filter(item => {
+                .filter(
+                    item => {
 
-                    const d =
-                        toDate(
-                            item.date ||
-                            item.createdAt
-                        );
+                        const d =
+                            toDate(
+                                item.date ||
+                                item.createdAt
+                            );
 
-                    return d &&
-                        d.getFullYear() === year &&
-                        d.getMonth() === month;
 
-                })
+                        return d &&
+                            d.getFullYear() ===
+                                year &&
+                            d.getMonth() ===
+                                month;
+
+                    }
+                )
                 .reduce(
                     (
                         sum,
@@ -1866,7 +2620,8 @@ function renderMonthlyChart() {
                 date.toLocaleDateString(
                     "ar-EG",
                     {
-                        month: "short"
+                        month:
+                            "short"
                     }
                 ),
 
@@ -1903,72 +2658,84 @@ function renderMonthlyChart() {
             padding:10px 0;
         ">
 
-            ${months.map(item => {
+            ${months.map(
+                item => {
 
-                const revenueHeight =
-                    (
-                        item.revenue /
-                        max
-                    ) * 180;
-
-
-                const expenseHeight =
-                    (
-                        item.expense /
-                        max
-                    ) * 180;
+                    const revenueHeight =
+                        (
+                            item.revenue /
+                            max
+                        ) * 180;
 
 
-                return `
+                    const expenseHeight =
+                        (
+                            item.expense /
+                            max
+                        ) * 180;
 
-                    <div style="
-                        flex:1;
-                        height:100%;
-                        display:flex;
-                        align-items:flex-end;
-                        justify-content:center;
-                        gap:3px;
-                    ">
 
-                        <div
-                            title="إيرادات: ${money(
-                                item.revenue
-                            )}"
-                            style="
-                                width:40%;
-                                max-width:18px;
-                                height:${Math.max(
-                                    revenueHeight,
-                                    3
-                                )}px;
-                                background:#2563eb;
-                                border-radius:5px 5px 0 0;
-                            ">
+                    return `
+
+                        <div style="
+                            flex:1;
+                            height:100%;
+                            display:flex;
+                            align-items:flex-end;
+                            justify-content:center;
+                            gap:3px;
+                        ">
+
+                            <div
+                                title="
+                                    إيرادات:
+                                    ${money(
+                                        item.revenue
+                                    )}
+                                "
+                                style="
+                                    width:40%;
+                                    max-width:18px;
+                                    height:${Math.max(
+                                        revenueHeight,
+                                        3
+                                    )}px;
+                                    background:#2563eb;
+                                    border-radius:
+                                        5px 5px 0 0;
+                                ">
+                            </div>
+
+
+                            <div
+                                title="
+                                    مصروفات:
+                                    ${money(
+                                        item.expense
+                                    )}
+                                "
+                                style="
+                                    width:40%;
+                                    max-width:18px;
+                                    height:${Math.max(
+                                        expenseHeight,
+                                        3
+                                    )}px;
+                                    background:#dc2626;
+                                    border-radius:
+                                        5px 5px 0 0;
+                                ">
+                            </div>
+
                         </div>
 
-                        <div
-                            title="مصروفات: ${money(
-                                item.expense
-                            )}"
-                            style="
-                                width:40%;
-                                max-width:18px;
-                                height:${Math.max(
-                                    expenseHeight,
-                                    3
-                                )}px;
-                                background:#dc2626;
-                                border-radius:5px 5px 0 0;
-                            ">
-                        </div>
+                    `;
 
-                    </div>
-
-                `;
-
-            }).join("")}
+                }
+            ).join("")}
 
         </div>
+
 
         <div style="
             display:flex;
@@ -1979,10 +2746,13 @@ function renderMonthlyChart() {
 
             ${months.map(
                 item =>
-                    `<span>${item.label}</span>`
+                    `<span>
+                        ${item.label}
+                    </span>`
             ).join("")}
 
         </div>
+
 
         <div style="
             display:flex;
@@ -2011,7 +2781,9 @@ function renderMonthlyChart() {
 // HELPERS
 // ============================================================
 
-function formatDate(date) {
+function formatDate(
+    date
+) {
 
     if (!date) {
 
@@ -2019,12 +2791,19 @@ function formatDate(date) {
 
     }
 
+
     return date.toLocaleDateString(
         "ar-EG",
         {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
+            year:
+                "numeric",
+
+            month:
+                "2-digit",
+
+            day:
+                "2-digit"
+
         }
     );
 
@@ -2036,18 +2815,29 @@ function getTodayString() {
     const date =
         new Date();
 
+
     const year =
         date.getFullYear();
+
 
     const month =
         String(
             date.getMonth() + 1
-        ).padStart(2, "0");
+        )
+        .padStart(
+            2,
+            "0"
+        );
+
 
     const day =
         String(
             date.getDate()
-        ).padStart(2, "0");
+        )
+        .padStart(
+            2,
+            "0"
+        );
 
 
     return `${year}-${month}-${day}`;
@@ -2057,14 +2847,29 @@ function getTodayString() {
 
 function setTodayDate() {
 
-    const input =
+    const expenseInput =
         document.getElementById(
             "expenseDate"
         );
 
-    if (input) {
 
-        input.value =
+    const revenueInput =
+        document.getElementById(
+            "revenueDate"
+        );
+
+
+    if (expenseInput) {
+
+        expenseInput.value =
+            getTodayString();
+
+    }
+
+
+    if (revenueInput) {
+
+        revenueInput.value =
             getTodayString();
 
     }
@@ -2111,31 +2916,66 @@ function getCategoryName(
 }
 
 
+function getPaymentMethodName(
+    method
+) {
+
+    const methods = {
+
+        manual_transfer:
+            "تحويل يدوي",
+
+        cash:
+            "نقدي",
+
+        wallet:
+            "محفظة إلكترونية",
+
+        bank:
+            "تحويل بنكي",
+
+        other:
+            "أخرى"
+
+    };
+
+
+    return (
+        methods[method] ||
+        method ||
+        "غير محدد"
+    );
+
+}
+
+
 function escapeHtml(
     value
 ) {
 
-    return String(value ?? "")
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 
@@ -2150,6 +2990,9 @@ function showToast(
         );
 
 
+    if (!container) return;
+
+
     const toast =
         document.createElement(
             "div"
@@ -2158,6 +3001,7 @@ function showToast(
 
     toast.className =
         "toast";
+
 
     toast.textContent =
         message;
@@ -2184,10 +3028,16 @@ function showToast(
 // FINANCE REVENUE API
 // ============================================================
 //
-// دي أهم نقطة للربط مع نظام الاشتراكات لاحقًا.
+// عند تأكيد اشتراك من نظام الاشتراكات:
 //
-// عند تأكيد اشتراك:
-// await recordFinanceRevenue({...});
+// await recordFinanceRevenue({
+//     amount: 50,
+//     studentId: "...",
+//     studentName: "...",
+//     plan: "شهري",
+//     subscriptionId: "...",
+//     activatedBy: "..."
+// });
 //
 // ============================================================
 
@@ -2226,6 +3076,12 @@ export async function recordFinanceRevenue(
 
         amount,
 
+        source:
+            "subscription",
+
+        revenueType:
+            "subscription",
+
         studentId:
             data.studentId ||
             null,
@@ -2249,6 +3105,9 @@ export async function recordFinanceRevenue(
         activatedBy:
             data.activatedBy ||
             null,
+
+        date:
+            getTodayString(),
 
         createdAt:
             serverTimestamp()

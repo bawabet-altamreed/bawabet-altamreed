@@ -5,21 +5,28 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <title>Finance Dashboard | بوابة التمريض</title>
+    <title>
+        Finance Dashboard | بوابة التمريض
+    </title>
 
-    <link rel="stylesheet"
-          href="finance.css">
+    <link
+        rel="stylesheet"
+        href="finance.css">
 
-    <link rel="icon"
-          type="image/png"
-          href="../favicon-32.png">
+    <link
+        rel="icon"
+        type="image/png"
+        href="../favicon-32.png">
 
 </head>
 
+
 <body class="finance-dashboard-page">
+
 
     <!-- =====================================================
          SIDEBAR
@@ -55,43 +62,62 @@
                 data-section="overview">
 
                 📊
-                <span>نظرة عامة</span>
+
+                <span>
+                    نظرة عامة
+                </span>
 
             </button>
+
 
             <button
                 class="nav-item"
                 data-section="revenues">
 
                 💰
-                <span>الإيرادات</span>
+
+                <span>
+                    الإيرادات
+                </span>
 
             </button>
+
 
             <button
                 class="nav-item"
                 data-section="expenses">
 
                 💸
-                <span>المصروفات</span>
+
+                <span>
+                    المصروفات
+                </span>
 
             </button>
+
 
             <button
                 class="nav-item"
                 data-section="reports">
 
                 📈
-                <span>التقارير</span>
+
+                <span>
+                    التقارير
+                </span>
 
             </button>
+
 
             <button
                 class="nav-item"
                 data-section="subscriptions">
 
                 📦
-                <span>الاشتراكات</span>
+
+                <span>
+                    الاشتراكات
+                </span>
 
             </button>
 
@@ -105,6 +131,7 @@
                 class="logout-btn">
 
                 🚪
+
                 تسجيل الخروج
 
             </button>
@@ -114,11 +141,13 @@
     </aside>
 
 
+
     <!-- =====================================================
          MAIN
     ====================================================== -->
 
     <main class="finance-main">
+
 
         <!-- HEADER -->
 
@@ -153,6 +182,7 @@
         </header>
 
 
+
         <!-- =================================================
              OVERVIEW
         ================================================== -->
@@ -162,16 +192,20 @@
             class="finance-section active">
 
 
-            <!-- DATE FILTER -->
+            <!-- FILTER -->
 
             <div class="filter-card">
 
                 <div class="filter-title">
 
                     📅
-                    الفترة الزمنية
+
+                    <span>
+                        الفترة الزمنية
+                    </span>
 
                 </div>
+
 
                 <select id="overviewPeriod">
 
@@ -187,8 +221,12 @@
                         هذا الأسبوع
                     </option>
 
-                    <option value="month" selected>
+                    <option
+                        value="month"
+                        selected>
+
                         هذا الشهر
+
                     </option>
 
                     <option value="year">
@@ -200,9 +238,11 @@
             </div>
 
 
-            <!-- STAT CARDS -->
+
+            <!-- MAIN STATS -->
 
             <div class="finance-stats-grid">
+
 
                 <div class="stat-card revenue-card">
 
@@ -223,6 +263,7 @@
                     </div>
 
                 </div>
+
 
 
                 <div class="stat-card expense-card">
@@ -246,6 +287,7 @@
                 </div>
 
 
+
                 <div class="stat-card profit-card">
 
                     <div class="stat-icon">
@@ -265,6 +307,7 @@
                     </div>
 
                 </div>
+
 
 
                 <div class="stat-card margin-card">
@@ -290,14 +333,16 @@
             </div>
 
 
-            <!-- SECONDARY STATS -->
+
+            <!-- MINI STATS -->
 
             <div class="mini-stats-grid">
+
 
                 <div class="mini-stat">
 
                     <span>
-                        الاشتراكات
+                        عدد الاشتراكات
                     </span>
 
                     <strong id="subscriptionCount">
@@ -305,6 +350,8 @@
                     </strong>
 
                 </div>
+
+
 
                 <div class="mini-stat">
 
@@ -318,6 +365,8 @@
 
                 </div>
 
+
+
                 <div class="mini-stat">
 
                     <span>
@@ -329,6 +378,8 @@
                     </strong>
 
                 </div>
+
+
 
                 <div class="mini-stat">
 
@@ -345,9 +396,11 @@
             </div>
 
 
+
             <!-- CHARTS -->
 
             <div class="charts-grid">
+
 
                 <div class="chart-card">
 
@@ -367,6 +420,7 @@
 
                     </div>
 
+
                     <div
                         id="monthlyChart"
                         class="chart-container">
@@ -380,6 +434,7 @@
                 </div>
 
 
+
                 <div class="chart-card">
 
                     <div class="chart-header">
@@ -391,12 +446,13 @@
                             </h3>
 
                             <span>
-                                حسب نوع الاشتراك
+                                حسب نوع الإيراد
                             </span>
 
                         </div>
 
                     </div>
+
 
                     <div
                         id="revenueBreakdown"
@@ -411,7 +467,8 @@
             </div>
 
 
-            <!-- RECENT TRANSACTIONS -->
+
+            <!-- RECENT -->
 
             <div class="table-card">
 
@@ -429,6 +486,7 @@
 
                     </div>
 
+
                     <button
                         class="small-btn"
                         data-section="revenues">
@@ -438,6 +496,7 @@
                     </button>
 
                 </div>
+
 
                 <div
                     id="recentTransactions"
@@ -452,6 +511,7 @@
         </section>
 
 
+
         <!-- =================================================
              REVENUES
         ================================================== -->
@@ -459,6 +519,7 @@
         <section
             id="revenuesSection"
             class="finance-section">
+
 
             <div class="section-toolbar">
 
@@ -469,20 +530,37 @@
                     </h2>
 
                     <p>
-                        جميع الاشتراكات والمدفوعات المؤكدة
+                        جميع الاشتراكات والإيرادات الأخرى
                     </p>
 
                 </div>
 
-                <button
-                    id="exportRevenueBtn"
-                    class="finance-btn secondary-btn">
 
-                    📥 تصدير
+                <div class="toolbar-actions">
 
-                </button>
+                    <button
+                        id="addRevenueBtn"
+                        class="finance-btn primary-btn">
+
+                        ➕
+                        إضافة إيراد
+
+                    </button>
+
+
+                    <button
+                        id="exportRevenueBtn"
+                        class="finance-btn secondary-btn">
+
+                        📥
+                        تصدير
+
+                    </button>
+
+                </div>
 
             </div>
+
 
 
             <div class="table-card">
@@ -500,7 +578,11 @@
                                 </th>
 
                                 <th>
-                                    الطالب
+                                    المصدر
+                                </th>
+
+                                <th>
+                                    الطالب / الاسم
                                 </th>
 
                                 <th>
@@ -515,9 +597,14 @@
                                     المبلغ
                                 </th>
 
+                                <th>
+                                    الإجراءات
+                                </th>
+
                             </tr>
 
                         </thead>
+
 
                         <tbody
                             id="revenuesTableBody">
@@ -533,6 +620,7 @@
         </section>
 
 
+
         <!-- =================================================
              EXPENSES
         ================================================== -->
@@ -540,6 +628,7 @@
         <section
             id="expensesSection"
             class="finance-section">
+
 
             <div class="section-toolbar">
 
@@ -555,15 +644,18 @@
 
                 </div>
 
+
                 <button
                     id="addExpenseBtn"
                     class="finance-btn primary-btn">
 
-                    ➕ إضافة مصروف
+                    ➕
+                    إضافة مصروف
 
                 </button>
 
             </div>
+
 
 
             <div class="table-card">
@@ -600,6 +692,7 @@
 
                         </thead>
 
+
                         <tbody
                             id="expensesTableBody">
 
@@ -614,6 +707,7 @@
         </section>
 
 
+
         <!-- =================================================
              REPORTS
         ================================================== -->
@@ -621,6 +715,7 @@
         <section
             id="reportsSection"
             class="finance-section">
+
 
             <div class="section-toolbar">
 
@@ -639,7 +734,9 @@
             </div>
 
 
+
             <div class="report-cards">
+
 
                 <div class="report-card">
 
@@ -653,6 +750,8 @@
 
                 </div>
 
+
+
                 <div class="report-card">
 
                     <span>
@@ -665,6 +764,8 @@
 
                 </div>
 
+
+
                 <div class="report-card">
 
                     <span>
@@ -676,6 +777,8 @@
                     </strong>
 
                 </div>
+
+
 
                 <div class="report-card">
 
@@ -694,6 +797,7 @@
         </section>
 
 
+
         <!-- =================================================
              SUBSCRIPTIONS
         ================================================== -->
@@ -701,6 +805,7 @@
         <section
             id="subscriptionsSection"
             class="finance-section">
+
 
             <div class="section-toolbar">
 
@@ -732,6 +837,7 @@
     </main>
 
 
+
     <!-- =====================================================
          EXPENSE MODAL
     ====================================================== -->
@@ -740,13 +846,15 @@
         id="expenseModal"
         class="modal-overlay hidden">
 
+
         <div class="modal">
+
 
             <div class="modal-header">
 
                 <div>
 
-                    <h2 id="expenseModalTitle">
+                    <h2>
                         إضافة مصروف
                     </h2>
 
@@ -755,6 +863,7 @@
                     </p>
 
                 </div>
+
 
                 <button
                     id="closeExpenseModal"
@@ -767,6 +876,7 @@
             </div>
 
 
+
             <form id="expenseForm">
 
                 <input
@@ -775,6 +885,7 @@
 
 
                 <div class="form-grid">
+
 
                     <div class="input-group">
 
@@ -791,6 +902,7 @@
                             placeholder="مثال: 500">
 
                     </div>
+
 
 
                     <div class="input-group">
@@ -840,6 +952,7 @@
                     </div>
 
 
+
                     <div class="input-group">
 
                         <label>
@@ -854,6 +967,7 @@
                     </div>
 
 
+
                     <div class="input-group full-width">
 
                         <label>
@@ -863,12 +977,12 @@
                         <textarea
                             id="expenseDescription"
                             rows="4"
-                            placeholder="اكتب تفاصيل المصروف...">
-                        </textarea>
+                            placeholder="اكتب تفاصيل المصروف..."></textarea>
 
                     </div>
 
                 </div>
+
 
 
                 <div class="modal-actions">
@@ -881,6 +995,7 @@
                         إلغاء
 
                     </button>
+
 
                     <button
                         type="submit"
@@ -899,14 +1014,238 @@
     </div>
 
 
+
+    <!-- =====================================================
+         REVENUE MODAL
+    ====================================================== -->
+
+    <div
+        id="revenueModal"
+        class="modal-overlay hidden">
+
+
+        <div class="modal">
+
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2>
+                        إضافة إيراد
+                    </h2>
+
+                    <p>
+                        تسجيل إيراد مالي يدوي
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="closeRevenueModal"
+                    class="modal-close">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+
+            <form id="revenueForm">
+
+                <input
+                    type="hidden"
+                    id="revenueId">
+
+
+                <div class="form-grid">
+
+
+                    <div class="input-group">
+
+                        <label>
+                            المبلغ
+                        </label>
+
+                        <input
+                            type="number"
+                            id="revenueAmount"
+                            min="0"
+                            step="0.01"
+                            required
+                            placeholder="مثال: 50">
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label>
+                            نوع الإيراد
+                        </label>
+
+                        <select
+                            id="revenueType"
+                            required>
+
+                            <option value="subscription">
+                                اشتراك
+                            </option>
+
+                            <option value="other">
+                                إيراد آخر
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label>
+                            التاريخ
+                        </label>
+
+                        <input
+                            type="date"
+                            id="revenueDate"
+                            required>
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label>
+                            طريقة الدفع
+                        </label>
+
+                        <select
+                            id="revenuePaymentMethod"
+                            required>
+
+                            <option value="manual_transfer">
+                                تحويل يدوي
+                            </option>
+
+                            <option value="cash">
+                                نقدي
+                            </option>
+
+                            <option value="wallet">
+                                محفظة إلكترونية
+                            </option>
+
+                            <option value="bank">
+                                تحويل بنكي
+                            </option>
+
+                            <option value="other">
+                                أخرى
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label>
+                            اسم الطالب / العميل
+                        </label>
+
+                        <input
+                            type="text"
+                            id="revenueStudentName"
+                            placeholder="اختياري">
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label>
+                            الباقة
+                        </label>
+
+                        <input
+                            type="text"
+                            id="revenuePlan"
+                            placeholder="مثال: اشتراك شهري">
+
+                    </div>
+
+
+
+                    <div class="input-group full-width">
+
+                        <label>
+                            الوصف / الملاحظات
+                        </label>
+
+                        <textarea
+                            id="revenueDescription"
+                            rows="4"
+                            placeholder="اكتب تفاصيل الإيراد..."></textarea>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="cancelRevenueBtn"
+                        class="finance-btn secondary-btn">
+
+                        إلغاء
+
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="finance-btn primary-btn">
+
+                        حفظ الإيراد
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- TOAST -->
+
     <div
         id="toastContainer"
         class="toast-container">
     </div>
 
 
-    <script type="module"
-            src="finance.js">
+
+    <script
+        type="module"
+        src="finance.js">
     </script>
 
 </body>

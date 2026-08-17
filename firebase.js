@@ -4,12 +4,12 @@
 // ===============================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDLVKbfkhFsTGunLWEJmBN2eGg0tdqePyc",
-  authDomain: "bawabet-al-tamreed.firebaseapp.com",
-  projectId: "bawabet-al-tamreed",
-  storageBucket: "bawabet-al-tamreed.firebasestorage.app",
-  messagingSenderId: "668697400713",
-  appId: "1:668697400713:web:ec5611e587dc3d3c237d58"
+    apiKey: "AIzaSyDLVKbfkhFsTGunLWEJmBN2eGg0tdqePyc",
+    authDomain: "bawabet-al-tamreed.firebaseapp.com",
+    projectId: "bawabet-al-tamreed",
+    storageBucket: "bawabet-al-tamreed.firebasestorage.app",
+    messagingSenderId: "668697400713",
+    appId: "1:668697400713:web:ec5611e587dc3d3c237d58"
 };
 
 
@@ -40,7 +40,12 @@ const db = firebase.firestore();
 
     const publicPages = [
 
-        "login.html"
+        // صفحة تسجيل الدخول
+        "login.html",
+
+        // لوحة الإدارة
+        // لا علاقة لها باشتراك الطلاب
+        "admin.html"
 
     ];
 
@@ -57,8 +62,8 @@ const db = firebase.firestore();
 
 
     // ==================================
-    // إذا كانت صفحة عامة
-    // لا نحمل الـ Guard
+    // إذا كانت الصفحة مستثناة
+    // لا نحمل Subscription Guard
     // ==================================
 
     if (
@@ -67,8 +72,12 @@ const db = firebase.firestore();
         )
     ) {
 
-        return;
+        console.log(
+            "🛡️ Subscription Guard skipped:",
+            currentPage
+        );
 
+        return;
     }
 
 
@@ -79,10 +88,13 @@ const db = firebase.firestore();
     const script =
         document.createElement("script");
 
+
     script.src =
         "subscription-guard.js";
 
+
     script.defer = true;
+
 
     document.head.appendChild(
         script

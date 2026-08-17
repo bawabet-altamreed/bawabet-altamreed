@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Finance Dashboard | بوابة التمريض</title>
+
+    <link rel="stylesheet"
+          href="finance.css">
+
+    <link rel="icon"
+          type="image/png"
+          href="../favicon-32.png">
+
+</head>
+
+<body class="finance-dashboard-page">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="finance-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="brand-icon">
+                💰
+            </div>
+
+            <div>
+
+                <h2>
+                    Finance
+                </h2>
+
+                <span>
+                    بوابة التمريض
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="finance-nav">
+
+            <button
+                class="nav-item active"
+                data-section="overview">
+
+                📊
+                <span>نظرة عامة</span>
+
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="revenues">
+
+                💰
+                <span>الإيرادات</span>
+
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="expenses">
+
+                💸
+                <span>المصروفات</span>
+
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="reports">
+
+                📈
+                <span>التقارير</span>
+
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="subscriptions">
+
+                📦
+                <span>الاشتراكات</span>
+
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                id="logoutBtn"
+                class="logout-btn">
+
+                🚪
+                تسجيل الخروج
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="finance-main">
+
+        <!-- HEADER -->
+
+        <header class="finance-header">
+
+            <div>
+
+                <h1 id="pageTitle">
+                    نظرة عامة
+                </h1>
+
+                <p id="pageSubtitle">
+                    ملخص الوضع المالي للمنصة
+                </p>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <button
+                    id="refreshBtn"
+                    class="icon-btn"
+                    title="تحديث">
+
+                    🔄
+
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             OVERVIEW
+        ================================================== -->
+
+        <section
+            id="overviewSection"
+            class="finance-section active">
+
+
+            <!-- DATE FILTER -->
+
+            <div class="filter-card">
+
+                <div class="filter-title">
+
+                    📅
+                    الفترة الزمنية
+
+                </div>
+
+                <select id="overviewPeriod">
+
+                    <option value="all">
+                        كل الوقت
+                    </option>
+
+                    <option value="today">
+                        اليوم
+                    </option>
+
+                    <option value="week">
+                        هذا الأسبوع
+                    </option>
+
+                    <option value="month" selected>
+                        هذا الشهر
+                    </option>
+
+                    <option value="year">
+                        هذا العام
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- STAT CARDS -->
+
+            <div class="finance-stats-grid">
+
+                <div class="stat-card revenue-card">
+
+                    <div class="stat-icon">
+                        💰
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            إجمالي الإيرادات
+                        </span>
+
+                        <strong id="totalRevenue">
+                            0 ج
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card expense-card">
+
+                    <div class="stat-icon">
+                        💸
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            إجمالي المصروفات
+                        </span>
+
+                        <strong id="totalExpenses">
+                            0 ج
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card profit-card">
+
+                    <div class="stat-icon">
+                        📈
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            صافي الربح
+                        </span>
+
+                        <strong id="netProfit">
+                            0 ج
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card margin-card">
+
+                    <div class="stat-icon">
+                        📊
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            هامش الربح
+                        </span>
+
+                        <strong id="profitMargin">
+                            0%
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SECONDARY STATS -->
+
+            <div class="mini-stats-grid">
+
+                <div class="mini-stat">
+
+                    <span>
+                        الاشتراكات
+                    </span>
+
+                    <strong id="subscriptionCount">
+                        0
+                    </strong>
+
+                </div>
+
+                <div class="mini-stat">
+
+                    <span>
+                        متوسط الاشتراك
+                    </span>
+
+                    <strong id="averageRevenue">
+                        0 ج
+                    </strong>
+
+                </div>
+
+                <div class="mini-stat">
+
+                    <span>
+                        عدد المصروفات
+                    </span>
+
+                    <strong id="expenseCount">
+                        0
+                    </strong>
+
+                </div>
+
+                <div class="mini-stat">
+
+                    <span>
+                        أكبر مصروف
+                    </span>
+
+                    <strong id="largestExpense">
+                        0 ج
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- CHARTS -->
+
+            <div class="charts-grid">
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div>
+
+                            <h3>
+                                الإيرادات والمصروفات
+                            </h3>
+
+                            <span>
+                                آخر 12 شهر
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="monthlyChart"
+                        class="chart-container">
+
+                        <div class="chart-placeholder">
+                            جاري تحميل البيانات...
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div>
+
+                            <h3>
+                                مصادر الإيرادات
+                            </h3>
+
+                            <span>
+                                حسب نوع الاشتراك
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="revenueBreakdown"
+                        class="breakdown-container">
+
+                        جاري تحميل البيانات...
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RECENT TRANSACTIONS -->
+
+            <div class="table-card">
+
+                <div class="table-header">
+
+                    <div>
+
+                        <h3>
+                            آخر العمليات
+                        </h3>
+
+                        <span>
+                            أحدث الحركات المالية
+                        </span>
+
+                    </div>
+
+                    <button
+                        class="small-btn"
+                        data-section="revenues">
+
+                        عرض الكل
+
+                    </button>
+
+                </div>
+
+                <div
+                    id="recentTransactions"
+                    class="transactions-list">
+
+                    جاري التحميل...
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             REVENUES
+        ================================================== -->
+
+        <section
+            id="revenuesSection"
+            class="finance-section">
+
+            <div class="section-toolbar">
+
+                <div>
+
+                    <h2>
+                        الإيرادات
+                    </h2>
+
+                    <p>
+                        جميع الاشتراكات والمدفوعات المؤكدة
+                    </p>
+
+                </div>
+
+                <button
+                    id="exportRevenueBtn"
+                    class="finance-btn secondary-btn">
+
+                    📥 تصدير
+
+                </button>
+
+            </div>
+
+
+            <div class="table-card">
+
+                <div class="table-scroll">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    التاريخ
+                                </th>
+
+                                <th>
+                                    الطالب
+                                </th>
+
+                                <th>
+                                    الباقة
+                                </th>
+
+                                <th>
+                                    طريقة الدفع
+                                </th>
+
+                                <th>
+                                    المبلغ
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="revenuesTableBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             EXPENSES
+        ================================================== -->
+
+        <section
+            id="expensesSection"
+            class="finance-section">
+
+            <div class="section-toolbar">
+
+                <div>
+
+                    <h2>
+                        المصروفات
+                    </h2>
+
+                    <p>
+                        إدارة مصروفات المنصة
+                    </p>
+
+                </div>
+
+                <button
+                    id="addExpenseBtn"
+                    class="finance-btn primary-btn">
+
+                    ➕ إضافة مصروف
+
+                </button>
+
+            </div>
+
+
+            <div class="table-card">
+
+                <div class="table-scroll">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    التاريخ
+                                </th>
+
+                                <th>
+                                    التصنيف
+                                </th>
+
+                                <th>
+                                    الوصف
+                                </th>
+
+                                <th>
+                                    المبلغ
+                                </th>
+
+                                <th>
+                                    الإجراءات
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="expensesTableBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             REPORTS
+        ================================================== -->
+
+        <section
+            id="reportsSection"
+            class="finance-section">
+
+            <div class="section-toolbar">
+
+                <div>
+
+                    <h2>
+                        التقارير المالية
+                    </h2>
+
+                    <p>
+                        تحليل شامل لأداء المنصة المالي
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="report-cards">
+
+                <div class="report-card">
+
+                    <span>
+                        أفضل شهر من حيث الإيرادات
+                    </span>
+
+                    <strong id="bestRevenueMonth">
+                        —
+                    </strong>
+
+                </div>
+
+                <div class="report-card">
+
+                    <span>
+                        أكثر تصنيف مصروفات
+                    </span>
+
+                    <strong id="topExpenseCategory">
+                        —
+                    </strong>
+
+                </div>
+
+                <div class="report-card">
+
+                    <span>
+                        إجمالي الأرباح منذ البداية
+                    </span>
+
+                    <strong id="allTimeProfit">
+                        0 ج
+                    </strong>
+
+                </div>
+
+                <div class="report-card">
+
+                    <span>
+                        إجمالي الخسائر
+                    </span>
+
+                    <strong id="allTimeLoss">
+                        0 ج
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SUBSCRIPTIONS
+        ================================================== -->
+
+        <section
+            id="subscriptionsSection"
+            class="finance-section">
+
+            <div class="section-toolbar">
+
+                <div>
+
+                    <h2>
+                        تحليل الاشتراكات
+                    </h2>
+
+                    <p>
+                        أداء كل باقة اشتراك
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="subscriptionAnalytics"
+                class="subscription-analytics">
+
+                جاري التحميل...
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         EXPENSE MODAL
+    ====================================================== -->
+
+    <div
+        id="expenseModal"
+        class="modal-overlay hidden">
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2 id="expenseModalTitle">
+                        إضافة مصروف
+                    </h2>
+
+                    <p>
+                        تسجيل مصروف جديد
+                    </p>
+
+                </div>
+
+                <button
+                    id="closeExpenseModal"
+                    class="modal-close">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <form id="expenseForm">
+
+                <input
+                    type="hidden"
+                    id="expenseId">
+
+
+                <div class="form-grid">
+
+                    <div class="input-group">
+
+                        <label>
+                            المبلغ
+                        </label>
+
+                        <input
+                            type="number"
+                            id="expenseAmount"
+                            min="0"
+                            step="0.01"
+                            required
+                            placeholder="مثال: 500">
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label>
+                            التصنيف
+                        </label>
+
+                        <select
+                            id="expenseCategory"
+                            required>
+
+                            <option value="">
+                                اختر التصنيف
+                            </option>
+
+                            <option value="advertising">
+                                إعلانات
+                            </option>
+
+                            <option value="hosting">
+                                استضافة / خدمات
+                            </option>
+
+                            <option value="software">
+                                برامج وأدوات
+                            </option>
+
+                            <option value="rewards">
+                                جوائز
+                            </option>
+
+                            <option value="design">
+                                تصميم
+                            </option>
+
+                            <option value="equipment">
+                                معدات
+                            </option>
+
+                            <option value="other">
+                                أخرى
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label>
+                            التاريخ
+                        </label>
+
+                        <input
+                            type="date"
+                            id="expenseDate"
+                            required>
+
+                    </div>
+
+
+                    <div class="input-group full-width">
+
+                        <label>
+                            الوصف
+                        </label>
+
+                        <textarea
+                            id="expenseDescription"
+                            rows="4"
+                            placeholder="اكتب تفاصيل المصروف...">
+                        </textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="cancelExpenseBtn"
+                        class="finance-btn secondary-btn">
+
+                        إلغاء
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="finance-btn primary-btn">
+
+                        حفظ المصروف
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="toastContainer"
+        class="toast-container">
+    </div>
+
+
+    <script type="module"
+            src="finance.js">
+    </script>
+
+</body>
+
+</html>

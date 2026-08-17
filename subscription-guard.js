@@ -1,9 +1,8 @@
 // ==========================================
 // بوابة التمريض
 // Subscription Guard
-// حماية الاشتراك وتسجيل الخروج التلقائي
+// نظام حماية الاشتراك
 // ==========================================
-
 
 // ==========================================
 // إعدادات النظام
@@ -13,7 +12,9 @@ const SUBSCRIPTION_CHECK_INTERVAL =
     60 * 1000; // كل دقيقة
 
 
-let subscriptionGuardRunning = false;
+let subscriptionGuardStarted = false;
+
+let subscriptionCheckInProgress = false;
 
 let subscriptionLogoutStarted = false;
 
@@ -43,22 +44,21 @@ function isAdminPage() {
     const currentPage =
         getCurrentPage();
 
-    return (
-        currentPage === "admin.html"
-    );
+    return currentPage === "admin.html";
 
 }
 
 
 // ==========================================
-// الحصول على كود الطالب
+// هل صفحة تسجيل الدخول؟
 // ==========================================
 
-function getLoggedStudentCode() {
+function isLoginPage() {
 
-    return localStorage.getItem(
-        "studentCode"
-    );
+    const currentPage =
+        getCurrentPage();
+
+    return currentPage === "login.html";
 
 }
 
@@ -72,6 +72,102 @@ function getAccountType() {
     return localStorage.getItem(
         "accountType"
     );
+
+}
+
+
+// ==========================================
+// الحصول على كود الطالب
+// ==========================================
+
+function getStudentCode() {
+
+    return localStorage.getItem(
+        "studentCode"
+    );
+
+}
+
+
+// ==========================================
+// الحصول على كود ولي الأمر
+// ==========================================
+
+function getParentCode() {
+
+    return localStorage.getItem(
+        "parentCode"
+    );
+
+}
+
+
+// ==========================================
+// تحديد بيانات الحساب
+// ==========================================
+
+function getAccountSession() {
+
+    const accountType =
+        getAccountType();
+
+
+    // ======================================
+    // حساب ولي الأمر
+    // ======================================
+
+    if (
+        accountType === "parent"
+    ) {
+
+        const parentCode =
+            getParentCode();
+
+
+        if (!parentCode) {
+
+            return null;
+
+        }
+
+
+        return {
+
+            accountType: "parent",
+
+            collection: "parents",
+
+            code: parentCode
+
+        };
+
+    }
+
+
+    // ======================================
+    // حساب الطالب
+    // ======================================
+
+    const studentCode =
+        getStudentCode();
+
+
+    if (!studentCode) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        accountType: "student",
+
+        collection: "students",
+
+        code: studentCode
+
+    };
 
 }
 
@@ -98,18 +194,33 @@ function parseSubscriptionDate(value) {
         "function"
     ) {
 
-        const date =
-            value.toDate();
+        try {
+
+            const date =
+                value.toDate();
 
 
-        if (
-            date instanceof Date &&
-            !isNaN(
-                date.getTime()
-            )
-        ) {
+            if (
+                date instanceof Date &&
+                !isNaN(
+                    date.getTime()
+                )
+            ) {
 
-            return date;
+                return date;
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Subscription Date Error:",
+                error
+            );
+
+            return null;
 
         }
 
@@ -158,22 +269,24 @@ function parseSubscriptionDate(value) {
     // String
     // ======================================
 
-    const date =
-        new Date(value);
-
-
     if (
-        isNaN(
-            date.getTime()
-        )
+        typeof value === "string"
     ) {
 
-        return null;
+        const date =
+            new Date(value);
+
+
+        return isNaN(
+            date.getTime()
+        )
+            ? null
+            : date;
 
     }
 
 
-    return date;
+    return null;
 
 }
 
@@ -193,12 +306,12 @@ function isSubscriptionExpired(
 
 
     // ======================================
-    // تاريخ غير موجود أو غير صالح
+    // تاريخ غير صالح
     // ======================================
 
     if (!expiry) {
 
-        return true;
+        return null;
 
     }
 
@@ -208,7 +321,7 @@ function isSubscriptionExpired(
     // ======================================
 
     return (
-        new Date().getTime() >=
+        Date.now() >=
         expiry.getTime()
     );
 
@@ -216,63 +329,28 @@ function isSubscriptionExpired(
 
 
 // ==========================================
-// مسح بيانات جلسة الطالب / ولي الأمر
+// إيقاف Timer
 // ==========================================
 
-function clearStudentSession() {
+function stopSubscriptionGuardTimer() {
 
-    // ======================================
-    // بيانات الطالب
-    // ======================================
+    if (
+        subscriptionCheckTimer
+    ) {
 
-    localStorage.removeItem(
-        "studentCode"
-    );
+        clearInterval(
+            subscriptionCheckTimer
+        );
 
-    localStorage.removeItem(
-        "studentName"
-    );
+        subscriptionCheckTimer = null;
 
-    localStorage.removeItem(
-        "studentGrade"
-    );
-
-
-    // ======================================
-    // بيانات ولي الأمر
-    // ======================================
-
-    localStorage.removeItem(
-        "parentCode"
-    );
-
-    localStorage.removeItem(
-        "parentName"
-    );
-
-
-    // ======================================
-    // نوع الحساب
-    // ======================================
-
-    localStorage.removeItem(
-        "accountType"
-    );
-
-
-    // ======================================
-    // بيانات الاشتراك المؤقتة
-    // ======================================
-
-    localStorage.removeItem(
-        "subscriptionExpiresAt"
-    );
+    }
 
 }
 
 
 // ==========================================
-// تسجيل الخروج النهائي
+// تسجيل الخروج بسبب انتهاء الاشتراك فقط
 // ==========================================
 
 function subscriptionLogout(
@@ -280,7 +358,7 @@ function subscriptionLogout(
 ) {
 
     // ======================================
-    // منع تكرار Logout
+    // منع التكرار
     // ======================================
 
     if (
@@ -297,116 +375,87 @@ function subscriptionLogout(
 
 
     // ======================================
-    // إيقاف Timer
+    // إيقاف الفحص الدوري
     // ======================================
 
-    if (
-        subscriptionCheckTimer
-    ) {
+    stopSubscriptionGuardTimer();
 
-        clearInterval(
-            subscriptionCheckTimer
+
+    // ======================================
+    // مهم جدًا:
+    //
+    // لا نحذف deviceId
+    //
+    // ولا نعمل Firebase signOut هنا.
+    //
+    // لأن deviceId مرتبط بالحساب.
+    // ======================================
+
+
+    // ======================================
+    // حذف بيانات الجلسة فقط
+    // ======================================
+
+    localStorage.removeItem(
+        "studentCode"
+    );
+
+    localStorage.removeItem(
+        "studentName"
+    );
+
+    localStorage.removeItem(
+        "studentGrade"
+    );
+
+    localStorage.removeItem(
+        "parentCode"
+    );
+
+    localStorage.removeItem(
+        "parentName"
+    );
+
+    localStorage.removeItem(
+        "accountType"
+    );
+
+    localStorage.removeItem(
+        "subscriptionExpiresAt"
+    );
+
+
+    // ======================================
+    // رسالة انتهاء الاشتراك
+    // ======================================
+
+    if (message) {
+
+        alert(
+            message
         );
 
-        subscriptionCheckTimer =
-            null;
-
     }
 
 
     // ======================================
-    // مسح جلسة الطالب / ولي الأمر
+    // العودة إلى Login
     // ======================================
 
-    clearStudentSession();
-
-
-    // ======================================
-    // Firebase Logout
-    // ======================================
-
-    let signOutPromise =
-        Promise.resolve();
-
-
-    try {
-
-        if (
-            typeof firebase !==
-            "undefined" &&
-
-            firebase.auth &&
-            firebase.auth()
-                .currentUser
-        ) {
-
-            signOutPromise =
-                firebase.auth()
-                    .signOut();
-
-        }
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Firebase Sign Out Error:",
-            error
-        );
-
-    }
-
-
-    // ======================================
-    // بعد تسجيل الخروج
-    // ======================================
-
-    signOutPromise
-        .catch(function(error) {
-
-            console.error(
-                "Firebase Sign Out Error:",
-                error
-            );
-
-        })
-        .finally(function() {
-
-            // ==================================
-            // رسالة للطالب
-            // ==================================
-
-            if (message) {
-
-                alert(
-                    message
-                );
-
-            }
-
-
-            // ==================================
-            // العودة إلى Login
-            // ==================================
-
-            window.location.replace(
-                "login.html"
-            );
-
-        });
+    window.location.replace(
+        "login.html"
+    );
 
 }
 
 
 // ==========================================
-// التحقق من اشتراك الطالب / ولي الأمر
+// فحص اشتراك الحساب
 // ==========================================
 
 function checkStudentSubscription() {
 
     // ======================================
-    // حماية إضافية
     // الأدمن خارج Subscription Guard
     // ======================================
 
@@ -420,7 +469,20 @@ function checkStudentSubscription() {
 
 
     // ======================================
-    // منع التحقق أثناء Logout
+    // Login خارج Subscription Guard
+    // ======================================
+
+    if (
+        isLoginPage()
+    ) {
+
+        return;
+
+    }
+
+
+    // ======================================
+    // منع الفحص أثناء Logout
     // ======================================
 
     if (
@@ -433,24 +495,12 @@ function checkStudentSubscription() {
 
 
     // ======================================
-    // الحصول على نوع الحساب
+    // منع تنفيذ أكثر من طلب Firestore
+    // في نفس الوقت
     // ======================================
-
-    const accountType =
-        getAccountType();
-
-
-    // ======================================
-    // صفحة Login لا تحتاج Guard
-    // ======================================
-
-    const currentPage =
-        getCurrentPage();
-
 
     if (
-        currentPage ===
-        "login.html"
+        subscriptionCheckInProgress
     ) {
 
         return;
@@ -459,17 +509,27 @@ function checkStudentSubscription() {
 
 
     // ======================================
-    // لا يوجد Student Code
+    // الحصول على جلسة الحساب
     // ======================================
 
-    const studentCode =
-        getLoggedStudentCode();
+    const session =
+        getAccountSession();
 
 
-    if (!studentCode) {
+    // ======================================
+    // لا توجد جلسة محلية
+    //
+    // مهم:
+    // لا نعمل Logout هنا.
+    //
+    // auth.js هو المسؤول عن حماية
+    // تسجيل الدخول.
+    // ======================================
 
-        subscriptionLogout(
-            "⛔ انتهت جلسة تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى."
+    if (!session) {
+
+        console.warn(
+            "🛡️ Subscription Guard: لا توجد جلسة حساب صالحة حاليًا."
         );
 
         return;
@@ -478,16 +538,15 @@ function checkStudentSubscription() {
 
 
     // ======================================
-    // التأكد من Firebase
+    // التأكد من وجود Firestore
     // ======================================
 
     if (
-        typeof db ===
-        "undefined"
+        typeof db === "undefined"
     ) {
 
         console.error(
-            "Subscription Guard: Firebase DB غير متاح."
+            "❌ Subscription Guard: Firebase DB غير متاح."
         );
 
         return;
@@ -496,59 +555,41 @@ function checkStudentSubscription() {
 
 
     // ======================================
-    // تحديد Collection
+    // بدء الفحص
     // ======================================
 
-    let collectionName =
-        "students";
-
-    let documentCode =
-        studentCode;
+    subscriptionCheckInProgress =
+        true;
 
 
-    // ======================================
-    // حساب ولي الأمر
-    // ======================================
-
-    if (
-        accountType ===
-        "parent"
-    ) {
-
-        const parentCode =
-            localStorage.getItem(
-                "parentCode"
-            );
-
-
-        if (
-            parentCode
-        ) {
-
-            collectionName =
-                "parents";
-
-            documentCode =
-                parentCode;
-
-        }
-
-    }
+    console.log(
+        "🔎 Subscription Guard: جاري فحص الاشتراك...",
+        session.accountType,
+        session.code
+    );
 
 
     // ======================================
-    // الحصول على بيانات الحساب
+    // قراءة الحساب من Firestore
     // ======================================
 
     db.collection(
-        collectionName
+        session.collection
     )
     .doc(
-        documentCode
+        session.code
     )
     .get()
 
     .then(function(doc) {
+
+        // ==================================
+        // انتهاء الفحص
+        // ==================================
+
+        subscriptionCheckInProgress =
+            false;
+
 
         // ==================================
         // الحساب غير موجود
@@ -558,21 +599,37 @@ function checkStudentSubscription() {
             !doc.exists
         ) {
 
-            subscriptionLogout(
-                "❌ لم يتم العثور على بيانات حسابك."
+            console.error(
+                "❌ Subscription Guard: الحساب غير موجود في Firestore."
             );
+
+
+            /*
+             * لا نعمل Logout فورًا.
+             *
+             * السبب:
+             * قد يكون هناك تأخر مؤقت أو مشكلة
+             * في البيانات.
+             *
+             * إعادة الفحص في الدورة القادمة
+             * أكثر أمانًا.
+             */
 
             return;
 
         }
 
 
+        // ==================================
+        // بيانات الحساب
+        // ==================================
+
         const account =
             doc.data();
 
 
         // ==================================
-        // الحساب غير مفعل
+        // التحقق من تفعيل الحساب
         // ==================================
 
         if (
@@ -580,7 +637,7 @@ function checkStudentSubscription() {
         ) {
 
             subscriptionLogout(
-                "⛔ تم إيقاف اشتراكك من الإدارة."
+                "⛔ تم إيقاف حسابك من الإدارة."
             );
 
             return;
@@ -589,16 +646,24 @@ function checkStudentSubscription() {
 
 
         // ==================================
-        // التحقق من تاريخ الانتهاء
+        // التحقق من وجود expiresAt
         // ==================================
 
         if (
             !account.expiresAt
         ) {
 
-            subscriptionLogout(
-                "⚠️ لا يوجد تاريخ انتهاء صالح لاشتراكك."
+            console.error(
+                "⚠️ Subscription Guard: لا يوجد expiresAt للحساب."
             );
+
+
+            /*
+             * لا نعمل Logout تلقائيًا.
+             *
+             * لأن غياب expiresAt قد يكون بسبب
+             * بيانات قديمة أو مشكلة في إنشاء الحساب.
+             */
 
             return;
 
@@ -606,13 +671,44 @@ function checkStudentSubscription() {
 
 
         // ==================================
-        // الاشتراك منتهي
+        // معرفة حالة الاشتراك
+        // ==================================
+
+        const expired =
+            isSubscriptionExpired(
+                account.expiresAt
+            );
+
+
+        // ==================================
+        // التاريخ غير صالح
         // ==================================
 
         if (
-            isSubscriptionExpired(
+            expired === null
+        ) {
+
+            console.error(
+                "⚠️ Subscription Guard: تاريخ الاشتراك غير صالح.",
                 account.expiresAt
-            )
+            );
+
+
+            /*
+             * لا Logout.
+             */
+
+            return;
+
+        }
+
+
+        // ==================================
+        // الاشتراك منتهي فعلًا
+        // ==================================
+
+        if (
+            expired === true
         ) {
 
             subscriptionLogout(
@@ -628,22 +724,116 @@ function checkStudentSubscription() {
         // الاشتراك ساري
         // ==================================
 
-        subscriptionGuardRunning =
-            true;
+        localStorage.setItem(
+            "subscriptionExpiresAt",
+            account.expiresAt
+        );
 
+
+        // ==================================
+        // حفظ اسم الحساب
+        // ==================================
+
+        if (
+            session.accountType ===
+            "student"
+        ) {
+
+            if (
+                account.name
+            ) {
+
+                localStorage.setItem(
+                    "studentName",
+                    account.name
+                );
+
+            }
+
+
+            if (
+                account.grade
+            ) {
+
+                localStorage.setItem(
+                    "studentGrade",
+                    account.grade
+                );
+
+            }
+
+        }
+
+
+        // ==================================
+        // ولي الأمر
+        // ==================================
+
+        if (
+            session.accountType ===
+            "parent"
+        ) {
+
+            if (
+                account.name
+            ) {
+
+                localStorage.setItem(
+                    "parentName",
+                    account.name
+                );
+
+            }
+
+        }
+
+
+        // ==================================
+        // الاشتراك ساري
+        // ==================================
 
         console.log(
-            "✅ Subscription Guard: الاشتراك ساري."
+            "✅ Subscription Guard: الاشتراك ساري.",
+            session.code
         );
 
     })
 
     .catch(function(error) {
 
+        // ==================================
+        // انتهاء حالة الطلب
+        // ==================================
+
+        subscriptionCheckInProgress =
+            false;
+
+
+        // ==================================
+        // مهم جدًا:
+        //
+        // لا Logout عند حدوث Error
+        // ==================================
+
         console.error(
-            "Subscription Guard Error:",
+            "⚠️ Subscription Guard Error:",
             error
         );
+
+
+        /*
+         * أمثلة:
+         *
+         * - انقطاع الإنترنت
+         * - Firebase مؤقتًا غير متاح
+         * - Timeout
+         * - مشكلة في الاتصال
+         *
+         * لا يجب أن تؤدي هذه الأخطاء
+         * إلى طرد الطالب أو ولي الأمر.
+         *
+         * سيتم إعادة الفحص في الدورة القادمة.
+         */
 
     });
 
@@ -657,7 +847,7 @@ function checkStudentSubscription() {
 function startSubscriptionGuard() {
 
     // ======================================
-    // الأدمن خارج النظام تمامًا
+    // الأدمن
     // ======================================
 
     if (
@@ -665,8 +855,21 @@ function startSubscriptionGuard() {
     ) {
 
         console.log(
-            "🛡️ Admin Page: Subscription Guard skipped."
+            "👑 Admin Page: Subscription Guard skipped."
         );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // Login
+    // ======================================
+
+    if (
+        isLoginPage()
+    ) {
 
         return;
 
@@ -678,7 +881,7 @@ function startSubscriptionGuard() {
     // ======================================
 
     if (
-        subscriptionGuardRunning
+        subscriptionGuardStarted
     ) {
 
         return;
@@ -686,61 +889,54 @@ function startSubscriptionGuard() {
     }
 
 
-    // ======================================
-    // تجاهل Login
-    // ======================================
-
-    const currentPage =
-        getCurrentPage();
-
-
-    if (
-        currentPage ===
-        "login.html"
-    ) {
-
-        return;
-
-    }
+    subscriptionGuardStarted =
+        true;
 
 
     // ======================================
-    // تحقق فوري
+    // فحص فوري
     // ======================================
 
     checkStudentSubscription();
 
 
     // ======================================
-    // تحقق دوري كل دقيقة
+    // فحص دوري
     // ======================================
 
     subscriptionCheckTimer =
         setInterval(
+
             function() {
 
                 checkStudentSubscription();
 
             },
+
             SUBSCRIPTION_CHECK_INTERVAL
+
         );
 
 
-    subscriptionGuardRunning =
-        true;
+    console.log(
+        "🛡️ Subscription Guard started."
+    );
 
 }
 
 
 // ==========================================
-// عند رجوع الطالب للصفحة
+// عند رجوع الصفحة من Background
 // ==========================================
 
 document.addEventListener(
     "visibilitychange",
     function() {
 
-        // الأدمن لا يحتاج Subscription Guard
+        // ==================================
+        // الأدمن
+        // ==================================
+
         if (
             isAdminPage()
         ) {
@@ -749,6 +945,10 @@ document.addEventListener(
 
         }
 
+
+        // ==================================
+        // الصفحة أصبحت مرئية
+        // ==================================
 
         if (
             document.visibilityState ===
@@ -764,14 +964,17 @@ document.addEventListener(
 
 
 // ==========================================
-// عند رجوع الصفحة من Background
+// عند رجوع الصفحة للتركيز
 // ==========================================
 
 window.addEventListener(
     "focus",
     function() {
 
-        // الأدمن لا يحتاج Subscription Guard
+        // ==================================
+        // الأدمن
+        // ==================================
+
         if (
             isAdminPage()
         ) {

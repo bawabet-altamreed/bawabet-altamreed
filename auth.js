@@ -1,198 +1,430 @@
-// ===============================
+ // ===============================
 // بوابة التمريض
-// حماية صفحات الطلاب
+// Authentication / Session Guard
+// حماية جلسة الطالب وولي الأمر
 // ===============================
 
 (function () {
 
-    const studentCode = localStorage.getItem("studentCode");
+    "use strict";
 
-    // ===============================
-    // التحقق من تسجيل الدخول
-    // ===============================
 
-    if (!studentCode) {
+    // ==================================
+    // الصفحة الحالية
+    // ==================================
 
-        window.location.href = "login.html";
+    const currentPage =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+
+    // ==================================
+    // الصفحات المستثناة
+    // ==================================
+
+    if (
+        currentPage === "login.html" ||
+        currentPage === "admin.html"
+    ) {
 
         return;
+
     }
 
 
-    // ===============================
-    // جلب بيانات الطالب
-    // ===============================
+    // ==================================
+    // نوع الحساب
+    // ==================================
 
-    db.collection("students")
-        .doc(studentCode)
-        .get()
-
-        .then(function (doc) {
-
-            if (!doc.exists) {
-
-                logoutStudent();
-
-                return;
-            }
+    const accountType =
+        localStorage.getItem(
+            "accountType"
+        );
 
 
-            const student = doc.data();
+    // ==================================
+    // تحديد بيانات الجلسة
+    // ==================================
+
+    let accountCode = null;
+
+    let collectionName = null;
 
 
-            // ===============================
-            // التحقق من تفعيل الاشتراك
-            // ===============================
+    // ==================================
+    // حساب ولي الأمر
+    // ==================================
 
-            if (student.active !== true) {
+    if (
+        accountType === "parent"
+    ) {
 
-                alert("❌ هذا الاشتراك غير مفعل");
+        accountCode =
+            localStorage.getItem(
+                "parentCode"
+            );
 
-                logoutStudent();
+        collectionName =
+            "parents";
 
-                return;
-            }
-
-
-            // ===============================
-            // التحقق من تاريخ الانتهاء
-            // ===============================
-
-            if (student.expiresAt) {
-
-                let expireDate;
+    }
 
 
-                // Firebase Timestamp
+    // ==================================
+    // حساب الطالب
+    // ==================================
 
-                if (
-                    typeof student.expiresAt.toDate === "function"
-                ) {
+    else {
 
-                    expireDate =
-                        student.expiresAt.toDate();
+        accountCode =
+            localStorage.getItem(
+                "studentCode"
+            );
 
-                }
+        collectionName =
+            "students";
 
-                // تاريخ نصي
-
-                else {
-
-                    expireDate =
-                        new Date(student.expiresAt);
-
-                }
+    }
 
 
-                // تاريخ غير صحيح
+    // ==================================
+    // لا توجد جلسة
+    // ==================================
 
-                if (isNaN(expireDate.getTime())) {
+    if (!accountCode) {
 
-                    console.error(
-                        "تاريخ انتهاء غير صحيح:",
-                        student.expiresAt
-                    );
+        redirectToLogin(
+            "⛔ لا توجد جلسة تسجيل دخول."
+        );
 
-                    return;
-                }
+        return;
 
-
-                const now = new Date();
-
-
-                // الاشتراك منتهي
-
-                if (now >= expireDate) {
-
-                    alert(
-                        "❌ انتهى اشتراكك.\n\nيرجى تجديد الاشتراك."
-                    );
-
-                    logoutStudent();
-
-                    return;
-                }
-
-            }
+    }
 
 
-            // ===============================
-            // حفظ بيانات الطالب
-            // ===============================
+    // ==================================
+    // التأكد من Firebase
+    // ==================================
+
+    if (
+        typeof db === "undefined"
+    ) {
+
+        console.error(
+            "❌ Auth: Firebase DB غير متاح."
+        );
+
+        /*
+         * لا نعمل Logout.
+         *
+         * لو Firebase لم يتم تحميله بعد،
+         * الصفحة لا يجب أن تمسح الجلسة.
+         */
+
+        return;
+
+    }
+
+
+    // ==================================
+    // التحقق من الحساب في Firestore
+    // ==================================
+
+    db.collection(
+        collectionName
+    )
+    .doc(
+        accountCode
+    )
+    .get()
+
+    .then(function (doc) {
+
+        // ==================================
+        // الحساب غير موجود
+        // ==================================
+
+        if (
+            !doc.exists
+        ) {
+
+            console.error(
+                "❌ Auth: الحساب غير موجود.",
+                accountCode
+            );
+
+
+            /*
+             * الحساب غير موجود فعليًا.
+             * هنا فقط ننهي الجلسة.
+             */
+
+            logoutSession(
+                "❌ لم يتم العثور على بيانات حسابك."
+            );
+
+            return;
+
+        }
+
+
+        // ==================================
+        // بيانات الحساب
+        // ==================================
+
+        const account =
+            doc.data();
+
+
+        // ==================================
+        // التحقق من حالة الحساب
+        // ==================================
+
+        if (
+            account.active !== true
+        ) {
+
+            logoutSession(
+                "⛔ تم إيقاف حسابك من الإدارة."
+            );
+
+            return;
+
+        }
+
+
+        // ==================================
+        // حفظ بيانات الطالب
+        // ==================================
+
+        if (
+            accountType !== "parent"
+        ) {
 
             localStorage.setItem(
                 "studentName",
-                student.name || ""
+                account.name || ""
             );
 
             localStorage.setItem(
                 "studentGrade",
-                student.grade || ""
+                account.grade || ""
+            );
+
+        }
+
+
+        // ==================================
+        // حفظ بيانات ولي الأمر
+        // ==================================
+
+        if (
+            accountType === "parent"
+        ) {
+
+            localStorage.setItem(
+                "parentName",
+                account.name || ""
+            );
+
+        }
+
+
+        // ==================================
+        // ملاحظة مهمة:
+        //
+        // لا نتحقق من expiresAt هنا.
+        //
+        // Subscription Guard هو المسؤول
+        // عن الاشتراك.
+        // ==================================
+
+
+        // ==================================
+        // التحقق من الجهاز
+        // ==================================
+
+        const deviceId =
+            localStorage.getItem(
+                "deviceId"
             );
 
 
-            // ===============================
-            // التحقق من الجهاز
-            // ===============================
+        // ==================================
+        // الجهاز غير موجود محليًا
+        // ==================================
 
-            const deviceId =
-                localStorage.getItem("deviceId");
+        if (
+            !deviceId
+        ) {
 
-
-            if (
-                student.deviceId &&
-                student.deviceId !== "null" &&
-                student.deviceId !== "" &&
-                deviceId &&
-                student.deviceId !== deviceId
-            ) {
-
-                alert(
-                    "❌ هذا الاشتراك مستخدم على جهاز آخر."
-                );
-
-                logoutStudent();
-
-                return;
-            }
-
-
-            console.log(
-                "✅ تم التحقق من الاشتراك:",
-                studentCode
+            console.warn(
+                "⚠️ Auth: deviceId غير موجود على الجهاز."
             );
 
-        })
+            /*
+             * لا نعمل Logout هنا.
+             *
+             * لأن deviceId قد يتم إنشاؤه
+             * في login.js أو ملف آخر.
+             */
+
+        }
 
 
-        .catch(function (error) {
+        // ==================================
+        // الجهاز مربوط بحساب آخر
+        // ==================================
 
-            console.error(
-                "Subscription Check Error:",
-                error
+        if (
+            account.deviceId &&
+            account.deviceId !== "null" &&
+            account.deviceId !== "" &&
+            deviceId &&
+            account.deviceId !== deviceId
+        ) {
+
+            logoutSession(
+                "❌ هذا الحساب مرتبط بجهاز آخر."
             );
+
+            return;
+
+        }
+
+
+        // ==================================
+        // الجلسة سليمة
+        // ==================================
+
+        console.log(
+            "✅ Auth: تم التحقق من جلسة الحساب.",
+            accountCode
+        );
+
+    })
+
+    .catch(function (error) {
+
+        // ==================================
+        // خطأ في Firestore
+        // ==================================
+
+        console.error(
+            "⚠️ Auth Firestore Error:",
+            error
+        );
+
+
+        /*
+         * مهم جدًا:
+         *
+         * لا Logout عند حدوث خطأ اتصال.
+         *
+         * لأن الخطأ قد يكون:
+         *
+         * - انقطاع الإنترنت
+         * - Firebase غير متاح مؤقتًا
+         * - Timeout
+         * - مشكلة شبكة
+         *
+         * والجلسة المحلية تظل محفوظة.
+         */
+
+    });
+
+
+    // ==================================
+    // تسجيل الخروج المحلي
+    // ==================================
+
+    function logoutSession(message) {
+
+        // ==================================
+        // مسح بيانات الجلسة فقط
+        // ==================================
+
+        localStorage.removeItem(
+            "studentCode"
+        );
+
+        localStorage.removeItem(
+            "studentName"
+        );
+
+        localStorage.removeItem(
+            "studentGrade"
+        );
+
+        localStorage.removeItem(
+            "parentCode"
+        );
+
+        localStorage.removeItem(
+            "parentName"
+        );
+
+        localStorage.removeItem(
+            "accountType"
+        );
+
+        localStorage.removeItem(
+            "subscriptionExpiresAt"
+        );
+
+
+        // ==================================
+        // مهم جدًا:
+        //
+        // لا نحذف deviceId
+        // ==================================
+
+
+        // ==================================
+        // رسالة للمستخدم
+        // ==================================
+
+        if (message) {
 
             alert(
-                "❌ حدث خطأ في التحقق من الاشتراك.\n\n" +
-                error.message
+                message
             );
 
-        });
+        }
 
 
-    // ===============================
-    // تسجيل خروج الطالب
-    // ===============================
+        // ==================================
+        // العودة إلى Login
+        // ==================================
 
-    function logoutStudent() {
+        window.location.replace(
+            "login.html"
+        );
 
-        localStorage.removeItem("studentCode");
+    }
 
-        localStorage.removeItem("studentName");
 
-        localStorage.removeItem("studentGrade");
+    // ==================================
+    // تحويل إلى Login
+    // ==================================
 
-        window.location.href = "login.html";
+    function redirectToLogin(message) {
+
+        if (message) {
+
+            alert(
+                message
+            );
+
+        }
+
+
+        window.location.replace(
+            "login.html"
+        );
+
     }
 
 })();

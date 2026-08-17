@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Finance Login | بوابة التمريض</title>
+
+    <link rel="stylesheet" href="finance.css">
+
+    <link rel="icon"
+          type="image/png"
+          href="../favicon-32.png">
+</head>
+
+<body class="finance-login-page">
+
+    <div class="login-wrapper">
+
+        <div class="login-card">
+
+            <div class="finance-logo">
+                💰
+            </div>
+
+            <h1>الحسابات المالية</h1>
+
+            <p class="login-subtitle">
+                نظام الإدارة المالية الخاص
+            </p>
+
+            <form id="financeLoginForm">
+
+                <div class="input-group">
+
+                    <label for="email">
+                        البريد الإلكتروني
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        autocomplete="username"
+                        placeholder="أدخل البريد الإلكتروني"
+                        required
+                    >
+
+                </div>
+
+                <div class="input-group">
+
+                    <label for="password">
+                        كلمة المرور
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        autocomplete="current-password"
+                        placeholder="أدخل كلمة المرور"
+                        required
+                    >
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="loginBtn"
+                    class="finance-btn primary-btn">
+
+                    <span id="loginBtnText">
+                        تسجيل الدخول
+                    </span>
+
+                    <span
+                        id="loginLoader"
+                        class="btn-loader hidden">
+                    </span>
+
+                </button>
+
+            </form>
+
+            <div
+                id="loginError"
+                class="login-error hidden">
+            </div>
+
+            <div class="security-note">
+                🔒 هذه الصفحة مخصصة للإدارة المالية فقط
+            </div>
+
+        </div>
+
+    </div>
+
+    <script type="module">
+
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+        import {
+            getAuth,
+            signInWithEmailAndPassword
+        } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+        import {
+            getFirestore,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+        // =====================================================
+        // FIREBASE CONFIG
+        // =====================================================
+
+        const firebaseConfig = {
+
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.firebasestorage.app",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+
+        };
+
+
+        // =====================================================
+        // INITIALIZE FIREBASE
+        // =====================================================
+
+        const app = initializeApp(firebaseConfig);
+
+        const auth = getAuth(app);
+
+        const db = getFirestore(app);
+
+
+        // =====================================================
+        // ELEMENTS
+        // =====================================================
+
+        const form =
+            document.getElementById("financeLoginForm");
+
+        const emailInput =
+            document.getElementById("email");
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const loginBtn =
+            document.getElementById("loginBtn");
+
+        const loginBtnText =
+            document.getElementById("loginBtnText");
+
+        const loginLoader =
+            document.getElementById("loginLoader");
+
+        const loginError =
+            document.getElementById("loginError");
+
+
+        // =====================================================
+        // ERROR MESSAGE
+        // =====================================================
+
+        function showError(message) {
+
+            loginError.textContent = message;
+
+            loginError.classList.remove("hidden");
+
+        }
+
+
+        function hideError() {
+
+            loginError.textContent = "";
+
+            loginError.classList.add("hidden");
+
+        }
+
+
+        // =====================================================
+        // LOADING
+        // =====================================================
+
+        function setLoading(isLoading) {
+
+            loginBtn.disabled = isLoading;
+
+            if (isLoading) {
+
+                loginBtnText.textContent =
+                    "جاري تسجيل الدخول...";
+
+                loginLoader.classList.remove("hidden");
+
+            } else {
+
+                loginBtnText.textContent =
+                    "تسجيل الدخول";
+
+                loginLoader.classList.add("hidden");
+
+            }
+
+        }
+
+
+        // =====================================================
+        // LOGIN
+        // =====================================================
+
+        form.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            hideError();
+
+            const email =
+                emailInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+            if (!email || !password) {
+
+                showError(
+                    "من فضلك أدخل البريد الإلكتروني وكلمة المرور."
+                );
+
+                return;
+
+            }
+
+            setLoading(true);
+
+            try {
+
+                const credential =
+                    await signInWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
+                    );
+
+                const uid =
+                    credential.user.uid;
+
+
+                // =================================================
+                // FINANCE ACCESS DOCUMENT
+                // =================================================
+
+                const financeUserRef =
+                    doc(
+                        db,
+                        "finance_users",
+                        uid
+                    );
+
+                const financeUserSnapshot =
+                    await getDoc(financeUserRef);
+
+
+                if (!financeUserSnapshot.exists()) {
+
+                    await auth.signOut();
+
+                    throw new Error(
+                        "ليس لديك صلاحية للوصول إلى النظام المالي."
+                    );
+
+                }
+
+
+                const financeUser =
+                    financeUserSnapshot.data();
+
+
+                if (
+                    financeUser.enabled !== true
+                ) {
+
+                    await auth.signOut();
+
+                    throw new Error(
+                        "تم تعطيل صلاحية الحساب المالي."
+                    );
+
+                }
+
+
+                // =================================================
+                // SUCCESS
+                // =================================================
+
+                sessionStorage.setItem(
+                    "finance_authenticated",
+                    "true"
+                );
+
+                window.location.href =
+                    "finance.html";
+
+
+            } catch (error) {
+
+                console.error(
+                    "Finance Login Error:",
+                    error
+                );
+
+                let message =
+                    "حدث خطأ أثناء تسجيل الدخول.";
+
+                switch (error.code) {
+
+                    case "auth/invalid-credential":
+
+                        message =
+                            "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+
+                        break;
+
+                    case "auth/user-disabled":
+
+                        message =
+                            "هذا الحساب تم تعطيله.";
+
+                        break;
+
+                    case "auth/too-many-requests":
+
+                        message =
+                            "تم إجراء محاولات كثيرة. حاول لاحقًا.";
+
+                        break;
+
+                    default:
+
+                        if (error.message) {
+
+                            message =
+                                error.message;
+
+                        }
+
+                }
+
+                showError(message);
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>

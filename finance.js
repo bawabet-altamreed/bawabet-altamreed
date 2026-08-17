@@ -34,14 +34,12 @@ import {
 // ============================================================
 
 const firebaseConfig = {
-
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.firebasestorage.app",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-
+    apiKey: "AIzaSyDLVKbfkhFsTGunLWEJmBN2eGg0tdqePyc",
+    authDomain: "bawabet-al-tamreed.firebaseapp.com",
+    projectId: "bawabet-al-tamreed",
+    storageBucket: "bawabet-al-tamreed.firebasestorage.app",
+    messagingSenderId: "668697400713",
+    appId: "1:668697400713:web:ec5611e587dc3d3c237d58"
 };
 
 

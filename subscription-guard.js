@@ -21,6 +21,36 @@ let subscriptionCheckTimer = null;
 
 
 // ==========================================
+// معرفة الصفحة الحالية
+// ==========================================
+
+function getCurrentPage() {
+
+    return window.location.pathname
+        .split("/")
+        .pop()
+        .toLowerCase();
+
+}
+
+
+// ==========================================
+// هل الصفحة صفحة الأدمن؟
+// ==========================================
+
+function isAdminPage() {
+
+    const currentPage =
+        getCurrentPage();
+
+    return (
+        currentPage === "admin.html"
+    );
+
+}
+
+
+// ==========================================
 // الحصول على كود الطالب
 // ==========================================
 
@@ -186,7 +216,7 @@ function isSubscriptionExpired(
 
 
 // ==========================================
-// مسح بيانات جلسة الطالب
+// مسح بيانات جلسة الطالب / ولي الأمر
 // ==========================================
 
 function clearStudentSession() {
@@ -285,7 +315,7 @@ function subscriptionLogout(
 
 
     // ======================================
-    // مسح الجلسة
+    // مسح جلسة الطالب / ولي الأمر
     // ======================================
 
     clearStudentSession();
@@ -343,7 +373,6 @@ function subscriptionLogout(
         })
         .finally(function() {
 
-
             // ==================================
             // رسالة للطالب
             // ==================================
@@ -371,13 +400,27 @@ function subscriptionLogout(
 
 
 // ==========================================
-// التحقق من اشتراك الطالب
+// التحقق من اشتراك الطالب / ولي الأمر
 // ==========================================
 
 function checkStudentSubscription() {
 
     // ======================================
-    // منع التحقق المتكرر أثناء Logout
+    // حماية إضافية
+    // الأدمن خارج Subscription Guard
+    // ======================================
+
+    if (
+        isAdminPage()
+    ) {
+
+        return;
+
+    }
+
+
+    // ======================================
+    // منع التحقق أثناء Logout
     // ======================================
 
     if (
@@ -398,15 +441,11 @@ function checkStudentSubscription() {
 
 
     // ======================================
-    // إذا كانت الصفحة Login
-    // لا نحتاج Guard
+    // صفحة Login لا تحتاج Guard
     // ======================================
 
     const currentPage =
-        window.location.pathname
-            .split("/")
-            .pop()
-            .toLowerCase();
+        getCurrentPage();
 
 
     if (
@@ -510,7 +549,6 @@ function checkStudentSubscription() {
     .get()
 
     .then(function(doc) {
-
 
         // ==================================
         // الحساب غير موجود
@@ -619,7 +657,24 @@ function checkStudentSubscription() {
 function startSubscriptionGuard() {
 
     // ======================================
-    // منع تشغيل النظام أكثر من مرة
+    // الأدمن خارج النظام تمامًا
+    // ======================================
+
+    if (
+        isAdminPage()
+    ) {
+
+        console.log(
+            "🛡️ Admin Page: Subscription Guard skipped."
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // منع التشغيل أكثر من مرة
     // ======================================
 
     if (
@@ -632,14 +687,11 @@ function startSubscriptionGuard() {
 
 
     // ======================================
-    // تجاهل صفحة Login
+    // تجاهل Login
     // ======================================
 
     const currentPage =
-        window.location.pathname
-            .split("/")
-            .pop()
-            .toLowerCase();
+        getCurrentPage();
 
 
     if (
@@ -688,6 +740,16 @@ document.addEventListener(
     "visibilitychange",
     function() {
 
+        // الأدمن لا يحتاج Subscription Guard
+        if (
+            isAdminPage()
+        ) {
+
+            return;
+
+        }
+
+
         if (
             document.visibilityState ===
             "visible"
@@ -708,6 +770,16 @@ document.addEventListener(
 window.addEventListener(
     "focus",
     function() {
+
+        // الأدمن لا يحتاج Subscription Guard
+        if (
+            isAdminPage()
+        ) {
+
+            return;
+
+        }
+
 
         checkStudentSubscription();
 

@@ -1,0 +1,1123 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary: #1d4ed8;
+    --primary-dark: #1e3a8a;
+
+    --bg: #f5f7fb;
+    --card: #ffffff;
+
+    --text: #172033;
+    --muted: #718096;
+
+    --border: #e5e7eb;
+
+    --success: #16a34a;
+    --danger: #dc2626;
+
+    --sidebar: #101827;
+
+    --radius: 16px;
+}
+
+body {
+    font-family:
+        "Cairo",
+        "Tahoma",
+        Arial,
+        sans-serif;
+
+    background: var(--bg);
+    color: var(--text);
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+.finance-login-page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        radial-gradient(
+            circle at top right,
+            #dbeafe,
+            transparent 40%
+        ),
+        var(--bg);
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 440px;
+}
+
+.login-card {
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: 24px;
+
+    padding: 38px 32px;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.08);
+}
+
+.finance-logo {
+    width: 72px;
+    height: 72px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 20px;
+
+    border-radius: 20px;
+
+    background: #eff6ff;
+
+    font-size: 34px;
+}
+
+.login-card h1 {
+    text-align: center;
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 30px;
+}
+
+
+/* =====================================================
+   INPUTS
+===================================================== */
+
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+    width: 100%;
+
+    border: 1px solid var(--border);
+
+    background: #fff;
+
+    border-radius: 10px;
+
+    padding: 13px 14px;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition: 0.2s;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(29, 78, 216, 0.08);
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.finance-btn {
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 12px 18px;
+
+    font-family: inherit;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.finance-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.primary-btn {
+    background: var(--primary);
+    color: white;
+}
+
+.primary-btn:hover {
+    background: var(--primary-dark);
+}
+
+.secondary-btn {
+    background: #eef2f7;
+    color: var(--text);
+}
+
+.login-card .primary-btn {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.login-error {
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+
+    color: var(--danger);
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    margin-top: 15px;
+
+    font-size: 13px;
+
+    text-align: center;
+}
+
+.security-note {
+    text-align: center;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    margin-top: 25px;
+}
+
+
+/* =====================================================
+   DASHBOARD LAYOUT
+===================================================== */
+
+.finance-dashboard-page {
+    min-height: 100vh;
+}
+
+.finance-sidebar {
+    position: fixed;
+
+    top: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 260px;
+
+    background: var(--sidebar);
+
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 100;
+}
+
+.sidebar-brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 25px 20px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.08);
+}
+
+.brand-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255,255,255,0.08);
+
+    border-radius: 14px;
+
+    font-size: 24px;
+}
+
+.sidebar-brand h2 {
+    font-size: 20px;
+}
+
+.sidebar-brand span {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.finance-nav {
+    padding: 20px 12px;
+}
+
+.nav-item {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    background: transparent;
+
+    color: #cbd5e1;
+
+    border: none;
+
+    padding: 13px 15px;
+
+    margin-bottom: 6px;
+
+    border-radius: 10px;
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    text-align: right;
+
+    font-size: 14px;
+
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: rgba(255,255,255,0.06);
+
+    color: white;
+}
+
+.nav-item.active {
+    background: var(--primary);
+
+    color: white;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+
+    padding: 15px;
+}
+
+.logout-btn {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid rgba(255,255,255,0.1);
+
+    background: transparent;
+
+    color: #cbd5e1;
+
+    border-radius: 10px;
+
+    font-family: inherit;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.finance-main {
+    margin-right: 260px;
+
+    min-height: 100vh;
+
+    padding: 28px;
+}
+
+.finance-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 25px;
+}
+
+.finance-header h1 {
+    font-size: 28px;
+}
+
+.finance-header p {
+    color: var(--muted);
+
+    margin-top: 4px;
+}
+
+.icon-btn {
+    width: 42px;
+    height: 42px;
+
+    border: 1px solid var(--border);
+
+    background: white;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   SECTIONS
+===================================================== */
+
+.finance-section {
+    display: none;
+}
+
+.finance-section.active {
+    display: block;
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+.filter-card {
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    padding: 15px 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.filter-title {
+    font-weight: 700;
+}
+
+.filter-card select {
+    border: 1px solid var(--border);
+
+    padding: 9px 12px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+}
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.finance-stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 18px;
+
+    margin-bottom: 18px;
+}
+
+.stat-card {
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    padding: 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    font-size: 24px;
+
+    background: #f1f5f9;
+}
+
+.stat-content span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    margin-bottom: 6px;
+}
+
+.stat-content strong {
+    font-size: 23px;
+}
+
+.profit-card .stat-content strong {
+    color: var(--success);
+}
+
+.margin-card .stat-content strong {
+    color: var(--primary);
+}
+
+
+/* =====================================================
+   MINI STATS
+===================================================== */
+
+.mini-stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 14px;
+
+    margin-bottom: 22px;
+}
+
+.mini-stat {
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+.mini-stat span {
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+.mini-stat strong {
+    font-size: 18px;
+}
+
+
+/* =====================================================
+   CHARTS
+===================================================== */
+
+.charts-grid {
+    display: grid;
+
+    grid-template-columns:
+        1.5fr 1fr;
+
+    gap: 18px;
+
+    margin-bottom: 20px;
+}
+
+.chart-card,
+.table-card {
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    padding: 20px;
+}
+
+.chart-header,
+.table-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.chart-header h3,
+.table-header h3 {
+    font-size: 17px;
+}
+
+.chart-header span,
+.table-header span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    margin-top: 4px;
+}
+
+.chart-container {
+    min-height: 260px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+.chart-placeholder {
+    color: var(--muted);
+}
+
+
+/* =====================================================
+   BREAKDOWN
+===================================================== */
+
+.breakdown-container {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+.breakdown-item {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+.breakdown-label {
+    font-size: 13px;
+}
+
+.breakdown-value {
+    font-weight: 700;
+}
+
+.breakdown-bar {
+    height: 7px;
+
+    background: #eef2f7;
+
+    border-radius: 20px;
+
+    margin-top: 7px;
+
+    overflow: hidden;
+}
+
+.breakdown-bar span {
+    display: block;
+
+    height: 100%;
+
+    background: var(--primary);
+
+    border-radius: inherit;
+}
+
+
+/* =====================================================
+   TABLES
+===================================================== */
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 14px;
+
+    text-align: right;
+
+    border-bottom:
+        1px solid var(--border);
+
+    font-size: 13px;
+}
+
+th {
+    color: var(--muted);
+
+    font-weight: 700;
+}
+
+td {
+    color: var(--text);
+}
+
+.small-btn {
+    border: none;
+
+    background: #eff6ff;
+
+    color: var(--primary);
+
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-family: inherit;
+}
+
+.transactions-list {
+    color: var(--muted);
+
+    text-align: center;
+
+    padding: 30px;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.section-toolbar {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.section-toolbar h2 {
+    font-size: 23px;
+}
+
+.section-toolbar p {
+    color: var(--muted);
+
+    font-size: 13px;
+
+    margin-top: 4px;
+}
+
+
+/* =====================================================
+   REPORTS
+===================================================== */
+
+.report-cards {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 18px;
+}
+
+.report-card {
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    padding: 22px;
+}
+
+.report-card span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    margin-bottom: 10px;
+}
+
+.report-card strong {
+    font-size: 20px;
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(15, 23, 42, 0.55);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 500;
+}
+
+.modal {
+    width: 100%;
+
+    max-width: 600px;
+
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 25px;
+}
+
+.modal-header h2 {
+    font-size: 21px;
+}
+
+.modal-header p {
+    color: var(--muted);
+
+    font-size: 12px;
+
+    margin-top: 4px;
+}
+
+.modal-close {
+    width: 35px;
+    height: 35px;
+
+    border: none;
+
+    background: #f1f5f9;
+
+    border-radius: 8px;
+
+    font-size: 22px;
+
+    cursor: pointer;
+}
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 15px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.modal-actions {
+    display: flex;
+
+    justify-content: flex-start;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+.toast-container {
+    position: fixed;
+
+    bottom: 20px;
+    left: 20px;
+
+    z-index: 1000;
+}
+
+.toast {
+    background: #111827;
+
+    color: white;
+
+    padding: 13px 18px;
+
+    border-radius: 10px;
+
+    margin-top: 8px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.15);
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+.hidden {
+    display: none !important;
+}
+
+.btn-loader {
+    display: inline-block;
+
+    width: 17px;
+    height: 17px;
+
+    border: 2px solid rgba(255,255,255,0.4);
+
+    border-top-color: white;
+
+    border-radius: 50%;
+
+    animation:
+        spin 0.7s linear infinite;
+
+    vertical-align: middle;
+}
+
+@keyframes spin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 1100px) {
+
+    .finance-stats-grid,
+    .report-cards {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+    .mini-stats-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+    .charts-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .finance-sidebar {
+
+        width: 70px;
+
+    }
+
+    .sidebar-brand {
+
+        justify-content: center;
+
+        padding: 15px 5px;
+
+    }
+
+    .sidebar-brand > div:last-child,
+    .nav-item span {
+
+        display: none;
+
+    }
+
+    .nav-item {
+
+        justify-content: center;
+
+        padding: 14px 5px;
+
+    }
+
+    .finance-main {
+
+        margin-right: 70px;
+
+        padding: 18px;
+
+    }
+
+    .finance-header h1 {
+
+        font-size: 22px;
+
+    }
+
+    .finance-stats-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .mini-stats-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+    .section-toolbar {
+
+        align-items: flex-start;
+
+        gap: 15px;
+
+    }
+
+    .form-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .full-width {
+
+        grid-column: auto;
+
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    .mini-stats-grid,
+    .report-cards {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .finance-main {
+
+        padding: 12px;
+
+    }
+
+    .stat-card {
+
+        padding: 17px;
+
+    }
+
+    .filter-card {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+    }
+
+}
